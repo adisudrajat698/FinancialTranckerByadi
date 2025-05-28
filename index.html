@@ -6,6 +6,7 @@
     <title>Catat Keuangan Pribadi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom CSS untuk font dan warna */
         body {
@@ -296,10 +297,11 @@
         <div class="text-2xl font-bold mb-8 text-center">KeuanganKu</div>
         <nav class="flex-grow">
             <ul class="space-y-2">
-                <li><a href="#" class="sidebar-item" data-section="dashboard">Dashboard</a></li>
-                <li><a href="#" class="sidebar-item" data-section="transactions">Transaksi</a></li>
-                <li><a href="#" class="sidebar-item" data-section="reports">Laporan</a></li>
-                <li><a href="#" class="sidebar-item" data-section="settings">Pengaturan</a></li>
+                <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard">Dashboard</a></li>
+                <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions">Transaksi</a></li>
+                <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports">Laporan</a></li>
+                <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings">Pengaturan</a></li>
+                <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin">Admin</a></li>
             </ul>
         </nav>
         <div class="mt-auto">
@@ -339,6 +341,7 @@
 
             <section id="dashboardSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
+                <p class="text-xl text-gray-700 mb-6">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-6 text-center">
                         <h3 class="text-lg font-medium text-gray-600">Saldo Saat Ini</h3>
@@ -487,6 +490,22 @@
                         <p class="text-lg">Total Pengeluaran: <span id="reportTotalExpense" class="font-semibold text-expense">Rp 0</span></p>
                         <p class="text-lg">Saldo Bersih: <span id="reportNetBalance" class="font-semibold">Rp 0</span></p>
                     </div>
+
+                    <h4 class="text-xl font-bold mt-8 mb-4">Grafik Pemasukan dan Pengeluaran Bulanan</h4>
+                    <div class="relative h-64">
+                        <canvas id="monthlySummaryChart"></canvas>
+                    </div>
+
+                    <h4 class="text-xl font-bold mt-8 mb-4">Pengeluaran per Kategori (Grafik Lingkaran)</h4>
+                    <div class="relative h-64">
+                        <canvas id="expenseByCategoryChart"></canvas>
+                    </div>
+
+                    <h4 class="text-xl font-bold mt-8 mb-4">Pemasukan per Kategori (Grafik Lingkaran)</h4>
+                    <div class="relative h-64">
+                        <canvas id="incomeByCategoryChart"></canvas>
+                    </div>
+
                     <h4 class="text-xl font-bold mt-8 mb-4">Pengeluaran per Kategori</h4>
                     <div id="reportExpenseByCategory" class="space-y-3">
                         <p class="text-gray-500 text-center">Belum ada data pengeluaran per kategori.</p>
@@ -541,7 +560,17 @@
                     <button id="exportDataBtn" class="btn-primary font-semibold">Ekspor Transaksi ke CSV</button>
                 </div>
             </section>
-        </main>
+
+            <section id="adminSection" class="hidden">
+                <h2 class="text-3xl font-bold mb-6">Panel Admin</h2>
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4">Kelola Pengguna</h3>
+                    <div id="userList" class="space-y-2">
+                        <p class="text-gray-500 text-center">Tidak ada pengguna lain.</p>
+                    </div>
+                </div>
+            </section>
+            </main>
 
         <footer class="bg-gray-800 text-white text-center p-4 text-sm mt-auto">
             &copy; 2025 by Adi Sudrajat. All rights reserved.
@@ -612,6 +641,7 @@
         const toggleAuthModeBtn = document.getElementById('toggleAuthMode');
 
         const dashboardSection = document.getElementById('dashboardSection');
+        const dashboardUsernameEl = document.getElementById('dashboardUsername'); // New element for username
         const currentBalanceEl = document.getElementById('currentBalance');
         const totalIncomeEl = document.getElementById('totalIncome');
         const totalExpenseEl = document.getElementById('totalExpense');
@@ -646,6 +676,16 @@
         const reportIncomeByCategory = document.getElementById('reportIncomeByCategory');
         const reportTransactionsListEl = document.getElementById('reportTransactionsList');
 
+        // New Chart.js canvas elements
+        const monthlySummaryChartCanvas = document.getElementById('monthlySummaryChart');
+        const expenseByCategoryChartCanvas = document.getElementById('expenseByCategoryChart');
+        const incomeByCategoryChartCanvas = document.getElementById('incomeByCategoryChart');
+
+        let monthlySummaryChartInstance = null; // To store Chart.js instance for monthly summary
+        let expenseByCategoryChartInstance = null; // To store Chart.js instance for expense by category
+        let incomeByCategoryChartInstance = null; // To store Chart.js instance for income by category
+
+
         const settingsSection = document.getElementById('settingsSection');
         const changePasswordForm = document.getElementById('changePasswordForm');
         const currentPasswordInput = document.getElementById('currentPassword');
@@ -656,6 +696,18 @@
         const newCategoryNameInput = document.getElementById('newCategoryName');
         const categoryListEl = document.getElementById('categoryList');
         const exportDataBtn = document.getElementById('exportDataBtn');
+
+        // Admin section elements
+        const adminSidebarItem = document.getElementById('adminSidebarItem');
+        const adminSection = document.getElementById('adminSection');
+        const userListEl = document.getElementById('userList');
+
+        // Specific sidebar items to hide/show
+        const dashboardSidebarItem = document.getElementById('dashboardSidebarItem');
+        const transactionsSidebarItem = document.getElementById('transactionsSidebarItem');
+        const reportsSidebarItem = document.getElementById('reportsSidebarItem');
+        const settingsSidebarItem = document.getElementById('settingsSidebarItem');
+
 
         const sidebarItems = document.querySelectorAll('.sidebar-item');
 
@@ -688,6 +740,10 @@
         const transactionsPerPage = 10;
         let currentPage = 1;
         let filteredTransactions = []; // To store transactions after search/filter for pagination
+
+        // Super Admin Credentials (for demonstration purposes)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
 
         // --- Utility Functions ---
 
@@ -741,845 +797,5 @@
             if (loggedInUser && users[loggedInUser]) {
                 isLoggedIn = true;
                 currentUser = loggedInUser;
-                showSection('dashboardSection');
-            } else {
-                isLoggedIn = false;
-                currentUser = null;
-                showSection('authSection');
-            }
-            updateUIBasedOnAuth();
-        }
-
-        function updateUIBasedOnAuth() {
-            if (isLoggedIn) {
-                authSection.classList.add('hidden');
-                sidebar.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-                // Ensure sidebar is open on desktop, hidden on mobile initially
-                if (window.innerWidth < 768) {
-                    sidebar.classList.remove('open');
-                } else {
-                    sidebar.classList.add('open');
-                }
-            } else {
-                authSection.classList.remove('hidden');
-                sidebar.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-                // Hide all other sections
-                document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
-                    section.classList.add('hidden');
-                });
-            }
-        }
-
-        function handleAuth(event) {
-            event.preventDefault();
-            authMessage.classList.add('hidden'); // Hide previous message immediately
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            let users = getLocalStorage('users') || {};
-
-            if (!username || !password) {
-                showMessage(authMessage, 'Username dan password tidak boleh kosong.', true);
-                showNotification('Username dan password tidak boleh kosong.', 'error');
-                return;
-            }
-
-            if (authMode === 'register') {
-                if (users[username]) {
-                    showMessage(authMessage, 'Username sudah terdaftar. Silakan gunakan username lain.', true);
-                    showNotification('Username sudah terdaftar. Silakan gunakan username lain.', 'error');
-                } else {
-                    users[username] = { password: password, transactions: [], categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'] }; // Default categories
-                    setLocalStorage('users', users);
-                    showMessage(authMessage, 'Registrasi berhasil! Silakan login.', false);
-                    showNotification('Registrasi berhasil! Silakan login.', 'success');
-                    // Switch to login mode after successful registration
-                    authMode = 'login';
-                    authTitle.textContent = 'Login';
-                    authSubmitBtn.textContent = 'Login';
-                    toggleAuthModeBtn.textContent = 'Daftar di sini';
-                    usernameInput.value = ''; // Clear fields after successful registration
-                    passwordInput.value = ''; // Clear fields after successful registration
-                }
-            } else { // Login mode
-                if (users[username] && users[username].password === password) {
-                    setLocalStorage('loggedInUser', username);
-                    isLoggedIn = true;
-                    currentUser = username;
-                    showMessage(authMessage, 'Login berhasil!', false);
-                    showNotification('Login berhasil!', 'success');
-                    showSection('dashboardSection');
-                    updateUIBasedOnAuth();
-                } else {
-                    showMessage(authMessage, 'Username atau password salah.', true);
-                    showNotification('Username atau password salah.', 'error');
-                }
-            }
-        }
-
-        function handleLogout() {
-            setLocalStorage('loggedInUser', null);
-            isLoggedIn = false;
-            currentUser = null;
-            showMessage(authMessage, 'Anda telah logout.', false);
-            showNotification('Anda telah logout.', 'success');
-            showSection('authSection');
-            updateUIBasedOnAuth();
-            // Reset form fields
-            usernameInput.value = '';
-            passwordInput.value = '';
-        }
-
-        // --- Section Management ---
-
-        function showSection(sectionId) {
-            document.querySelectorAll('main > section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            document.getElementById(sectionId).classList.remove('hidden');
-
-            // Update active sidebar item
-            sidebarItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.section + 'Section' === sectionId) {
-                    item.classList.add('active');
-                }
-            });
-
-            // Close sidebar on mobile after navigating
-            if (window.innerWidth < 768) {
-                sidebar.classList.remove('open');
-            }
-
-            // Update data for the displayed section
-            if (sectionId === 'dashboardSection') {
-                renderDashboard();
-            } else if (sectionId === 'transactionsSection') {
-                renderCategoryOptions(transactionCategoryInput); // Populate categories for new transaction form
-                currentPage = 1; // Reset pagination
-                renderTransactions();
-            } else if (sectionId === 'reportsSection') {
-                populateReportYears();
-                renderReports();
-            } else if (sectionId === 'settingsSection') {
-                renderManageCategories();
-            }
-        }
-
-        // --- Transaction Management ---
-
-        function getUserData() {
-            const users = getLocalStorage('users') || {};
-            return users[currentUser] || { transactions: [], categories: [] };
-        }
-
-        function saveUserData(data) {
-            let users = getLocalStorage('users') || {};
-            if (users[currentUser]) {
-                users[currentUser] = data;
-                setLocalStorage('users', users);
-            }
-        }
-
-        function getUserTransactions() {
-            return getUserData().transactions;
-        }
-
-        function saveUserTransactions(transactions) {
-            let userData = getUserData();
-            userData.transactions = transactions;
-            saveUserData(userData);
-        }
-
-        function addTransaction(event) {
-            event.preventDefault();
-            const date = transactionDateInput.value;
-            const description = transactionDescriptionInput.value.trim();
-            const amount = parseFloat(transactionAmountInput.value);
-            const type = transactionTypeInput.value;
-            const category = transactionCategoryInput.value;
-
-            if (!date || !description || isNaN(amount) || amount <= 0 || !category) {
-                showMessage(authMessage, 'Semua field harus diisi dengan benar.');
-                showNotification('Semua field harus diisi dengan benar.', 'error');
-                return;
-            }
-
-            const newTransaction = {
-                id: Date.now(), // Unique ID for each transaction
-                date: date,
-                description: description,
-                amount: amount,
-                type: type,
-                category: category
-            };
-
-            const transactions = getUserTransactions();
-            transactions.push(newTransaction);
-            saveUserTransactions(transactions);
-
-            showMessage(authMessage, 'Transaksi berhasil ditambahkan!', false);
-            showNotification('Transaksi berhasil ditambahkan!', 'success');
-            transactionForm.reset(); // Clear form
-            const today = new Date().toISOString().split('T')[0];
-            transactionDateInput.value = today; // Reset date to today
-            renderDashboard();
-            currentPage = 1; // Reset pagination on new transaction
-            renderTransactions();
-            renderReports();
-        }
-
-        function deleteTransaction(id) {
-            confirmAction('Apakah Anda yakin ingin menghapus transaksi ini?', () => {
-                let transactions = getUserTransactions();
-                transactions = transactions.filter(t => t.id !== id);
-                saveUserTransactions(transactions);
-                showMessage(authMessage, 'Transaksi berhasil dihapus!', false);
-                showNotification('Transaksi berhasil dihapus!', 'success');
-                renderDashboard();
-                currentPage = 1; // Reset pagination on delete
-                renderTransactions();
-                renderReports();
-            });
-        }
-
-        function editTransaction(id) {
-            const transactions = getUserTransactions();
-            const transactionToEdit = transactions.find(t => t.id === id);
-
-            if (transactionToEdit) {
-                editTransactionIdInput.value = transactionToEdit.id;
-                editTransactionDateInput.value = transactionToEdit.date;
-                editTransactionDescriptionInput.value = transactionToEdit.description;
-                editTransactionAmountInput.value = transactionToEdit.amount;
-                editTransactionTypeInput.value = transactionToEdit.type;
-                renderCategoryOptions(editTransactionCategoryInput); // Populate categories for edit form
-                editTransactionCategoryInput.value = transactionToEdit.category;
-
-                showEditTransactionModal();
-            }
-        }
-
-        function updateTransaction(event) {
-            event.preventDefault();
-            const id = parseInt(editTransactionIdInput.value);
-            const date = editTransactionDateInput.value;
-            const description = editTransactionDescriptionInput.value.trim();
-            const amount = parseFloat(editTransactionAmountInput.value);
-            const type = editTransactionTypeInput.value;
-            const category = editTransactionCategoryInput.value;
-
-            if (!date || !description || isNaN(amount) || amount <= 0 || !category) {
-                showMessage(authMessage, 'Semua field harus diisi dengan benar.');
-                showNotification('Semua field harus diisi dengan benar.', 'error');
-                return;
-            }
-
-            let transactions = getUserTransactions();
-            const index = transactions.findIndex(t => t.id === id);
-
-            if (index !== -1) {
-                transactions[index] = { id, date, description, amount, type, category };
-                saveUserTransactions(transactions);
-                showMessage(authMessage, 'Transaksi berhasil diperbarui!', false);
-                showNotification('Transaksi berhasil diperbarui!', 'success');
-                hideEditTransactionModal();
-                renderDashboard();
-                renderTransactions();
-                renderReports();
-            }
-        }
-
-        // --- Category Management ---
-
-        function getUserCategories() {
-            return getUserData().categories;
-        }
-
-        function saveUserCategories(categories) {
-            let userData = getUserData();
-            userData.categories = categories;
-            saveUserData(userData);
-        }
-
-        function renderCategoryOptions(selectElement) {
-            const categories = getUserCategories();
-            selectElement.innerHTML = ''; // Clear existing options
-            if (categories.length === 0) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Tidak ada kategori';
-                selectElement.appendChild(option);
-                selectElement.disabled = true;
-                return;
-            }
-            selectElement.disabled = false;
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                selectElement.appendChild(option);
-            });
-        }
-
-        function addCategory(event) {
-            event.preventDefault();
-            const newCategory = newCategoryNameInput.value.trim();
-            if (!newCategory) {
-                showMessage(passwordMessageEl, 'Nama kategori tidak boleh kosong.', true);
-                showNotification('Nama kategori tidak boleh kosong.', 'error');
-                return;
-            }
-
-            let categories = getUserCategories();
-            if (categories.includes(newCategory)) {
-                showMessage(passwordMessageEl, 'Kategori ini sudah ada.', true);
-                showNotification('Kategori ini sudah ada.', 'error');
-                return;
-            }
-
-            categories.push(newCategory);
-            saveUserCategories(categories);
-            showMessage(passwordMessageEl, 'Kategori berhasil ditambahkan!', false);
-            showNotification('Kategori berhasil ditambahkan!', 'success');
-            newCategoryNameInput.value = '';
-            renderManageCategories(); // Re-render category list in settings
-            renderCategoryOptions(transactionCategoryInput); // Update transaction form categories
-            renderCategoryOptions(editTransactionCategoryInput); // Update edit form categories
-        }
-
-        function deleteCategory(categoryToDelete) {
-            confirmAction(`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete}"? Transaksi yang terkait tidak akan terhapus, tetapi kategorinya akan dialihkan ke 'Lain-lain'.`, () => {
-                let categories = getUserCategories();
-                categories = categories.filter(cat => cat !== categoryToDelete);
-                saveUserCategories(categories);
-
-                // Update transactions that used this category
-                let transactions = getUserTransactions();
-                transactions.forEach(t => {
-                    if (t.category === categoryToDelete) {
-                        t.category = 'Lain-lain'; // Assign to a default or 'Uncategorized'
-                    }
-                });
-                saveUserTransactions(transactions);
-
-                showMessage(passwordMessageEl, 'Kategori berhasil dihapus!', false);
-                showNotification('Kategori berhasil dihapus!', 'success');
-                renderManageCategories();
-                renderCategoryOptions(transactionCategoryInput);
-                renderCategoryOptions(editTransactionCategoryInput);
-                renderTransactions(); // Re-render to reflect category changes
-                renderReports();
-                renderDashboard(); // Re-render dashboard for category summary
-            });
-        }
-
-        function renderManageCategories() {
-            const categories = getUserCategories();
-            categoryListEl.innerHTML = '';
-            if (categories.length === 0) {
-                categoryListEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada kategori.</p>';
-            } else {
-                categories.forEach(cat => {
-                    const categoryDiv = document.createElement('div');
-                    categoryDiv.className = 'flex items-center justify-between p-2 rounded-md bg-gray-50 border border-gray-200';
-                    categoryDiv.innerHTML = `
-                        <span class="font-medium">${cat}</span>
-                        <button class="btn-danger text-xs px-2 py-1" onclick="deleteCategory('${cat}')">Hapus</button>
-                    `;
-                    categoryListEl.appendChild(categoryDiv);
-                });
-            }
-        }
-
-        // --- Password Change ---
-
-        function handleChangePassword(event) {
-            event.preventDefault();
-            const currentPass = currentPasswordInput.value;
-            const newPass = newPasswordInput.value;
-            const confirmNewPass = confirmNewPasswordInput.value;
-
-            let users = getLocalStorage('users') || {};
-            const userData = users[currentUser];
-
-            if (!currentPass || !newPass || !confirmNewPass) {
-                showMessage(passwordMessageEl, 'Semua field harus diisi.', true);
-                showNotification('Semua field harus diisi.', 'error');
-                return;
-            }
-
-            if (userData.password !== currentPass) {
-                showMessage(passwordMessageEl, 'Kata sandi saat ini salah.', true);
-                showNotification('Kata sandi saat ini salah.', 'error');
-                return;
-            }
-
-            if (newPass !== confirmNewPass) {
-                showMessage(passwordMessageEl, 'Kata sandi baru tidak cocok dengan konfirmasi.', true);
-                showNotification('Kata sandi baru tidak cocok dengan konfirmasi.', 'error');
-                return;
-            }
-
-            if (newPass.length < 6) {
-                showMessage(passwordMessageEl, 'Kata sandi baru minimal 6 karakter.', true);
-                showNotification('Kata sandi baru minimal 6 karakter.', 'error');
-                return;
-            }
-
-            userData.password = newPass;
-            setLocalStorage('users', users);
-            showMessage(passwordMessageEl, 'Kata sandi berhasil diubah!', false);
-            showNotification('Kata sandi berhasil diubah!', 'success');
-            changePasswordForm.reset();
-        }
-
-        // --- Data Export ---
-        function exportTransactionsToCSV() {
-            const transactions = getUserTransactions();
-            if (transactions.length === 0) {
-                showMessage(passwordMessageEl, 'Tidak ada transaksi untuk diekspor.', true);
-                showNotification('Tidak ada transaksi untuk diekspor.', 'error');
-                return;
-            }
-
-            const headers = ["ID", "Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
-            const csvRows = [];
-            csvRows.push(headers.join(','));
-
-            transactions.forEach(t => {
-                const row = [
-                    t.id,
-                    t.date,
-                    `"${t.description.replace(/"/g, '""')}"`, // Handle commas and quotes in description
-                    t.amount,
-                    t.type,
-                    `"${t.category.replace(/"/g, '""')}"`
-                ];
-                csvRows.push(row.join(','));
-            });
-
-            const csvString = csvRows.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `transaksi_keuanganku_${currentUser}_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showMessage(passwordMessageEl, 'Data berhasil diekspor!', false);
-            showNotification('Data berhasil diekspor!', 'success');
-        }
-
-        // --- Render Functions ---
-
-        function renderDashboard() {
-            const transactions = getUserTransactions();
-            let totalIncome = 0;
-            let totalExpense = 0;
-            const expenseCategories = {};
-            const incomeCategories = {};
-
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                    incomeCategories[t.category] = (incomeCategories[t.category] || 0) + t.amount;
-                } else {
-                    totalExpense += t.amount;
-                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
-                }
-            });
-
-            const currentBalance = totalIncome - totalExpense;
-
-            currentBalanceEl.textContent = formatRupiah(currentBalance);
-            totalIncomeEl.textContent = formatRupiah(totalIncome);
-            totalExpenseEl.textContent = formatRupiah(totalExpense);
-
-            // Render Income/Expense Chart
-            renderIncomeExpenseChart(totalIncome, totalExpense);
-
-            // Render Expense by Category Summary
-            renderCategorySummary(expenseByCategorySummary, expenseCategories, 'expense');
-
-            // Display latest 5 transactions
-            const latest = transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5); // Sort by date, get newest 5
-            latestTransactionsEl.innerHTML = '';
-            if (latest.length === 0) {
-                latestTransactionsEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi.</p>';
-            } else {
-                latest.forEach(t => {
-                    const transactionDiv = document.createElement('div');
-                    transactionDiv.className = `flex items-center justify-between p-3 rounded-lg ${t.type === 'income' ? 'bg-green-50' : 'bg-red-50'}`;
-                    transactionDiv.innerHTML = `
-                        <div>
-                            <p class="font-medium">${t.description}</p>
-                            <p class="text-xs text-gray-500">${t.date} - ${t.category}</p>
-                        </div>
-                        <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</p>
-                    `;
-                    latestTransactionsEl.appendChild(transactionDiv);
-                });
-            }
-        }
-
-        function renderIncomeExpenseChart(income, expense) {
-            incomeExpenseChart.innerHTML = ''; // Clear previous chart
-            const total = income + expense;
-            let incomeHeight = 0;
-            let expenseHeight = 0;
-
-            if (total > 0) {
-                incomeHeight = (income / total) * 100;
-                expenseHeight = (expense / total) * 100;
-            }
-
-            const incomeBar = document.createElement('div');
-            incomeBar.className = 'chart-bar chart-bar-income';
-            incomeBar.style.height = `${incomeHeight}%`;
-            incomeBar.innerHTML = `<span>Pemasukan</span>`;
-
-            const expenseBar = document.createElement('div');
-            expenseBar.className = 'chart-bar chart-bar-expense';
-            expenseBar.style.height = `${expenseHeight}%`;
-            expenseBar.innerHTML = `<span>Pengeluaran</span>`;
-
-            incomeExpenseChart.appendChild(incomeBar);
-            incomeExpenseChart.appendChild(expenseBar);
-        }
-
-        function renderCategorySummary(element, categoryData, type) {
-            element.innerHTML = '';
-            const sortedCategories = Object.entries(categoryData).sort(([, a], [, b]) => b - a);
-
-            if (sortedCategories.length === 0) {
-                element.innerHTML = `<p class="text-gray-500 text-center">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
-                return;
-            }
-
-            sortedCategories.forEach(([category, amount]) => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center text-sm';
-                div.innerHTML = `
-                    <span>${category}</span>
-                    <span class="font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(amount)}</span>
-                `;
-                element.appendChild(div);
-            });
-        }
-
-        function renderTransactions() {
-            let transactions = getUserTransactions();
-
-            // Apply search filter
-            const searchTerm = transactionSearchInput.value.toLowerCase();
-            if (searchTerm) {
-                transactions = transactions.filter(t => t.description.toLowerCase().includes(searchTerm));
-            }
-
-            // Apply type filter
-            const filterType = filterTypeSelect.value;
-            if (filterType !== 'all') {
-                transactions = transactions.filter(t => t.type === filterType);
-            }
-
-            // Apply date range filter
-            const start = filterStartDate.value;
-            const end = filterEndDate.value;
-            if (start && end) {
-                transactions = transactions.filter(t => t.date >= start && t.date <= end);
-            } else if (start) {
-                transactions = transactions.filter(t => t.date >= start);
-            } else if (end) {
-                transactions = transactions.filter(t => t.date <= end);
-            }
-
-            // Apply sort
-            const sortBy = sortBySelect.value;
-            transactions.sort((a, b) => {
-                if (sortBy === 'dateDesc') return new Date(b.date) - new Date(a.date);
-                if (sortBy === 'dateAsc') return new Date(a.date) - new Date(b.date);
-                if (sortBy === 'amountDesc') return b.amount - a.amount;
-                if (sortBy === 'amountAsc') return a.amount - b.amount;
-                return 0;
-            });
-
-            filteredTransactions = transactions; // Store filtered transactions for pagination
-            updatePaginationControls();
-            const startIndex = (currentPage - 1) * transactionsPerPage;
-            const endIndex = startIndex + transactionsPerPage;
-            const transactionsToDisplay = filteredTransactions.slice(startIndex, endIndex);
-
-            allTransactionsListEl.innerHTML = '';
-
-            if (transactionsToDisplay.length === 0) {
-                allTransactionsListEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi.</p>';
-            } else {
-                transactionsToDisplay.forEach(t => {
-                    const transactionDiv = document.createElement('div');
-                    transactionDiv.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border border-gray-200 bg-white`;
-                    transactionDiv.innerHTML = `
-                        <div class="flex-grow mb-2 sm:mb-0">
-                            <p class="font-medium">${t.description}</p>
-                            <p class="text-sm text-gray-500">${t.date} - ${t.category}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">${formatRupiah(t.amount)}</p>
-                            <button class="btn-secondary text-xs px-2 py-1" onclick="editTransaction(${t.id})">Edit</button>
-                            <button class="btn-danger text-xs px-2 py-1" onclick="deleteTransaction(${t.id})">Hapus</button>
-                        </div>
-                    `;
-                    allTransactionsListEl.appendChild(transactionDiv);
-                });
-            }
-        }
-
-        function updatePaginationControls() {
-            const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
-            pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages || 1}`;
-            prevPageBtn.disabled = currentPage === 1;
-            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
-        }
-
-        function goToPage(page) {
-            currentPage = page;
-            renderTransactions();
-        }
-
-        function nextPage() {
-            if (currentPage * transactionsPerPage < filteredTransactions.length) {
-                currentPage++;
-                renderTransactions();
-            }
-        }
-
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTransactions();
-            }
-        }
-
-        function populateReportYears() {
-            const transactions = getUserTransactions();
-            const years = new Set();
-            transactions.forEach(t => years.add(new Date(t.date).getFullYear()));
-            const sortedYears = Array.from(years).sort((a, b) => b - a);
-
-            reportYearSelect.innerHTML = '<option value="all">Semua Tahun</option>';
-            sortedYears.forEach(year => {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                reportYearSelect.appendChild(option);
-            });
-        }
-
-        function renderReports() {
-            let transactions = getUserTransactions();
-
-            const selectedMonth = reportMonthSelect.value;
-            const selectedYear = reportYearSelect.value;
-
-            // Filter by month and year
-            transactions = transactions.filter(t => {
-                const date = new Date(t.date);
-                const transactionMonth = (date.getMonth() + 1).toString().padStart(2, '0');
-                const transactionYear = date.getFullYear().toString();
-
-                const matchMonth = selectedMonth === 'all' || transactionMonth === selectedMonth;
-                const matchYear = selectedYear === 'all' || transactionYear === selectedYear;
-
-                return matchMonth && matchYear;
-            });
-
-            let totalIncome = 0;
-            let totalExpense = 0;
-            const expenseCategories = {};
-            const incomeCategories = {};
-
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                    incomeCategories[t.category] = (incomeCategories[t.category] || 0) + t.amount;
-                } else {
-                    totalExpense += t.amount;
-                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
-                }
-            });
-
-            const netBalance = totalIncome - totalExpense;
-
-            reportTotalIncomeEl.textContent = formatRupiah(totalIncome);
-            reportTotalExpenseEl.textContent = formatRupiah(totalExpense);
-            reportNetBalanceEl.textContent = formatRupiah(netBalance);
-
-            // Render category breakdown for reports
-            renderCategorySummary(reportExpenseByCategory, expenseCategories, 'expense');
-            renderCategorySummary(reportIncomeByCategory, incomeCategories, 'income');
-
-            reportTransactionsListEl.innerHTML = '';
-            if (transactions.length === 0) {
-                reportTransactionsListEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi untuk laporan.</p>';
-            } else {
-                const table = document.createElement('table');
-                table.className = 'responsive-table w-full text-sm';
-                table.innerHTML = `
-                    <thead>
-                        <tr>
-                            <th>Deskripsi</th>
-                            <th>Tanggal</th>
-                            <th>Jumlah</th>
-                            <th>Tipe</th>
-                            <th>Kategori</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                `;
-                const tbody = table.querySelector('tbody');
-
-                transactions.forEach(t => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${t.description}</td>
-                        <td>${t.date}</td>
-                        <td class="${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</td>
-                        <td>${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
-                        <td>${t.category}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-                reportTransactionsListEl.appendChild(table);
-            }
-        }
-
-        // --- Modal Functions ---
-        function showConfirmationModal(message, callback) {
-            confirmationModalMessage.textContent = message;
-            currentConfirmationCallback = callback;
-            confirmationModal.classList.remove('hidden');
-        }
-
-        function hideConfirmationModal() {
-            confirmationModal.classList.add('hidden');
-            currentConfirmationCallback = null;
-        }
-
-        function showEditTransactionModal() {
-            editTransactionModal.classList.remove('hidden');
-        }
-
-        function hideEditTransactionModal() {
-            editTransactionModal.classList.add('hidden');
-        }
-
-        // --- Event Listeners ---
-
-        // Toggle sidebar on mobile
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-
-        // Close sidebar when clicking outside on mobile (optional, but good UX)
-        document.addEventListener('click', (event) => {
-            if (window.innerWidth < 768 && sidebar.classList.contains('open') && !sidebar.contains(event.target) && !menuBtn.contains(event.target)) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // Authentication form submission
-        authForm.addEventListener('submit', handleAuth);
-
-        // Toggle between login and register modes
-        toggleAuthModeBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (authMode === 'login') {
-                authMode = 'register';
-                authTitle.textContent = 'Daftar';
-                authSubmitBtn.textContent = 'Daftar';
-                toggleAuthModeBtn.textContent = 'Login di sini';
-            } else {
-                authMode = 'login';
-                authTitle.textContent = 'Login';
-                authSubmitBtn.textContent = 'Login';
-                toggleAuthModeBtn.textContent = 'Daftar di sini';
-            }
-            authMessage.classList.add('hidden'); // Clear message on mode switch
-            usernameInput.value = ''; // Clear fields
-            passwordInput.value = ''; // Clear fields
-        });
-
-        // Logout button
-        logoutBtn.addEventListener('click', handleLogout);
-
-        // Sidebar navigation
-        sidebarItems.forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.preventDefault();
-                const sectionId = event.target.dataset.section + 'Section';
-                if (isLoggedIn) {
-                    showSection(sectionId);
-                } else {
-                    showMessage(authMessage, 'Anda harus login terlebih dahulu.', true);
-                    showNotification('Anda harus login terlebih dahulu.', 'error');
-                }
-            });
-        });
-
-        // Transaction form submission
-        transactionForm.addEventListener('submit', addTransaction);
-
-        // Filter, Sort, Search, and Pagination listeners
-        transactionSearchInput.addEventListener('input', () => { currentPage = 1; renderTransactions(); });
-        filterTypeSelect.addEventListener('change', () => { currentPage = 1; renderTransactions(); });
-        filterStartDate.addEventListener('change', () => { currentPage = 1; renderTransactions(); });
-        filterEndDate.addEventListener('change', () => { currentPage = 1; renderTransactions(); });
-        sortBySelect.addEventListener('change', () => { currentPage = 1; renderTransactions(); });
-        prevPageBtn.addEventListener('click', prevPage);
-        nextPageBtn.addEventListener('click', nextPage);
-
-        // Confirmation Modal Buttons
-        confirmYesBtn.addEventListener('click', () => {
-            if (currentConfirmationCallback) {
-                currentConfirmationCallback();
-            }
-            hideConfirmationModal();
-        });
-        confirmNoBtn.addEventListener('click', hideConfirmationModal);
-
-        // Edit Transaction Form Submission
-        editTransactionForm.addEventListener('submit', updateTransaction);
-
-        // Change Password Form Submission
-        changePasswordForm.addEventListener('submit', handleChangePassword);
-
-        // Add Category Form Submission
-        addCategoryForm.addEventListener('submit', addCategory);
-
-        // Export Data Button
-        exportDataBtn.addEventListener('click', exportTransactionsToCSV);
-
-        // Report Filters
-        reportMonthSelect.addEventListener('change', renderReports);
-        reportYearSelect.addEventListener('change', renderReports);
-
-        // --- Initial Load ---
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuthStatus();
-            // Set default date for transaction form to today
-            const today = new Date().toISOString().split('T')[0];
-            transactionDateInput.value = today;
-            editTransactionDateInput.value = today; // Also for edit form
-        });
-
-        // Make functions globally accessible for onclick in HTML
-        window.deleteTransaction = deleteTransaction;
-        window.editTransaction = editTransaction;
-        window.deleteCategory = deleteCategory;
-        window.hideConfirmationModal = hideConfirmationModal; // For modal close button
-        window.hideEditTransactionModal = hideEditTransactionModal; // For modal close button
-        window.confirmAction = showConfirmationModal; // Expose for internal use
-    </script>
-</body>
-</html>
+                // If admin, show admin section, otherwise dashboard
+ 
