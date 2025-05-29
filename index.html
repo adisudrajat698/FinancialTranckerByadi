@@ -284,6 +284,9 @@
         .notification.error {
             background-color: #ef4444; /* red-500 */
         }
+        .notification.info {
+            background-color: #3b82f6; /* blue-500 */
+        }
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateY(-20px); }
             10% { opacity: 1; transform: translateY(0); }
@@ -671,14 +674,23 @@
                 </div>
 
                 <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Backup & Pulihkan Data (Lokal)</h3>
+                    <p class="text-gray-700 mb-4">Ekspor semua data Anda ke file atau impor dari file yang sudah ada.</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button id="exportAllDataBtn" class="w-full sm:w-1/2 btn-primary font-semibold">Ekspor Semua Data</button>
+                        <input type="file" id="importAllDataInput" accept=".json" class="hidden">
+                        <label for="importAllDataInput" class="w-full sm:w-1/2 btn-secondary cursor-pointer text-center font-semibold">Impor Semua Data</label>
+                    </div>
+                </div>
+
+                <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Kirim Semua Transaksi ke WhatsApp</h3>
                     <p class="text-gray-700 mb-4">Klik tombol di bawah untuk mengirim semua detail transaksi Anda ke nomor WhatsApp yang ditentukan.</p>
                     <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold">Kirim Semua Transaksi ke WhatsApp</button>
-                    <p id="whatsappMessage" class="text-red-500 text-sm hidden mt-2"></p>
                 </div>
 
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Ekspor Data</h3>
+                    <h3 class="text-2xl font-bold mb-4">Ekspor Data Transaksi (CSV)</h3>
                     <p class="text-gray-700 mb-4">Unduh semua transaksi Anda dalam format CSV.</p>
                     <button id="exportDataBtn" class="btn-primary font-semibold">Ekspor Transaksi ke CSV</button>
                 </div>
@@ -764,7 +776,7 @@
         const toggleAuthModeBtn = document.getElementById('toggleAuthMode');
 
         const dashboardSection = document.getElementById('dashboardSection');
-        const dashboardUsernameEl = document.getElementById('dashboardUsername'); // New element for username
+        const dashboardUsernameEl = document.getElementById('dashboardUsername');
         const currentBalanceEl = document.getElementById('currentBalance');
         const totalIncomeEl = document.getElementById('totalIncome');
         const totalExpenseEl = document.getElementById('totalExpense');
@@ -821,7 +833,6 @@
         let topExpenseCategoriesChartInstance = null;
         let topIncomeCategoriesChartInstance = null;
 
-
         const settingsSection = document.getElementById('settingsSection');
         const changePasswordForm = document.getElementById('changePasswordForm');
         const currentPasswordInput = document.getElementById('currentPassword');
@@ -835,7 +846,6 @@
 
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
-        const whatsappMessageEl = document.getElementById('whatsappMessage'); // For messages related to WhatsApp sending
 
         // Profile Picture Elements
         const profilePictureDisplaySettings = document.getElementById('profilePictureDisplaySettings');
@@ -851,7 +861,6 @@
 
         const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
         const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
-
 
         // Admin section elements
         const adminSidebarItem = document.getElementById('adminSidebarItem');
@@ -884,6 +893,10 @@
 
         // Notification Container
         const notificationContainer = document.getElementById('notificationContainer');
+
+        // New Import/Export Buttons
+        const exportAllDataBtn = document.getElementById('exportAllDataBtn');
+        const importAllDataInput = document.getElementById('importAllDataInput');
 
         // State Variables
         let isLoggedIn = false;
@@ -1002,10 +1015,10 @@
                 dashboardSidebarItem.classList.add('hidden');
                 transactionsSidebarItem.classList.add('hidden');
                 reportsSidebarItem.classList.add('hidden');
-                analysisSidebarItem.classList.add('hidden'); // Hide for logged out
+                analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
                 adminSidebarItem.classList.add('hidden');
-                
+
                 // Hide all other sections
                 document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
                     section.classList.add('hidden');
@@ -1494,7 +1507,6 @@
                 return;
             }
 
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Image = e.target.result;
@@ -1523,6 +1535,94 @@
             });
         }
 
+        // --- Local Data Import/Export ---
+
+        function exportAllData() {
+            if (!currentUser) {
+                showNotification('Anda harus login untuk mengekspor data.', 'error');
+                return;
+            }
+
+            const users = getLocalStorage('users') || {};
+            const userDataToExport = users[currentUser];
+
+            if (!userDataToExport) {
+                showNotification('Tidak ada data pengguna untuk diekspor.', 'error');
+                return;
+            }
+
+            const filename = `keuanganku_backup_${currentUser}_${new Date().toISOString().split('T')[0]}.json`;
+            const dataStr = JSON.stringify(userDataToExport, null, 2); // Pretty print JSON
+
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a); // Required for Firefox
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up
+
+            showNotification('Semua data berhasil diekspor!', 'success');
+        }
+
+        function importAllData(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            if (file.type !== 'application/json') {
+                showNotification('Hanya file JSON yang diizinkan.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+
+                    // Basic validation of imported data structure
+                    if (!importedData || !Array.isArray(importedData.transactions) || !Array.isArray(importedData.categories)) {
+                        showNotification('Format file JSON tidak valid.', 'error');
+                        return;
+                    }
+
+                    confirmAction('Apakah Anda yakin ingin mengimpor data ini? Ini akan menimpa semua data Anda saat ini.', () => {
+                        let users = getLocalStorage('users') || {};
+                        if (!users[currentUser]) {
+                            users[currentUser] = {}; // Initialize if user didn't exist (shouldn't happen if logged in)
+                        }
+                        users[currentUser].transactions = importedData.transactions;
+                        users[currentUser].categories = importedData.categories;
+                        users[currentUser].profilePicture = importedData.profilePicture || null; // Ensure profile picture is handled
+                        setLocalStorage('users', users);
+                        setLocalStorage('loggedInUser', currentUser); // Re-set loggedInUser just in case
+
+                        showNotification('Data berhasil diimpor dan dipulihkan!', 'success');
+                        // Re-render all sections to reflect restored data
+                        renderDashboard();
+                        renderTransactions();
+                        renderReports();
+                        renderAnalysis();
+                        renderManageCategories();
+                        loadProfilePicture();
+                    });
+
+                } catch (error) {
+                    console.error("Error parsing imported JSON:", error);
+                    showNotification('Gagal membaca atau mengurai file JSON. Pastikan formatnya benar.', 'error');
+                }
+            };
+            reader.onerror = function() {
+                showNotification('Gagal membaca file.', 'error');
+            };
+            reader.readAsText(file);
+            // Clear the file input value to allow selecting the same file again if needed
+            event.target.value = '';
+        }
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
         function sendTransactionsToWhatsApp() {
@@ -1567,16 +1667,14 @@
             // Open WhatsApp in a new tab
             window.open(whatsappUrl, '_blank');
 
-            showMessage(whatsappMessageEl, 'WhatsApp akan terbuka di tab baru. Silakan tekan tombol kirim di WhatsApp.', false);
             showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
         }
 
-        // --- Data Export ---
+        // --- Data Export (CSV) ---
         function exportTransactionsToCSV() {
             const transactions = getUserTransactions();
             if (transactions.length === 0) {
-                showMessage(passwordMessageEl, 'Tidak ada transaksi untuk diekspor.', true);
-                showNotification('Tidak ada transaksi untuk diepor.', 'error');
+                showNotification('Tidak ada transaksi untuk diekspor.', 'error');
                 return;
             }
 
@@ -1604,7 +1702,6 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showMessage(passwordMessageEl, 'Data berhasil diekspor!', false);
             showNotification('Data berhasil diekspor!', 'success');
         }
 
@@ -2077,7 +2174,6 @@
                 const incomeCtx = topIncomeCategoriesChartCanvas.getContext('2d');
                 incomeCtx.clearRect(0, 0, topIncomeCategoriesChartCanvas.width, topIncomeCategoriesChartCanvas.height);
 
-
                 topExpenseCategoriesSummary.innerHTML = '<p class="text-gray-500 text-center">Belum ada data pengeluaran untuk analisis.</p>';
                 topIncomeCategoriesSummary.innerHTML = '<p class="text-gray-500 text-center">Belum ada data pemasukan untuk analisis.</p>';
                 return;
@@ -2334,7 +2430,6 @@
             });
         }
 
-
         // --- Admin Panel Functions ---
         function renderAdminPanel() {
             userListEl.innerHTML = '';
@@ -2484,10 +2579,14 @@
         profilePictureInput.addEventListener('change', handleProfilePictureUpload);
         deleteProfilePictureBtn.addEventListener('click', deleteProfilePicture);
 
+        // Local Data Import/Export
+        exportAllDataBtn.addEventListener('click', exportAllData);
+        importAllDataInput.addEventListener('change', importAllData);
+
         // Send WhatsApp All Transactions Button
         sendWhatsappSummaryBtn.addEventListener('click', sendTransactionsToWhatsApp);
 
-        // Export Data Button
+        // Export Data Button (CSV)
         exportDataBtn.addEventListener('click', exportTransactionsToCSV);
 
         // Report Filters
