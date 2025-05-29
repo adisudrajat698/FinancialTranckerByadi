@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial="initial-scale=1.0">
     <title>Catat Keuangan Pribadi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -343,7 +343,7 @@
 </head>
 <body class="flex flex-col min-h-screen">
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-4 flex flex-col md:relative md:flex-shrink-0">
-        <div class="text-2xl font-bold mb-4 text-center">AdiWallet</div>
+        <div class="text-2xl font-bold mb-4 text-center">KeuanganKu</div>
         <div class="flex flex-col items-center mb-8">
             <div class="profile-picture-container profile-picture-small">
                 <img id="profilePictureDisplaySidebar" src="" alt="Foto Profil">
@@ -1716,6 +1716,8 @@
             }
 
             const transactions = getUserTransactions();
+            console.log("Semua transaksi (sebelum pengurutan untuk tampilan dashboard):", transactions); // LOG DEBUG
+
             let totalIncome = 0;
             let totalExpense = 0;
             const expenseCategories = {};
@@ -1744,7 +1746,24 @@
             renderCategorySummary(expenseByCategorySummary, expenseCategories, 'expense');
 
             // Display latest 5 transactions
-            const latest = transactions.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5); // Sort by date, get newest 5
+            // Sort transactions by date in descending order (newest first)
+            const sortedTransactions = transactions.slice().sort((a, b) => {
+                // Pastikan parsing tanggal kuat
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+
+                // Jika tanggal sama, urutkan berdasarkan ID (Date.now(), jadi ID yang lebih baru lebih besar)
+                // Ini memastikan urutan yang konsisten untuk transaksi pada tanggal yang sama
+                if (dateA.getTime() === dateB.getTime()) {
+                    return b.id - a.id;
+                }
+                return dateB - dateA;
+            });
+            console.log("Transaksi yang sudah diurutkan (terbaru dahulu):", sortedTransactions); // LOG DEBUG
+
+            const latest = sortedTransactions.slice(0, 5);
+            console.log("5 transaksi terbaru untuk ditampilkan:", latest); // LOG DEBUG
+
             latestTransactionsEl.innerHTML = '';
             if (latest.length === 0) {
                 latestTransactionsEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi.</p>';
@@ -2026,14 +2045,14 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Pemasukan',
+                            label: 'Pemasukan Bulanan',
                             data: incomeData,
                             backgroundColor: 'rgba(34, 197, 94, 0.6)', // green-500
                             borderColor: 'rgba(34, 197, 94, 1)',
                             borderWidth: 1
                         },
                         {
-                            label: 'Pengeluaran',
+                            label: 'Pengeluaran Bulanan',
                             data: expenseData,
                             backgroundColor: 'rgba(239, 68, 68, 0.6)', // red-500
                             borderColor: 'rgba(239, 68, 68, 1)',
@@ -2336,7 +2355,7 @@
             const labels = sortedCategories.map(item => item[0]);
             const data = sortedCategories.map(item => item[1]);
 
-            // Generate dynamic colors for bars
+            // Generate dynamic colors
             const backgroundColors = labels.map((_, i) => {
                 const hue = (i * 137.508) % 360;
                 return `hsla(${hue}, 70%, 60%, 0.8)`;
