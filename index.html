@@ -244,13 +244,13 @@
         /* Responsiveness */
         @media (min-width: 768px) {
             .sidebar {
-                transform: translateX(0); /* Sidebar selalu terlihat di desktop */
+                transform: translateX(0); /* Sidebar always visible on desktop */
             }
             .content-wrapper {
-                margin-left: 250px; /* Memberi ruang untuk sidebar */
+                margin-left: 250px; /* Make space for sidebar */
             }
             .menu-button {
-                display: none; /* Sembunyikan tombol menu di desktop */
+                display: none; /* Hide menu button on desktop */
             }
         }
 
@@ -290,18 +290,74 @@
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-20px); }
         }
+
+        /* Profile Picture Styles */
+        .profile-picture-container {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #e2e8f0; /* gray-200 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-bottom: 1rem;
+        }
+        .profile-picture-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-picture-container svg {
+            width: 60px;
+            height: 60px;
+            color: #94a3b8; /* gray-400 */
+        }
+
+        .profile-picture-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-color: #e2e8f0; /* gray-200 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .profile-picture-small img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-picture-small svg {
+            width: 20px;
+            height: 20px;
+            color: #94a3b8; /* gray-400 */
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-4 flex flex-col md:relative md:flex-shrink-0">
-        <div class="text-2xl font-bold mb-8 text-center">AdiWallet</div>
+        <div class="text-2xl font-bold mb-4 text-center">KeuanganKu</div>
+        <div class="flex flex-col items-center mb-8">
+            <div class="profile-picture-container profile-picture-small">
+                <img id="profilePictureDisplaySidebar" src="" alt="Foto Profil">
+                <svg id="profilePicturePlaceholderSidebar" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+            </div>
+            <p id="sidebarUsername" class="text-lg font-semibold text-white mt-2"></p>
+        </div>
         <nav class="flex-grow">
             <ul class="space-y-2">
                 <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard">Dashboard</a></li>
                 <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions">Transaksi</a></li>
                 <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports">Laporan</a></li>
+                <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis">Analisis Keuangan</a></li>
                 <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings">Pengaturan</a></li>
-                <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin">Kelola Pengguna</a></li>
+                <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin">Admin</a></li>
             </ul>
         </nav>
         <div class="mt-auto">
@@ -341,7 +397,15 @@
 
             <section id="dashboardSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
-                <p class="text-xl text-gray-700 mb-6">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="profile-picture-small">
+                        <img id="profilePictureDisplayDashboard" src="" alt="Foto Profil">
+                        <svg id="profilePicturePlaceholderDashboard" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </div>
+                    <p class="text-xl text-gray-700">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-6 text-center">
                         <h3 class="text-lg font-medium text-gray-600">Saldo Saat Ini</h3>
@@ -521,8 +585,60 @@
                 </div>
             </section>
 
+            <section id="analysisSection" class="hidden">
+                <h2 class="text-3xl font-bold mb-6">Analisis Keuangan</h2>
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Tren Keuangan Bulanan</h3>
+                    <p class="text-gray-700 mb-4">Lihat bagaimana pemasukan, pengeluaran, dan saldo Anda berkembang dari waktu ke waktu.</p>
+                    <div class="relative h-80">
+                        <canvas id="financialTrendsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-6">
+                        <h3 class="text-2xl font-bold mb-4">5 Kategori Pengeluaran Teratas</h3>
+                        <div class="relative h-64">
+                            <canvas id="topExpenseCategoriesChart"></canvas>
+                        </div>
+                        <div id="topExpenseCategoriesSummary" class="space-y-2 mt-4">
+                            <p class="text-gray-500 text-center">Belum ada data pengeluaran.</p>
+                        </div>
+                    </div>
+                    <div class="card p-6">
+                        <h3 class="text-2xl font-bold mb-4">5 Kategori Pemasukan Teratas</h3>
+                        <div class="relative h-64">
+                            <canvas id="topIncomeCategoriesChart"></canvas>
+                        </div>
+                        <div id="topIncomeCategoriesSummary" class="space-y-2 mt-4">
+                            <p class="text-gray-500 text-center">Belum ada data pemasukan.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section id="settingsSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Foto Profil</h3>
+                    <div class="flex flex-col items-center mb-4">
+                        <div class="profile-picture-container">
+                            <img id="profilePictureDisplaySettings" src="" alt="Foto Profil">
+                            <svg id="profilePicturePlaceholderSettings" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                            </svg>
+                        </div>
+                        <input type="file" id="profilePictureInput" accept="image/*" class="hidden">
+                        <label for="profilePictureInput" class="btn-primary cursor-pointer text-sm font-medium py-2 px-4 rounded-md mb-2">
+                            Ubah Foto Profil
+                        </label>
+                        <button id="deleteProfilePictureBtn" class="btn-danger text-sm font-medium py-2 px-4 rounded-md">
+                            Hapus Foto Profil
+                        </button>
+                    </div>
+                    <p id="profilePictureMessage" class="text-red-500 text-sm hidden text-center"></p>
+                </div>
+
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
@@ -552,6 +668,13 @@
                     <div id="categoryList" class="space-y-2">
                         <p class="text-gray-500 text-center">Belum ada kategori.</p>
                     </div>
+                </div>
+
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Kirim Semua Transaksi ke WhatsApp</h3>
+                    <p class="text-gray-700 mb-4">Klik tombol di bawah untuk mengirim semua detail transaksi Anda ke nomor WhatsApp yang ditentukan.</p>
+                    <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold">Kirim Semua Transaksi ke WhatsApp</button>
+                    <p id="whatsappMessage" class="text-red-500 text-sm hidden mt-2"></p>
                 </div>
 
                 <div class="card p-6">
@@ -685,6 +808,20 @@
         let expenseByCategoryChartInstance = null; // To store Chart.js instance for expense by category
         let incomeByCategoryChartInstance = null; // To store Chart.js instance for income by category
 
+        // Analysis Section Elements
+        const analysisSidebarItem = document.getElementById('analysisSidebarItem');
+        const analysisSection = document.getElementById('analysisSection');
+        const financialTrendsChartCanvas = document.getElementById('financialTrendsChart');
+        const topExpenseCategoriesChartCanvas = document.getElementById('topExpenseCategoriesChart');
+        const topIncomeCategoriesChartCanvas = document.getElementById('topIncomeCategoriesChart');
+        const topExpenseCategoriesSummary = document.getElementById('topExpenseCategoriesSummary');
+        const topIncomeCategoriesSummary = document.getElementById('topIncomeCategoriesSummary');
+
+        let financialTrendsChartInstance = null;
+        let topExpenseCategoriesChartInstance = null;
+        let topIncomeCategoriesChartInstance = null;
+
+
         const settingsSection = document.getElementById('settingsSection');
         const changePasswordForm = document.getElementById('changePasswordForm');
         const currentPasswordInput = document.getElementById('currentPassword');
@@ -695,6 +832,26 @@
         const newCategoryNameInput = document.getElementById('newCategoryName');
         const categoryListEl = document.getElementById('categoryList');
         const exportDataBtn = document.getElementById('exportDataBtn');
+
+        // WhatsApp Send Button
+        const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
+        const whatsappMessageEl = document.getElementById('whatsappMessage'); // For messages related to WhatsApp sending
+
+        // Profile Picture Elements
+        const profilePictureDisplaySettings = document.getElementById('profilePictureDisplaySettings');
+        const profilePicturePlaceholderSettings = document.getElementById('profilePicturePlaceholderSettings');
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        const deleteProfilePictureBtn = document.getElementById('deleteProfilePictureBtn');
+        const profilePictureMessage = document.getElementById('profilePictureMessage');
+
+        // New Profile Picture Elements for Sidebar and Dashboard
+        const profilePictureDisplaySidebar = document.getElementById('profilePictureDisplaySidebar');
+        const profilePicturePlaceholderSidebar = document.getElementById('profilePicturePlaceholderSidebar');
+        const sidebarUsername = document.getElementById('sidebarUsername');
+
+        const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
+        const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
+
 
         // Admin section elements
         const adminSidebarItem = document.getElementById('adminSidebarItem');
@@ -803,6 +960,7 @@
                 showSection('authSection');
             }
             updateUIBasedOnAuth();
+            loadProfilePicture(); // Load profile picture on initial auth check
         }
 
         function updateUIBasedOnAuth() {
@@ -822,15 +980,19 @@
                     dashboardSidebarItem.classList.add('hidden');
                     transactionsSidebarItem.classList.add('hidden');
                     reportsSidebarItem.classList.add('hidden');
+                    analysisSidebarItem.classList.add('hidden'); // Hide for admin
                     settingsSidebarItem.classList.add('hidden');
                     adminSidebarItem.classList.remove('hidden');
                 } else {
                     dashboardSidebarItem.classList.remove('hidden');
                     transactionsSidebarItem.classList.remove('hidden');
                     reportsSidebarItem.classList.remove('hidden');
+                    analysisSidebarItem.classList.remove('hidden'); // Show for regular user
                     settingsSidebarItem.classList.remove('hidden');
                     adminSidebarItem.classList.add('hidden');
                 }
+                // Update username in sidebar
+                sidebarUsername.textContent = currentUser;
 
             } else {
                 authSection.classList.remove('hidden');
@@ -840,6 +1002,7 @@
                 dashboardSidebarItem.classList.add('hidden');
                 transactionsSidebarItem.classList.add('hidden');
                 reportsSidebarItem.classList.add('hidden');
+                analysisSidebarItem.classList.add('hidden'); // Hide for logged out
                 settingsSidebarItem.classList.add('hidden');
                 adminSidebarItem.classList.add('hidden');
                 
@@ -847,7 +1010,9 @@
                 document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
                     section.classList.add('hidden');
                 });
+                sidebarUsername.textContent = ''; // Clear username in sidebar
             }
+            loadProfilePicture(); // Always attempt to load/clear profile picture based on auth state
         }
 
         function handleAuth(event) {
@@ -880,7 +1045,12 @@
                     showMessage(authMessage, 'Username sudah terdaftar. Silakan gunakan username lain.', true);
                     showNotification('Username sudah terdaftar. Silakan gunakan username lain.', 'error');
                 } else {
-                    users[username] = { password: password, transactions: [], categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'] }; // Default categories
+                    users[username] = {
+                        password: password,
+                        transactions: [],
+                        categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'],
+                        profilePicture: null // Initialize profile picture as null
+                    }; // Default categories and profile picture
                     setLocalStorage('users', users);
                     showMessage(authMessage, 'Registrasi berhasil! Silakan login.', false);
                     showNotification('Registrasi berhasil! Silakan login.', 'success');
@@ -958,8 +1128,11 @@
             } else if (sectionId === 'reportsSection') {
                 populateReportYears();
                 renderReports();
+            } else if (sectionId === 'analysisSection') {
+                renderAnalysis(); // Render analysis charts
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
+                loadProfilePicture(); // Load profile picture when entering settings
             } else if (sectionId === 'adminSection') {
                 renderAdminPanel();
             }
@@ -971,9 +1144,14 @@
             const users = getLocalStorage('users') || {};
             // Return empty data if currentUser is admin, as admin doesn't have personal transactions
             if (currentUser === ADMIN_USERNAME) {
-                return { transactions: [], categories: [] };
+                return { transactions: [], categories: [], profilePicture: null };
             }
-            return users[currentUser] || { transactions: [], categories: [] };
+            // Ensure profilePicture exists for existing users
+            if (users[currentUser] && !users[currentUser].profilePicture) {
+                users[currentUser].profilePicture = null;
+                setLocalStorage('users', users); // Save updated user data
+            }
+            return users[currentUser] || { transactions: [], categories: [], profilePicture: null };
         }
 
         function saveUserData(data) {
@@ -1034,6 +1212,7 @@
             currentPage = 1; // Reset pagination on new transaction
             renderTransactions();
             renderReports();
+            renderAnalysis(); // Update analysis charts
         }
 
         function deleteTransaction(id) {
@@ -1047,6 +1226,7 @@
                 currentPage = 1; // Reset pagination on delete
                 renderTransactions();
                 renderReports();
+                renderAnalysis(); // Update analysis charts
             });
         }
 
@@ -1094,6 +1274,7 @@
                 renderDashboard();
                 renderTransactions();
                 renderReports();
+                renderAnalysis(); // Update analysis charts
             }
         }
 
@@ -1157,6 +1338,7 @@
             renderManageCategories(); // Re-render category list in settings
             renderCategoryOptions(transactionCategoryInput); // Update transaction form categories
             renderCategoryOptions(editTransactionCategoryInput); // Update edit form categories
+            renderAnalysis(); // Update analysis charts
         }
 
         function deleteCategory(categoryToDelete) {
@@ -1182,6 +1364,7 @@
                 renderTransactions(); // Re-render to reflect category changes
                 renderReports();
                 renderDashboard(); // Re-render dashboard for category summary
+                renderAnalysis(); // Update analysis charts
             });
         }
 
@@ -1245,12 +1428,155 @@
             changePasswordForm.reset();
         }
 
+        // --- Profile Picture Management ---
+
+        function loadProfilePicture() {
+            const userData = getUserData();
+            const profilePictureBase64 = userData.profilePicture;
+
+            // Update sidebar profile picture
+            if (profilePictureBase64) {
+                profilePictureDisplaySidebar.src = profilePictureBase64;
+                profilePictureDisplaySidebar.classList.remove('hidden');
+                profilePicturePlaceholderSidebar.classList.add('hidden');
+            } else {
+                profilePictureDisplaySidebar.src = ''; // Clear src
+                profilePictureDisplaySidebar.classList.add('hidden');
+                profilePicturePlaceholderSidebar.classList.remove('hidden');
+            }
+
+            // Update dashboard profile picture
+            if (profilePictureBase64) {
+                profilePictureDisplayDashboard.src = profilePictureBase64;
+                profilePictureDisplayDashboard.classList.remove('hidden');
+                profilePicturePlaceholderDashboard.classList.add('hidden');
+            } else {
+                profilePictureDisplayDashboard.src = ''; // Clear src
+                profilePictureDisplayDashboard.classList.add('hidden');
+                profilePicturePlaceholderDashboard.classList.remove('hidden');
+            }
+
+            // Update settings profile picture
+            if (profilePictureBase64) {
+                profilePictureDisplaySettings.src = profilePictureBase64;
+                profilePictureDisplaySettings.classList.remove('hidden');
+                profilePicturePlaceholderSettings.classList.add('hidden');
+                deleteProfilePictureBtn.classList.remove('hidden');
+            } else {
+                profilePictureDisplaySettings.src = ''; // Clear src
+                profilePictureDisplaySettings.classList.add('hidden');
+                profilePicturePlaceholderSettings.classList.remove('hidden');
+                deleteProfilePictureBtn.classList.add('hidden');
+            }
+            profilePictureMessage.classList.add('hidden'); // Clear any previous messages
+        }
+
+        function handleProfilePictureUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            profilePictureMessage.classList.add('hidden'); // Hide previous messages
+
+            // Basic file type and size validation
+            if (!file.type.startsWith('image/')) {
+                showMessage(profilePictureMessage, 'Hanya file gambar yang diizinkan.', true);
+                showNotification('Hanya file gambar yang diizinkan.', 'error');
+                return;
+            }
+
+            // Warning for large files (e.g., > 1MB)
+            const MAX_FILE_SIZE_MB = 1;
+            if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+                showMessage(profilePictureMessage, `Ukuran gambar terlalu besar. Maksimal ${MAX_FILE_SIZE_MB}MB.`, true);
+                showNotification(`Ukuran gambar terlalu besar. Maksimal ${MAX_FILE_SIZE_MB}MB.`, 'error');
+                return;
+            }
+
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Image = e.target.result;
+                let userData = getUserData();
+                userData.profilePicture = base64Image;
+                saveUserData(userData);
+                loadProfilePicture(); // Update all displays
+                showNotification('Foto profil berhasil diunggah!', 'success');
+                showMessage(profilePictureMessage, 'Foto profil berhasil diunggah!', false);
+            };
+            reader.onerror = function() {
+                showMessage(profilePictureMessage, 'Gagal membaca file gambar.', true);
+                showNotification('Gagal membaca file gambar.', 'error');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function deleteProfilePicture() {
+            confirmAction('Apakah Anda yakin ingin menghapus foto profil Anda?', () => {
+                let userData = getUserData();
+                userData.profilePicture = null; // Set to null to remove
+                saveUserData(userData);
+                loadProfilePicture(); // Update all displays to placeholder
+                showNotification('Foto profil berhasil dihapus!', 'success');
+                showMessage(profilePictureMessage, 'Foto profil berhasil dihapus!', false);
+            });
+        }
+
+
+        // --- Send All Data to WhatsApp (Click-to-Chat) ---
+        function sendTransactionsToWhatsApp() {
+            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
+            const transactions = getUserTransactions();
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalIncome += t.amount;
+                } else {
+                    totalExpense += t.amount;
+                }
+            });
+
+            const currentBalance = totalIncome - totalExpense;
+
+            // Prepare summary message
+            let message = `Ringkasan Keuangan Anda:\n`;
+            message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
+            message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
+            message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
+
+            // Add all transactions
+            if (transactions.length > 0) {
+                message += `Detail Semua Transaksi:\n`;
+                // Sort transactions by date (newest first) for better readability
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                transactions.forEach(t => {
+                    const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+                    message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatRupiah(t.amount)} | ${t.description}\n`;
+                });
+            } else {
+                message += `Belum ada transaksi tercatat.\n`;
+            }
+
+            // Encode the message for URL
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMessage}`;
+
+            // Open WhatsApp in a new tab
+            window.open(whatsappUrl, '_blank');
+
+            showMessage(whatsappMessageEl, 'WhatsApp akan terbuka di tab baru. Silakan tekan tombol kirim di WhatsApp.', false);
+            showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
+        }
+
         // --- Data Export ---
         function exportTransactionsToCSV() {
             const transactions = getUserTransactions();
             if (transactions.length === 0) {
                 showMessage(passwordMessageEl, 'Tidak ada transaksi untuk diekspor.', true);
-                showNotification('Tidak ada transaksi untuk diekspor.', 'error');
+                showNotification('Tidak ada transaksi untuk diepor.', 'error');
                 return;
             }
 
@@ -1339,6 +1665,7 @@
                     latestTransactionsEl.appendChild(transactionDiv);
                 });
             }
+            loadProfilePicture(); // Ensure profile picture is loaded on dashboard
         }
 
         function renderIncomeExpenseChart(income, expense) {
@@ -1731,6 +2058,283 @@
             }
         }
 
+        // --- Analysis Functions ---
+
+        function renderAnalysis() {
+            const transactions = getUserTransactions();
+
+            if (transactions.length === 0) {
+                // Clear any existing charts and display a message
+                if (financialTrendsChartInstance) financialTrendsChartInstance.destroy();
+                if (topExpenseCategoriesChartInstance) topExpenseCategoriesChartInstance.destroy();
+                if (topIncomeCategoriesChartInstance) topIncomeCategoriesChartInstance.destroy();
+
+                // Clear canvas content
+                const financialCtx = financialTrendsChartCanvas.getContext('2d');
+                financialCtx.clearRect(0, 0, financialTrendsChartCanvas.width, financialTrendsChartCanvas.height);
+                const expenseCtx = topExpenseCategoriesChartCanvas.getContext('2d');
+                expenseCtx.clearRect(0, 0, topExpenseCategoriesChartCanvas.width, topExpenseCategoriesChartCanvas.height);
+                const incomeCtx = topIncomeCategoriesChartCanvas.getContext('2d');
+                incomeCtx.clearRect(0, 0, topIncomeCategoriesChartCanvas.width, topIncomeCategoriesChartCanvas.height);
+
+
+                topExpenseCategoriesSummary.innerHTML = '<p class="text-gray-500 text-center">Belum ada data pengeluaran untuk analisis.</p>';
+                topIncomeCategoriesSummary.innerHTML = '<p class="text-gray-500 text-center">Belum ada data pemasukan untuk analisis.</p>';
+                return;
+            }
+
+            // 1. Calculate Monthly Financial Trends
+            const monthlyData = calculateMonthlyFinancialData(transactions);
+            renderFinancialTrendsChart(monthlyData);
+
+            // 2. Calculate Top Categories
+            const expenseCategories = calculateCategoryTotals(transactions, 'expense');
+            const incomeCategories = calculateCategoryTotals(transactions, 'income');
+
+            renderTopCategoriesChart(topExpenseCategoriesChartCanvas, expenseCategories, 'Pengeluaran', 'expense');
+            renderTopCategoriesChart(topIncomeCategoriesChartCanvas, incomeCategories, 'Pemasukan', 'income');
+
+            renderTopCategoriesSummary(topExpenseCategoriesSummary, expenseCategories, 'expense');
+            renderTopCategoriesSummary(topIncomeCategoriesSummary, incomeCategories, 'income');
+        }
+
+        function calculateMonthlyFinancialData(transactions) {
+            const monthlySummary = {};
+
+            transactions.forEach(t => {
+                const date = new Date(t.date);
+                const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+                if (!monthlySummary[monthYear]) {
+                    monthlySummary[monthYear] = { income: 0, expense: 0, balance: 0 };
+                }
+
+                if (t.type === 'income') {
+                    monthlySummary[monthYear].income += t.amount;
+                } else {
+                    monthlySummary[monthYear].expense += t.amount;
+                }
+            });
+
+            // Calculate cumulative balance
+            const sortedMonths = Object.keys(monthlySummary).sort();
+            let cumulativeBalance = 0;
+            sortedMonths.forEach(month => {
+                const data = monthlySummary[month];
+                data.balance = data.income - data.expense;
+                cumulativeBalance += data.balance;
+                data.cumulativeBalance = cumulativeBalance; // Store cumulative balance
+            });
+
+            return monthlySummary;
+        }
+
+        function renderFinancialTrendsChart(monthlyData) {
+            if (financialTrendsChartInstance) {
+                financialTrendsChartInstance.destroy();
+            }
+
+            const labels = Object.keys(monthlyData).sort();
+            const incomeData = labels.map(month => monthlyData[month].income);
+            const expenseData = labels.map(month => monthlyData[month].expense);
+            const balanceData = labels.map(month => monthlyData[month].cumulativeBalance); // Use cumulative balance
+
+            financialTrendsChartInstance = new Chart(financialTrendsChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pemasukan Bulanan',
+                            data: incomeData,
+                            borderColor: 'rgba(34, 197, 94, 1)', // green-500
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Pengeluaran Bulanan',
+                            data: expenseData,
+                            borderColor: 'rgba(239, 68, 68, 1)', // red-500
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Saldo Kumulatif',
+                            data: balanceData,
+                            borderColor: 'rgba(59, 130, 246, 1)', // blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Bulan'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah (Rp)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return formatRupiah(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += formatRupiah(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function calculateCategoryTotals(transactions, type) {
+            const categoryTotals = {};
+            transactions.forEach(t => {
+                if (t.type === type) {
+                    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+                }
+            });
+            return categoryTotals;
+        }
+
+        function renderTopCategoriesChart(canvasElement, categoryData, titlePrefix, type) {
+            let chartInstance;
+            if (canvasElement === topExpenseCategoriesChartCanvas) {
+                if (topExpenseCategoriesChartInstance) topExpenseCategoriesChartInstance.destroy();
+                chartInstance = topExpenseCategoriesChartInstance;
+            } else if (canvasElement === topIncomeCategoriesChartCanvas) {
+                if (topIncomeCategoriesChartInstance) topIncomeCategoriesChartInstance.destroy();
+                chartInstance = topIncomeCategoriesChartInstance;
+            }
+
+            const sortedCategories = Object.entries(categoryData)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5); // Get top 5
+
+            const labels = sortedCategories.map(item => item[0]);
+            const data = sortedCategories.map(item => item[1]);
+
+            // Generate dynamic colors for bars
+            const backgroundColors = labels.map((_, i) => {
+                const hue = (i * 137.508) % 360;
+                return `hsla(${hue}, 70%, 60%, 0.8)`;
+            });
+            const borderColors = labels.map((_, i) => {
+                const hue = (i * 137.508) % 360;
+                return `hsla(${hue}, 70%, 50%, 1)`;
+            });
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${titlePrefix} (Rp)`,
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', // Make it a horizontal bar chart
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah (Rp)'
+                            },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return formatRupiah(value);
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Kategori'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += formatRupiah(context.parsed.x);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            if (canvasElement === topExpenseCategoriesChartCanvas) {
+                topExpenseCategoriesChartInstance = new Chart(canvasElement, chartConfig);
+            } else if (canvasElement === topIncomeCategoriesChartCanvas) {
+                topIncomeCategoriesChartInstance = new Chart(canvasElement, chartConfig);
+            }
+        }
+
+        function renderTopCategoriesSummary(element, categoryData, type) {
+            element.innerHTML = '';
+            const sortedCategories = Object.entries(categoryData)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5); // Get top 5
+
+            if (sortedCategories.length === 0) {
+                element.innerHTML = `<p class="text-gray-500 text-center">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
+                return;
+            }
+
+            sortedCategories.forEach(([category, amount]) => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center text-sm';
+                div.innerHTML = `
+                    <span>${category}</span>
+                    <span class="font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(amount)}</span>
+                `;
+                element.appendChild(div);
+            });
+        }
+
+
         // --- Admin Panel Functions ---
         function renderAdminPanel() {
             userListEl.innerHTML = '';
@@ -1875,6 +2479,13 @@
 
         // Add Category Form Submission
         addCategoryForm.addEventListener('submit', addCategory);
+
+        // Profile Picture Upload/Delete
+        profilePictureInput.addEventListener('change', handleProfilePictureUpload);
+        deleteProfilePictureBtn.addEventListener('click', deleteProfilePicture);
+
+        // Send WhatsApp All Transactions Button
+        sendWhatsappSummaryBtn.addEventListener('click', sendTransactionsToWhatsApp);
 
         // Export Data Button
         exportDataBtn.addEventListener('click', exportTransactionsToCSV);
