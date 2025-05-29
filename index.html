@@ -1537,36 +1537,33 @@
 
         // --- Local Data Import/Export ---
 
-        function exportAllData() {
-            if (!currentUser) {
-                showNotification('Anda harus login untuk mengekspor data.', 'error');
-                return;
-            }
+     function exportAllData() {
+    if (!currentUser) {
+        showNotification('Anda harus login untuk mengekspor data.', 'error');
+        return;
+    }
 
-            const users = getLocalStorage('users') || {};
-            const userDataToExport = users[currentUser];
+    const users = getLocalStorage('users') || {};
+    const userDataToExport = users[currentUser];
 
-            if (!userDataToExport) {
-                showNotification('Tidak ada data pengguna untuk diekspor.', 'error');
-                return;
-            }
+    if (!userDataToExport) {
+        showNotification('Tidak ada data pengguna untuk diekspor.', 'error');
+        return;
+    }
 
-            const filename = `keuanganku_backup_${currentUser}_${new Date().toISOString().split('T')[0]}.json`;
-            const dataStr = JSON.stringify(userDataToExport, null, 2); // Pretty print JSON
+    const dataStr = JSON.stringify(userDataToExport, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
 
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
+    // Buka di tab baru (RAMAH HP)
+    const win = window.open(url, '_blank');
+    if (!win) {
+        alert("Popup diblokir. Izinkan popup di browser Anda.");
+    }
 
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a); // Required for Firefox
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url); // Clean up
+    showNotification('File dibuka di tab baru. Silakan simpan manual.', 'info');
+}
 
-            showNotification('Semua data berhasil diekspor!', 'success');
-        }
 
         function importAllData(event) {
             const file = event.target.files[0];
