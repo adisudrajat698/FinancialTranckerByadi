@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Catat Keuangan Pribadi</title>
+    <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -378,7 +379,7 @@
         </div>
         <nav class="flex-grow">
             <ul class="space-y-2">
-                <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard">Dashboard</a></li>
+              <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard"><i data-feather="home" class="inline-block w-4 h-4 mr-2"></i> Dashboard </a></li>
                 <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions">Transaksi</a></li>
                 <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports">Laporan</a></li>
                 <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis">Analisis Keuangan</a></li>
@@ -2691,6 +2692,8 @@
     }
     lastTouchEnd = now;
   }, false);
+
+        feather.replace();
     </script>
 </body>
 </html>
