@@ -647,14 +647,6 @@
             <section id="settingsSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
                 <div class="card p-6 mb-8">
-  <h3 class="text-2xl font-bold mb-4">Bahasa Aplikasi</h3>
-  <label for="languageSelect" class="block text-sm font-medium text-gray-700 mb-1">Pilih Bahasa</label>
-  <select id="languageSelect" class="block w-48 p-2 rounded-md border border-gray-300">
-    <option value="id">Bahasa Indonesia</option>
-    <option value="en">English</option>
-  </select>
-</div>
-                <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Foto Profil</h3>
                     <div class="flex flex-col items-center mb-4">
                         <div class="profile-picture-container">
@@ -2702,59 +2694,6 @@
   }, false);
 
         feather.replace();
-
-         const translations = {
-    id: {
-      dashboard: "Dashboard",
-      transactions: "Transaksi",
-      reports: "Laporan",
-      analysis: "Analisis Keuangan",
-      settings: "Pengaturan",
-      logout: "Logout",
-      login: "Login",
-      register: "Daftar di sini"
-    },
-    en: {
-      dashboard: "Dashboard",
-      transactions: "Transactions",
-      reports: "Reports",
-      analysis: "Financial Analysis",
-      settings: "Settings",
-      logout: "Logout",
-      login: "Login",
-      register: "Register here"
-    }
-  };
-
-  function applyLanguage(lang) {
-    localStorage.setItem('language', lang);
-    const t = translations[lang];
-
-    document.querySelector('[data-section="dashboard"]').innerHTML = `<i data-feather="home" class="inline-block w-4 h-4 mr-2"></i> ${t.dashboard}`;
-    document.querySelector('[data-section="transactions"]').innerHTML = `<i data-feather="file-text" class="inline-block w-4 h-4 mr-2"></i> ${t.transactions}`;
-    document.querySelector('[data-section="reports"]').innerHTML = `<i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> ${t.reports}`;
-    document.querySelector('[data-section="analysis"]').innerHTML = `<i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> ${t.analysis}`;
-    document.querySelector('[data-section="settings"]').innerHTML = `<i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> ${t.settings}`;
-    document.getElementById("logoutBtn").textContent = t.logout;
-
-    const title = document.getElementById("authTitle");
-    if (title) title.textContent = t.login;
-
-    const toggleLink = document.getElementById("toggleAuthMode");
-    if (toggleLink) toggleLink.textContent = t.register;
-
-    feather.replace();
-  }
-
-  const savedLang = localStorage.getItem('language') || 'id';
-  const langSelect = document.getElementById('languageSelect');
-  if (langSelect) {
-    langSelect.value = savedLang;
-    langSelect.addEventListener('change', function () {
-      applyLanguage(this.value);
-    });
-  }
-  applyLanguage(savedLang);
     </script>
 </body>
 </html>
