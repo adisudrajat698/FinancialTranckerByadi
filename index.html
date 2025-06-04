@@ -363,6 +363,54 @@
             margin-top: 1rem;
             width: 100%;
         }
+
+        /* Chatbot styles */
+        #chatbotModal .modal-content {
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #chatDisplay {
+            flex-grow: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            background-color: #f9fafb;
+        }
+        .chat-message {
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            max-width: 80%;
+        }
+        .chat-message.user {
+            background-color: #dbeafe; /* blue-100 */
+            align-self: flex-end;
+            margin-left: auto;
+            text-align: right;
+        }
+        .chat-message.bot {
+            background-color: #e2e8f0; /* gray-200 */
+            align-self: flex-start;
+            margin-right: auto;
+            text-align: left;
+        }
+        .chat-options button {
+            background-color: #e0f2fe; /* light blue */
+            color: #0369a1; /* dark blue */
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-options button:hover {
+            background-color: #bae6fd; /* lighter blue */
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -384,6 +432,7 @@
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
+              <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-4 h-4 mr-2"></i> Bantuan </a></li>
               <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin">Admin</a></li>
             </ul>
         </nav>
@@ -434,15 +483,18 @@
                     <p class="text-xl text-gray-700">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="card p-6 text-center">
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="dollar-sign" class="w-10 h-10 text-blue-500 mb-2"></i>
                         <h3 class="text-lg font-medium text-gray-600">Saldo Saat Ini</h3>
                         <p id="currentBalance" class="text-4xl font-bold mt-2">Rp 0</p>
                     </div>
-                    <div class="card p-6 text-center">
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-down-left" class="w-10 h-10 text-green-500 mb-2"></i>
                         <h3 class="text-lg font-medium text-gray-600">Total Pemasukan</h3>
                         <p id="totalIncome" class="text-3xl font-bold text-income mt-2">Rp 0</p>
                     </div>
-                    <div class="card p-6 text-center">
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-up-right" class="w-10 h-10 text-red-500 mb-2"></i>
                         <h3 class="text-lg font-medium text-gray-600">Total Pengeluaran</h3>
                         <p id="totalExpense" class="text-3xl font-bold text-expense mt-2">Rp 0</p>
                     </div>
@@ -720,6 +772,20 @@
                 </div>
             </section>
 
+            <section id="helpSection" class="hidden">
+                <h2 class="text-3xl font-bold mb-6">Bantuan</h2>
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4">Asisten Bantuan</h3>
+                    <div id="chatDisplay" class="flex flex-col">
+                        <!-- Chat messages will be displayed here -->
+                        <div class="chat-message bot">Halo! Saya asisten bantuan Anda. Bagaimana saya bisa membantu?</div>
+                    </div>
+                    <div id="chatOptions" class="flex flex-wrap justify-center gap-2">
+                        <!-- Chat options will be dynamically generated here -->
+                    </div>
+                </div>
+            </section>
+
             <section id="adminSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Panel Admin</h2>
                 <div class="card p-6">
@@ -906,6 +972,7 @@
         const transactionsSidebarItem = document.getElementById('transactionsSidebarItem');
         const reportsSidebarItem = document.getElementById('reportsSidebarItem');
         const settingsSidebarItem = document.getElementById('settingsSidebarItem');
+        const helpSidebarItem = document.getElementById('helpSidebarItem'); // New help sidebar item
 
         const sidebarItems = document.querySelectorAll('.sidebar-item');
 
@@ -937,6 +1004,11 @@
         const exportAllDataBtn = document.getElementById('exportAllDataBtn');
         const importAllDataInput = document.getElementById('importAllDataInput');
 
+        // Chatbot Elements
+        const helpSection = document.getElementById('helpSection');
+        const chatDisplay = document.getElementById('chatDisplay');
+        const chatOptions = document.getElementById('chatOptions');
+
         // State Variables
         let isLoggedIn = false;
         let authMode = 'login'; // 'login' or 'register'
@@ -951,6 +1023,155 @@
         // Super Admin Credentials (for demonstration purposes)
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'admin123';
+
+        // Chatbot Questions and Answers
+        const chatbotQA = {
+            "start": {
+                question: "Halo! Saya asisten bantuan Anda. Silakan pilih topik yang ingin Anda ketahui lebih lanjut:",
+                options: [
+                    "Informasi Dashboard",
+                    "Manajemen Transaksi",
+                    "Laporan Keuangan",
+                    "Analisis Keuangan",
+                    "Pengaturan Akun",
+                    "Bantuan Admin",
+                    "Kembali ke awal"
+                ]
+            },
+            "Informasi Dashboard": {
+                answer: "Dashboard adalah halaman utama yang menampilkan ringkasan keuangan Anda. Di sini Anda bisa melihat Saldo Saat Ini, Total Pemasukan, Total Pengeluaran, Ringkasan Pemasukan & Pengeluaran dalam bentuk grafik batang, serta Transaksi Terbaru Anda.",
+                options: [
+                    "Apa itu Saldo Saat Ini?",
+                    "Apa itu Total Pemasukan/Pengeluaran?",
+                    "Bagaimana grafik di Dashboard bekerja?",
+                    "Transaksi Terbaru di Dashboard",
+                    "Kembali ke awal"
+                ]
+            },
+            "Apa itu Saldo Saat Ini?": {
+                answer: "Saldo Saat Ini adalah jumlah uang yang Anda miliki, dihitung dari Total Pemasukan dikurangi Total Pengeluaran Anda."
+            },
+            "Apa itu Total Pemasukan/Pengeluaran?": {
+                answer: "Total Pemasukan adalah jumlah semua transaksi dengan tipe 'Pemasukan'. Total Pengeluaran adalah jumlah semua transaksi dengan tipe 'Pengeluaran'."
+            },
+            "Bagaimana grafik di Dashboard bekerja?": {
+                answer: "Grafik di Dashboard menampilkan perbandingan visual antara total pemasukan dan total pengeluaran Anda. Tinggi batang menunjukkan proporsi masing-masing terhadap total transaksi."
+            },
+            "Transaksi Terbaru di Dashboard": {
+                answer: "Bagian 'Transaksi Terbaru' di Dashboard menampilkan hingga 5 transaksi terakhir yang Anda masukkan, memudahkan Anda untuk melacak aktivitas keuangan terkini."
+            },
+            "Manajemen Transaksi": {
+                answer: "Di menu 'Transaksi', Anda bisa menambah, melihat, mengedit, dan menghapus semua transaksi keuangan Anda.",
+                options: [
+                    "Bagaimana cara menambahkan transaksi baru?",
+                    "Bagaimana cara melihat daftar semua transaksi?",
+                    "Bagaimana cara mencari, memfilter, dan mengurutkan transaksi?",
+                    "Bagaimana cara mengedit transaksi yang sudah ada?",
+                    "Bagaimana cara menghapus transaksi?",
+                    "Apa fungsi paginasi di daftar transaksi?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara menambahkan transaksi baru?": {
+                answer: "Untuk menambahkan transaksi baru, pergi ke menu 'Transaksi', lalu pada formulir 'Tambah Transaksi Baru', isi Tanggal, Deskripsi, Jumlah, pilih Tipe (Pemasukan/Pengeluaran), dan pilih Kategori. Setelah lengkap, klik tombol 'Tambah Transaksi'."
+            },
+            "Bagaimana cara melihat daftar semua transaksi?": {
+                answer: "Daftar semua transaksi Anda dapat dilihat di bagian 'Daftar Semua Transaksi' pada menu 'Transaksi'. Transaksi akan ditampilkan dalam format daftar yang bisa Anda kelola."
+            },
+            "Bagaimana cara mencari, memfilter, dan mengurutkan transaksi?": {
+                answer: "Di 'Daftar Semua Transaksi', Anda dapat menggunakan kolom 'Cari Deskripsi' untuk mencari berdasarkan teks, 'Filter Tipe' untuk memilih Pemasukan/Pengeluaran/Semua, 'Tanggal Mulai' dan 'Tanggal Akhir' untuk memfilter rentang waktu, serta 'Urutkan Berdasarkan' untuk mengurutkan data (Tanggal Terbaru/Terlama, Jumlah Terbesar/Terkecil)."
+            },
+            "Bagaimana cara mengedit transaksi yang sudah ada?": {
+                answer: "Untuk mengedit transaksi, temukan transaksi di 'Daftar Semua Transaksi', lalu klik tombol 'Edit' di samping transaksi tersebut. Sebuah modal akan muncul, Anda bisa mengubah detail transaksi dan klik 'Simpan Perubahan'."
+            },
+            "Bagaimana cara menghapus transaksi?": {
+                answer: "Untuk menghapus transaksi, temukan transaksi di 'Daftar Semua Transaksi', lalu klik tombol 'Hapus' di samping transaksi tersebut. Anda akan diminta konfirmasi sebelum transaksi dihapus secara permanen."
+            },
+            "Apa fungsi paginasi di daftar transaksi?": {
+                answer: "Paginasi digunakan untuk membagi daftar transaksi menjadi beberapa halaman, biasanya 10 transaksi per halaman. Ini membantu dalam mengelola dan melihat data transaksi yang banyak secara lebih efisien. Anda bisa menggunakan tombol 'Sebelumnya' dan 'Berikutnya' untuk navigasi."
+            },
+            "Laporan Keuangan": {
+                answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
+                options: [
+                    "Bagaimana cara memfilter laporan?",
+                    "Jenis grafik apa saja yang ada di laporan keuangan?",
+                    "Bagaimana cara melihat detail transaksi di laporan?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara memfilter laporan?": {
+                answer: "Di menu 'Laporan', Anda bisa memfilter ringkasan laporan dan grafik berdasarkan 'Bulan' dan 'Tahun' tertentu, atau memilih 'Semua Bulan'/'Semua Tahun' untuk melihat data keseluruhan."
+            },
+            "Jenis grafik apa saja yang ada di laporan keuangan?": {
+                answer: "Laporan keuangan menampilkan 'Grafik Pemasukan dan Pengeluaran Bulanan' (grafik batang) serta 'Pengeluaran per Kategori' dan 'Pemasukan per Kategori' (grafik lingkaran) untuk visualisasi data Anda."
+            },
+            "Bagaimana cara melihat detail transaksi di laporan?": {
+                answer: "Di bagian bawah menu 'Laporan', terdapat 'Detail Transaksi' yang menampilkan daftar lengkap transaksi yang sesuai dengan filter bulan dan tahun yang Anda pilih di atas."
+            },
+            "Analisis Keuangan": {
+                answer: "Bagian 'Analisis Keuangan' membantu Anda memahami tren dan pola pengeluaran/pemasukan Anda melalui grafik yang lebih mendalam.",
+                options: [
+                    "Apa itu Tren Keuangan Bulanan?",
+                    "Apa itu 5 Kategori Pengeluaran/Pemasukan Teratas?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Apa itu Tren Keuangan Bulanan?": {
+                answer: "Grafik 'Tren Keuangan Bulanan' menunjukkan bagaimana pemasukan, pengeluaran, dan saldo kumulatif Anda berubah dari waktu ke waktu, memberikan gambaran tentang kesehatan finansial Anda."
+            },
+            "Apa itu 5 Kategori Pengeluaran/Pemasukan Teratas?": {
+                answer: "Grafik ini menampilkan 5 kategori pengeluaran atau pemasukan terbesar Anda berdasarkan jumlah uang, membantu Anda mengidentifikasi area di mana Anda paling banyak menghabiskan atau menerima uang."
+            },
+            "Pengaturan Akun": {
+                answer: "Menu 'Pengaturan' memungkinkan Anda untuk mengelola profil, kata sandi, kategori, serta melakukan backup dan ekspor data.",
+                options: [
+                    "Bagaimana cara mengelola foto profil?",
+                    "Bagaimana cara mengubah kata sandi?",
+                    "Bagaimana cara mengelola kategori?",
+                    "Bagaimana cara backup/pulihkan data?",
+                    "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
+                    "Bagaimana cara mengekspor transaksi ke CSV?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara mengelola foto profil?": {
+                answer: "Di menu 'Pengaturan', pada bagian 'Foto Profil', Anda dapat mengunggah foto profil baru dengan mengklik 'Ubah Foto Profil' atau menghapus foto profil yang sudah ada dengan 'Hapus Foto Profil'."
+            },
+            "Bagaimana cara mengubah kata sandi?": {
+                answer: "Anda bisa mengubah kata sandi di menu 'Pengaturan', pada bagian 'Ubah Kata Sandi'. Masukkan kata sandi Anda saat ini, lalu masukkan kata sandi baru dan konfirmasinya. Pastikan kata sandi baru minimal 6 karakter."
+            },
+            "Bagaimana cara backup/pulihkan data?": {
+                answer: "Anda dapat membackup data Anda ke file JSON lokal melalui menu 'Pengaturan', pada bagian 'Backup & Pulihkan Data (Lokal)'. Klik 'Ekspor Semua Data' untuk mengunduh file JSON, atau 'Impor Semua Data' untuk mengunggah file JSON dan memulihkan data Anda."
+            },
+            "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?": {
+                answer: "Di menu 'Pengaturan', pada bagian 'Kirim Semua Transaksi ke WhatsApp', klik tombol 'Kirim Semua Transaksi ke WhatsApp'. Ini akan membuka aplikasi WhatsApp Anda dengan ringkasan keuangan dan detail transaksi yang sudah terisi, siap untuk Anda kirim."
+            },
+            "Bagaimana cara mengekspor transaksi ke CSV?": {
+                answer: "Di menu 'Pengaturan', pada bagian 'Ekspor Data Transaksi (CSV)', klik tombol 'Ekspor Transaksi ke CSV'. Semua transaksi Anda akan diunduh sebagai file CSV yang dapat dibuka di program spreadsheet seperti Excel."
+            },
+            "Bantuan Admin": {
+                answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi.",
+                options: [
+                    "Bagaimana cara menghapus pengguna (Admin)?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara menghapus pengguna (Admin)?": {
+                answer: "Sebagai pengguna 'Admin', Anda dapat masuk ke 'Panel Admin'. Di sana akan ada daftar pengguna terdaftar, dan Anda bisa memilih untuk menghapus pengguna tertentu beserta semua datanya."
+            },
+            "Kembali ke awal": {
+                answer: "Baik, apa lagi yang bisa saya bantu? Silakan pilih topik dari daftar di bawah:",
+                options: [
+                    "Informasi Dashboard",
+                    "Manajemen Transaksi",
+                    "Laporan Keuangan",
+                    "Analisis Keuangan",
+                    "Pengaturan Akun",
+                    "Bantuan Admin",
+                    "Kembali ke awal"
+                ]
+            }
+        };
 
         // --- Utility Functions ---
 
@@ -1033,6 +1254,7 @@
                     reportsSidebarItem.classList.add('hidden');
                     analysisSidebarItem.classList.add('hidden'); // Hide for admin
                     settingsSidebarItem.classList.add('hidden');
+                    helpSidebarItem.classList.add('hidden'); // Hide help for admin
                     adminSidebarItem.classList.remove('hidden');
                 } else {
                     dashboardSidebarItem.classList.remove('hidden');
@@ -1040,6 +1262,7 @@
                     reportsSidebarItem.classList.remove('hidden');
                     analysisSidebarItem.classList.remove('hidden'); // Show for regular user
                     settingsSidebarItem.classList.remove('hidden');
+                    helpSidebarItem.classList.remove('hidden'); // Show help for regular user
                     adminSidebarItem.classList.add('hidden');
                 }
                 // Update username in sidebar
@@ -1055,6 +1278,7 @@
                 reportsSidebarItem.classList.add('hidden');
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
+                helpSidebarItem.classList.add('hidden');
                 adminSidebarItem.classList.add('hidden');
 
                 // Hide all other sections
@@ -1184,6 +1408,8 @@
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
                 loadProfilePicture(); // Load profile picture when entering settings
+            } else if (sectionId === 'helpSection') { // New: Handle help section
+                startChatbot();
             } else if (sectionId === 'adminSection') {
                 renderAdminPanel();
             }
@@ -2542,6 +2768,57 @@
             jsonDisplayModal.classList.add('hidden');
         }
 
+        // --- Chatbot Functions ---
+        function startChatbot() {
+            displayBotMessage(chatbotQA.start.question);
+            displayChatOptions(chatbotQA.start.options);
+        }
+
+        function displayBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message bot';
+            messageDiv.textContent = message;
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
+        }
+
+        function displayUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chat-message user';
+            messageDiv.textContent = message;
+            chatDisplay.appendChild(messageDiv);
+            chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom
+        }
+
+        function displayChatOptions(options) {
+            chatOptions.innerHTML = ''; // Clear previous options
+            options.forEach(optionText => {
+                const button = document.createElement('button');
+                button.textContent = optionText;
+                button.addEventListener('click', () => handleChatOptionClick(optionText));
+                chatOptions.appendChild(button);
+            });
+        }
+
+        function handleChatOptionClick(optionText) {
+            displayUserMessage(optionText); // Show user's choice
+            const response = chatbotQA[optionText];
+            if (response) {
+                displayBotMessage(response.answer);
+                if (response.options) {
+                    displayChatOptions(response.options);
+                } else {
+                    // If no further options, offer to go back to start
+                    displayChatOptions(["Kembali ke awal"]);
+                }
+            } else {
+                displayBotMessage("Maaf, saya tidak mengerti pertanyaan itu. Silakan pilih dari opsi yang tersedia atau ketik 'Kembali ke awal'.");
+                displayChatOptions(["Kembali ke awal"]);
+            }
+            chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom after new messages
+        }
+
+
         // --- Event Listeners ---
 
         // Toggle sidebar on mobile
@@ -2566,7 +2843,7 @@
                 authMode = 'register';
                 authTitle.textContent = 'Daftar';
                 authSubmitBtn.textContent = 'Daftar';
-                toggleAuthModeBtn.textContent = 'Login di sini';
+                toggleAuthModeBtn.textContent = 'Daftar di sini';
             } else {
                 authMode = 'login';
                 authTitle.textContent = 'Login';
@@ -2671,27 +2948,27 @@
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
 
         // Cegah pinch zoom
-  document.addEventListener('gesturestart', function (e) {
-    e.preventDefault();
-  });
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
 
-  document.addEventListener('gesturechange', function (e) {
-    e.preventDefault();
-  });
+        document.addEventListener('gesturechange', function (e) {
+            e.preventDefault();
+        });
 
-  document.addEventListener('gestureend', function (e) {
-    e.preventDefault();
-  });
+        document.addEventListener('gestureend', function (e) {
+            e.preventDefault();
+        });
 
-  // Cegah double-tap zoom
-  let lastTouchEnd = 0;
-  document.addEventListener('touchend', function (event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
+        // Cegah double-tap zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
 
         feather.replace();
     </script>
