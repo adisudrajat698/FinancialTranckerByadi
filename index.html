@@ -2003,6 +2003,8 @@
 
             try {
                 const userId = currentFirebaseUser.uid;
+                // Construct the path for the profile picture, ensuring uniqueness if multiple files with same name are uploaded
+                // For simplicity, we'll overwrite if the name is the same. For unique names, you could use a UUID.
                 const imageRef = ref(storage, `artifacts/${appId}/users/${userId}/profilePicture/${file.name}`);
                 await uploadBytes(imageRef, file);
                 const downloadURL = await getDownloadURL(imageRef);
@@ -2016,8 +2018,20 @@
                 // UI will update via Firestore listener
             } catch (error) {
                 console.error("Error uploading profile picture:", error);
-                showMessage(profilePictureMessage, 'Gagal mengunggah foto profil. Silakan coba lagi.', true);
-                showNotification('Gagal mengunggah foto profil.', 'error');
+                // Log the Firebase error code for better debugging
+                console.error("Firebase Storage Error Code:", error.code);
+                let errorMessage = 'Gagal mengunggah foto profil. Silakan coba lagi.';
+                if (error.code === 'storage/unauthorized') {
+                    errorMessage = 'Tidak diizinkan mengunggah. Periksa aturan keamanan Firebase Storage Anda.';
+                } else if (error.code === 'storage/object-not-found') {
+                    errorMessage = 'File tidak ditemukan di penyimpanan.';
+                } else if (error.code === 'storage/canceled') {
+                    errorMessage = 'Unggahan dibatalkan.';
+                } else if (error.code === 'storage/quota-exceeded') {
+                    errorMessage = 'Kuota penyimpanan terlampaui.';
+                }
+                showMessage(profilePictureMessage, errorMessage, true);
+                showNotification(errorMessage, 'error');
             }
         }
 
@@ -2052,8 +2066,16 @@
                     // UI will update via Firestore listener
                 } catch (error) {
                     console.error("Error deleting profile picture:", error);
-                    showMessage(profilePictureMessage, 'Gagal menghapus foto profil. Silakan coba lagi.', true);
-                    showNotification('Gagal menghapus foto profil.', 'error');
+                    // Log the Firebase error code for better debugging
+                    console.error("Firebase Storage Error Code:", error.code);
+                    let errorMessage = 'Gagal menghapus foto profil. Silakan coba lagi.';
+                    if (error.code === 'storage/unauthorized') {
+                        errorMessage = 'Tidak diizinkan menghapus. Periksa aturan keamanan Firebase Storage Anda.';
+                    } else if (error.code === 'storage/object-not-found') {
+                        errorMessage = 'Foto profil tidak ditemukan di penyimpanan.';
+                    }
+                    showMessage(profilePictureMessage, errorMessage, true);
+                    showNotification(errorMessage, 'error');
                 }
             });
         }
@@ -2720,7 +2742,7 @@
                 }
             };
 
-            if (canvasElement === topExpenseCategoriesChartCanvas) {
+            if (canvasElement === expenseByCategoryChartCanvas) {
                 expenseByCategoryChartInstance = new Chart(canvasElement, chartConfig);
             } else if (canvasElement === incomeByCategoryChartCanvas) {
                 incomeByCategoryChartInstance = new Chart(canvasElement, chartConfig);
