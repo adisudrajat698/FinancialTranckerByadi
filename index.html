@@ -853,7 +853,8 @@
             deleteUser as deleteFirebaseAuthUser,
             reauthenticateWithCredential,
             EmailAuthProvider,
-            sendPasswordResetEmail // Added for password reset
+            sendPasswordResetEmail,
+            sendEmailVerification // Added for email verification
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore,
@@ -1089,12 +1090,24 @@
         // Firebase Auth State Listener
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                isLoggedIn = true;
-                currentFirebaseUser = user;
-                showSection('dashboardSection');
-                dashboardUsernameEl.textContent = user.email; // Display email as username
-                sidebarUsername.textContent = user.email; // Display email as username
-                setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                // Check if email is verified
+                if (user.emailVerified) {
+                    isLoggedIn = true;
+                    currentFirebaseUser = user;
+                    showSection('dashboardSection');
+                    dashboardUsernameEl.textContent = user.email; // Display email as username
+                    sidebarUsername.textContent = user.email; // Display email as username
+                    setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                } else {
+                    // If email is not verified, sign out and show message
+                    await signOut(auth);
+                    isLoggedIn = false;
+                    currentFirebaseUser = null;
+                    showSection('authSection');
+                    unsubscribeAllFirestoreListeners();
+                    showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
+                    showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
+                }
             } else {
                 isLoggedIn = false;
                 currentFirebaseUser = null;
@@ -1111,14 +1124,17 @@
             const password = passwordInput.value.trim();
 
             if (!email || !password) {
-                showMessage(authMessage, 'Email dan password tidak boleh kosong.', true);
-                showNotification('Email dan password tidak boleh kosong.', 'error');
+                showMessage(authMessage, 'Email dan kata sandi tidak boleh kosong.', true);
+                showNotification('Email dan kata sandi tidak boleh kosong.', 'error');
                 return;
             }
 
             try {
                 if (authMode === 'register') {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // Send email verification
+                    await sendEmailVerification(userCredential.user);
+
                     // Initialize user data in Firestore
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'categories'), {
                         list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
@@ -1127,8 +1143,8 @@
                         list: []
                     });
 
-                    showMessage(authMessage, 'Registrasi berhasil! Silakan login.', false);
-                    showNotification('Registrasi berhasil! Silakan login.', 'success');
+                    showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', false);
+                    showNotification('Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', 'success', 5000);
                     // Switch to login mode after successful registration
                     authMode = 'login';
                     authTitle.textContent = 'Login';
@@ -1138,7 +1154,14 @@
                     passwordInput.value = ''; // Clear fields after successful registration
 
                 } else { // Login mode
-                    await signInWithEmailAndPassword(auth, email, password);
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    // Check email verification status after successful login
+                    if (!userCredential.user.emailVerified) {
+                        await signOut(auth); // Sign out unverified user
+                        showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
+                        showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
+                        return; // Stop further execution
+                    }
                     showMessage(authMessage, 'Login berhasil!', false);
                     showNotification('Login berhasil!', 'success');
                     // onAuthStateChanged will handle showing the correct section
@@ -1151,9 +1174,9 @@
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = 'Format email tidak valid.';
                 } else if (error.code === 'auth/weak-password') {
-                    errorMessage = 'Password terlalu lemah (minimal 6 karakter).';
+                    errorMessage = 'Kata sandi terlalu lemah (minimal 6 karakter).';
                 } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorMessage = 'Email atau password salah.';
+                    errorMessage = 'Email atau kata sandi salah.';
                 }
                 showMessage(authMessage, errorMessage, true);
                 showNotification(errorMessage, 'error');
@@ -2659,7 +2682,7 @@
             const labels = sortedCategories.map(item => item[0]);
             const data = sortedCategories.map(item => item[1]);
 
-            // Generate dynamic colors for bars
+            // Generate dynamic colors
             const backgroundColors = labels.map((_, i) => {
                 const hue = (i * 137.508) % 360;
                 return `hsla(${hue}, 70%, 60%, 0.8)`;
@@ -2773,9 +2796,9 @@
             const userEmail = currentFirebaseUser.email;
 
             // Prompt for re-authentication
-            const passwordPrompt = prompt("Untuk keamanan, masukkan password Anda untuk mengkonfirmasi penghapusan akun:");
+            const passwordPrompt = prompt("Untuk keamanan, masukkan kata sandi Anda untuk mengkonfirmasi penghapusan akun:");
             if (!passwordPrompt) {
-                showNotification('Penghapusan akun dibatalkan (password tidak dimasukkan).', 'info');
+                showNotification('Penghapusan akun dibatalkan (kata sandi tidak dimasukkan).', 'info');
                 return;
             }
 
@@ -2809,7 +2832,7 @@
                 if (error.code === 'auth/requires-recent-login') {
                     errorMessage = 'Untuk keamanan, Anda harus login ulang dan coba lagi.';
                 } else if (error.code === 'auth/invalid-credential') {
-                    errorMessage = 'Password yang dimasukkan salah. Penghapusan akun dibatalkan.';
+                    errorMessage = 'Kata sandi yang dimasukkan salah. Penghapusan akun dibatalkan.';
                 } else if (error.code === 'auth/network-request-failed') {
                     errorMessage = 'Kesalahan jaringan. Periksa koneksi internet Anda.';
                 }
@@ -2879,6 +2902,7 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
+                    "Verifikasi Email", // New option
                     "Kembali ke awal"
                 ]
             },
@@ -3015,6 +3039,20 @@
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
             },
+            "Verifikasi Email": { // New section for chatbot
+                answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
+                options: [
+                    "Mengapa verifikasi email diperlukan?",
+                    "Apa yang harus dilakukan jika tidak menerima email verifikasi?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Mengapa verifikasi email diperlukan?": {
+                answer: "Verifikasi email diperlukan untuk keamanan akun Anda. Ini membantu memastikan bahwa alamat email yang digunakan adalah milik Anda dan mencegah akses tidak sah."
+            },
+            "Apa yang harus dilakukan jika tidak menerima email verifikasi?": {
+                answer: "Jika Anda tidak menerima email verifikasi, silakan periksa folder spam atau junk Anda. Terkadang, email bisa masuk ke sana. Anda juga bisa mencoba masuk kembali ke aplikasi; ini sering kali akan memicu pengiriman ulang email verifikasi."
+            },
             "Bantuan Admin": {
                 answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi. Namun, fungsi manajemen pengguna lain dari sisi klien tidak didukung secara langsung oleh Firebase SDK karena alasan keamanan. Ini memerlukan fungsi backend (misalnya, Firebase Cloud Functions)."
             },
@@ -3027,6 +3065,7 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
+                    "Verifikasi Email", // New option
                     "Kembali ke awal"
                 ]
             }
