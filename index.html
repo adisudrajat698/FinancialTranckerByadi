@@ -371,7 +371,6 @@
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-4 flex flex-col md:relative md:flex-shrink-0">
         <div class="text-2xl font-bold mb-4 text-center">KeuanganKu</div>
         <div class="flex flex-col items-center mb-8">
-            <!-- Profile picture elements removed -->
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 mb-2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
@@ -386,7 +385,6 @@
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-4 h-4 mr-2"></i> Bantuan </a></li>
-              <!-- Admin sidebar item removed -->
             </ul>
         </nav>
         <div class="mt-auto">
@@ -419,6 +417,7 @@
                         <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold">Login</button>
                     </form>
                     <p class="text-center text-sm mt-4">
+                        <a href="#" id="forgotPasswordLink" class="text-blue-500 hover:underline">Lupa Kata Sandi?</a> |
                         Belum punya akun? <a href="#" id="toggleAuthMode" class="text-blue-500 hover:underline">Daftar di sini</a>
                     </p>
                 </div>
@@ -427,7 +426,6 @@
             <section id="dashboardSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
                 <div class="flex items-center gap-4 mb-6">
-                    <!-- Profile picture elements removed -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                     </svg>
@@ -686,7 +684,6 @@
 
             <section id="settingsSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
-                <!-- Profile Picture section removed -->
 
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
@@ -761,8 +758,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Admin section removed -->
             </main>
 
         <footer class="bg-gray-800 text-white text-center p-4 text-sm mt-auto">
@@ -827,6 +822,22 @@
         </div>
     </div>
 
+    <!-- New Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="hideForgotPasswordModal()">&times;</button>
+            <h3 class="text-xl font-bold mb-4">Lupa Kata Sandi</h3>
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label for="forgotPasswordEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="forgotPasswordEmail" placeholder="Masukkan email Anda" required class="block">
+                </div>
+                <p id="forgotPasswordMessage" class="text-red-500 text-sm hidden"></p>
+                <button type="submit" class="w-full btn-primary font-semibold">Kirim Link Reset Kata Sandi</button>
+            </form>
+        </div>
+    </div>
+
     <div id="notificationContainer"></div>
 
     <script type="module">
@@ -841,7 +852,8 @@
             updatePassword,
             deleteUser as deleteFirebaseAuthUser,
             reauthenticateWithCredential,
-            EmailAuthProvider
+            EmailAuthProvider,
+            sendPasswordResetEmail // Added for password reset
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore,
@@ -858,15 +870,6 @@
             getDocs,
             writeBatch
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        // Removed Storage import as profile picture functionality is removed
-        // import {
-        //     getStorage,
-        //     ref,
-        //     uploadBytes,
-        //     getDownloadURL,
-        //     deleteObject,
-        //     listAll
-        // } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Firebase Configuration (provided by the environment)
         const firebaseConfig = {
@@ -883,7 +886,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        // const storage = getStorage(app); // Removed Storage initialization
 
         // Global variables for Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -902,6 +904,7 @@
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authMessage = document.getElementById('authMessage');
         const toggleAuthModeBtn = document.getElementById('toggleAuthMode');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink'); // New: Forgot Password Link
 
         const dashboardSection = document.getElementById('dashboardSection');
         const dashboardUsernameEl = document.getElementById('dashboardUsername');
@@ -987,26 +990,6 @@
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
 
-        // Profile Picture Elements (Removed)
-        // const profilePictureDisplaySettings = document.getElementById('profilePictureDisplaySettings');
-        // const profilePicturePlaceholderSettings = document.getElementById('profilePicturePlaceholderSettings');
-        // const profilePictureInput = document.getElementById('profilePictureInput');
-        // const deleteProfilePictureBtn = document.getElementById('deleteProfilePictureBtn');
-        // const profilePictureMessage = document.getElementById('profilePictureMessage');
-
-        // New Profile Picture Elements for Sidebar and Dashboard (Removed)
-        // const profilePictureDisplaySidebar = document.getElementById('profilePictureDisplaySidebar');
-        // const profilePicturePlaceholderSidebar = document.getElementById('profilePicturePlaceholderSidebar');
-        const sidebarUsername = document.getElementById('sidebarUsername');
-
-        // const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
-        // const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
-
-        // Admin section elements (Removed from HTML, but kept here for reference if needed)
-        // const adminSidebarItem = document.getElementById('adminSidebarItem');
-        // const adminSection = document.getElementById('adminSection');
-        // const userListEl = document.getElementById('userList');
-
         // Specific sidebar items to hide/show
         const dashboardSidebarItem = document.getElementById('dashboardSidebarItem');
         const transactionsSidebarItem = document.getElementById('transactionsSidebarItem');
@@ -1037,6 +1020,12 @@
         const jsonOutput = document.getElementById('jsonOutput');
         const copyJsonBtn = document.getElementById('copyJsonBtn');
 
+        // New Forgot Password Modal Elements
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const forgotPasswordEmailInput = document.getElementById('forgotPasswordEmail');
+        const forgotPasswordMessageEl = document.getElementById('forgotPasswordMessage');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+
         // Notification Container
         const notificationContainer = document.getElementById('notificationContainer');
 
@@ -1059,15 +1048,10 @@
         let currentPage = 1;
         let filteredTransactions = []; // To store transactions after search/filter for pagination
 
-        // Super Admin Credentials (Removed as admin functionality is removed)
-        // const ADMIN_EMAIL = 'admin@keuangan.com';
-        // const ADMIN_PASSWORD = 'admin123';
-
         // Listeners for Firestore data (unsubscribing when user logs out)
         let unsubscribeTransactions = null;
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
-        // let unsubscribeProfile = null; // Removed profile listener
 
         // --- Utility Functions ---
 
@@ -1107,7 +1091,6 @@
             if (user) {
                 isLoggedIn = true;
                 currentFirebaseUser = user;
-                // No more admin check here, always treat as regular user
                 showSection('dashboardSection');
                 dashboardUsernameEl.textContent = user.email; // Display email as username
                 sidebarUsername.textContent = user.email; // Display email as username
@@ -1119,7 +1102,6 @@
                 unsubscribeAllFirestoreListeners(); // Unsubscribe on logout
             }
             updateUIBasedOnAuth();
-            // loadProfilePicture(); // Removed profile picture loading
         });
 
         async function handleAuth(event) {
@@ -1134,15 +1116,10 @@
                 return;
             }
 
-            // Removed hardcoded admin login
             try {
                 if (authMode === 'register') {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     // Initialize user data in Firestore
-                    // Removed profile data initialization
-                    // await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'data'), {
-                    //     profilePictureUrl: null
-                    // });
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'categories'), {
                         list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
                     });
@@ -1209,7 +1186,6 @@
                     sidebar.classList.add('open');
                 }
 
-                // Always show these for logged-in users (admin functionality removed)
                 dashboardSidebarItem.classList.remove('hidden');
                 transactionsSidebarItem.classList.remove('hidden');
                 budgetingSidebarItem.classList.remove('hidden');
@@ -1217,7 +1193,6 @@
                 analysisSidebarItem.classList.remove('hidden');
                 settingsSidebarItem.classList.remove('hidden');
                 helpSidebarItem.classList.remove('hidden');
-                // adminSidebarItem.classList.add('hidden'); // This element is removed from HTML
             } else {
                 authSection.classList.remove('hidden');
                 sidebar.classList.add('hidden');
@@ -1230,7 +1205,6 @@
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
                 helpSidebarItem.classList.add('hidden');
-                // adminSidebarItem.classList.add('hidden'); // This element is removed from HTML
 
                 // Hide all other sections
                 document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
@@ -1238,7 +1212,6 @@
                 });
                 sidebarUsername.textContent = ''; // Clear username in sidebar
             }
-            // loadProfilePicture(); // Removed profile picture loading
         }
 
         // --- Firestore Data Management ---
@@ -1291,17 +1264,6 @@
                 console.error("Error fetching budgets:", error);
                 showNotification('Gagal memuat anggaran. Silakan coba lagi.', 'error');
             });
-
-            // Profile data listener (for profile picture URL) - Removed
-            // const profileDocRef = doc(db, `artifacts/${appId}/users/${uid}/profile`, 'data');
-            // unsubscribeProfile = onSnapshot(profileDocRef, (docSnap) => {
-            //     const profileData = docSnap.exists() ? docSnap.data() : { profilePictureUrl: null };
-            //     console.log("Firestore Profile updated:", profileData); // Log fetched profile data
-            //     window._userProfile = profileData;
-            //     loadProfilePicture();
-            // }, (error) => {
-            //     console.error("Error fetching profile data:", error);
-            // });
         }
 
         // Unsubscribe all listeners (on logout)
@@ -1309,11 +1271,9 @@
             if (unsubscribeTransactions) unsubscribeTransactions();
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
-            // if (unsubscribeProfile) unsubscribeProfile(); // Removed profile listener
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
-            window._userProfile = { profilePictureUrl: null }; // Keep this for consistency, but it won't be used for display
             console.log("All Firestore listeners unsubscribed.");
         }
 
@@ -1413,7 +1373,6 @@
         // --- Section Management ---
 
         function showSection(sectionId) {
-            // No more admin check here
             document.querySelectorAll('main > section').forEach(section => {
                 section.classList.add('hidden');
             });
@@ -1450,11 +1409,9 @@
                 renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
-                // loadProfilePicture(); // Removed profile picture loading
             } else if (sectionId === 'helpSection') {
                 startChatbot();
             }
-            // Admin section removed
         }
 
         // --- Transaction Management ---
@@ -1822,7 +1779,6 @@
                 return;
             }
 
-            // Removed admin password change logic
             if (!currentPass || !newPass || !confirmNewPass) {
                 showMessage(passwordMessageEl, 'Semua field harus diisi.', true);
                 showNotification('Semua field harus diisi.', 'error');
@@ -1864,61 +1820,10 @@
             }
         }
 
-        // --- Profile Picture Management (All functions removed) ---
-
-        // function loadProfilePicture() {
-        //     const profileData = window._userProfile || { profilePictureUrl: null };
-        //     const profilePictureUrl = profileData.profilePictureUrl;
-
-        //     // Update sidebar profile picture
-        //     if (profilePictureUrl) {
-        //         profilePictureDisplaySidebar.src = profilePictureUrl;
-        //         profilePictureDisplaySidebar.classList.remove('hidden');
-        //         profilePicturePlaceholderSidebar.classList.add('hidden');
-        //     } else {
-        //         profilePictureDisplaySidebar.src = ''; // Clear src
-        //         profilePictureDisplaySidebar.classList.add('hidden');
-        //         profilePicturePlaceholderSidebar.classList.remove('hidden');
-        //     }
-
-        //     // Update dashboard profile picture
-        //     if (profilePictureUrl) {
-        //         profilePictureDisplayDashboard.src = profilePictureUrl;
-        //         profilePictureDisplayDashboard.classList.remove('hidden');
-        //         profilePicturePlaceholderDashboard.classList.add('hidden');
-        //     } else {
-        //         profilePictureDisplayDashboard.src = ''; // Clear src
-        //         profilePictureDisplayDashboard.classList.add('hidden');
-        //         profilePicturePlaceholderDashboard.classList.remove('hidden');
-        //     }
-
-        //     // Update settings profile picture
-        //     if (profilePictureUrl) {
-        //         profilePictureDisplaySettings.src = profilePictureUrl;
-        //         profilePictureDisplaySettings.classList.remove('hidden');
-        //         profilePicturePlaceholderSettings.classList.add('hidden');
-        //         deleteProfilePictureBtn.classList.remove('hidden');
-        //     } else {
-        //         profilePictureDisplaySettings.src = ''; // Clear src
-        //         profilePictureDisplaySettings.classList.add('hidden');
-        //         profilePicturePlaceholderSettings.classList.remove('hidden');
-        //         deleteProfilePictureBtn.classList.add('hidden');
-        //     }
-        //     profilePictureMessage.classList.add('hidden'); // Clear any previous messages
-        // }
-
-        // async function handleProfilePictureUpload(event) {
-        //     // Functionality removed
-        // }
-
-        // async function deleteProfilePicture() {
-        //     // Functionality removed
-        // }
-
         // --- Local Data Import/Export ---
 
         async function exportAllData() {
-            if (!currentFirebaseUser) { // Removed admin check
+            if (!currentFirebaseUser) {
                 showNotification('Anda harus login untuk mengekspor data.', 'error');
                 return;
             }
@@ -1934,15 +1839,10 @@
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
 
-                // Removed profile picture URL from export
-                // const profileDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'));
-                // const profilePictureUrl = profileDoc.exists() ? profileDoc.data().profilePictureUrl : null;
-
                 const dataToExport = {
                     transactions,
                     categories,
                     budgets
-                    // profilePictureUrl // Removed from export
                 };
 
                 const dataStr = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
@@ -1963,7 +1863,7 @@
                 return;
             }
 
-            if (!currentFirebaseUser) { // Removed admin check
+            if (!currentFirebaseUser) {
                 showNotification('Anda harus login untuk mengimpor data.', 'error');
                 return;
             }
@@ -2022,12 +1922,6 @@
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'), {
                         list: importedData.budgets || []
                     });
-
-                    // Import profile picture URL (if present) - Removed
-                    // batch.set(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'), {
-                    //     profilePictureUrl: importedData.profilePictureUrl || null
-                    // }, { merge: true });
-
 
                     await batch.commit(); // Commit all batch operations
 
@@ -2192,7 +2086,6 @@
                     latestTransactionsEl.appendChild(transactionDiv);
                 });
             }
-            // loadProfilePicture(); // Removed profile picture loading
         }
 
         function renderIncomeExpenseChart(income, expense) {
@@ -2860,15 +2753,9 @@
             });
         }
 
-        // --- Admin Panel Functions (Removed) ---
-        // The admin section and related functions are removed from the HTML and JS.
-        // The chatbot still refers to them, but they are no longer functional.
-        // client-side Firebase SDK cannot delete arbitrary users by UID.
-        // This would require Firebase Admin SDK on a backend (e.g., Cloud Function).
-
         // --- Delete Own Account Function ---
         async function deleteOwnAccount() {
-            if (!currentFirebaseUser) { // No longer checking for ADMIN_EMAIL as admin is removed
+            if (!currentFirebaseUser) {
                 showNotification('Fitur ini hanya untuk pengguna yang login.', 'error');
                 return;
             }
@@ -2911,26 +2798,7 @@
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 console.log("Metadata deleted.");
 
-                // 3. Delete profile data (which contains profile picture URL) - Removed
-                // const profileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data');
-                // const profileDocSnap = await getDoc(profileDocRef);
-                // const profileData = profileDocSnap.exists() ? profileDocSnap.data() : null;
-                // const profilePictureUrl = profileData ? profileData.profilePictureUrl : null;
-
-                // Delete profile picture from Storage if it exists - Removed
-                // if (profilePictureUrl) {
-                //     try {
-                //         const imageRef = ref(storage, profilePictureUrl);
-                //         await deleteObject(imageRef);
-                //         console.log("Profile picture deleted from Storage.");
-                //     } catch (storageError) {
-                //         console.warn("Could not delete profile picture from Storage (might not exist or permission issue):", storageError);
-                //     }
-                // }
-                // await deleteDoc(profileDocRef);
-                // console.log("Profile data deleted.");
-
-                // 4. Delete the Firebase Authentication user
+                // 3. Delete the Firebase Authentication user
                 await deleteFirebaseAuthUser(currentFirebaseUser);
 
                 showNotification('Akun Anda dan semua data berhasil dihapus.', 'success');
@@ -2989,6 +2857,17 @@
             jsonDisplayModal.classList.add('hidden');
         }
 
+        // New: Forgot Password Modal functions
+        function showForgotPasswordModal() {
+            forgotPasswordModal.classList.remove('hidden');
+            forgotPasswordMessageEl.classList.add('hidden'); // Clear previous messages
+            forgotPasswordEmailInput.value = ''; // Clear input
+        }
+
+        function hideForgotPasswordModal() {
+            forgotPasswordModal.classList.add('hidden');
+        }
+
         // --- Chatbot Functions ---
         const chatbotQA = {
             "start": {
@@ -3000,7 +2879,7 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Kembali ke awal" // Removed "Bantuan Admin"
+                    "Kembali ke awal"
                 ]
             },
             "Informasi Dashboard": {
@@ -3121,10 +3000,6 @@
                     "Kembali ke awal"
                 ]
             },
-            // Removed "Bagaimana cara mengelola foto profil?" from options
-            // "Bagaimana cara mengelola foto profil?": {
-            //     answer: "Di menu 'Pengaturan', pada bagian 'Foto Profil', Anda dapat mengunggah foto profil baru dengan mengklik 'Ubah Foto Profil' atau menghapus foto profil yang sudah ada dengan 'Hapus Foto Profil'."
-            // },
             "Bagaimana cara mengubah kata sandi?": {
                 answer: "Anda bisa mengubah kata sandi di menu 'Pengaturan', pada bagian 'Ubah Kata Sandi'. Masukkan kata sandi Anda saat ini, lalu masukkan kata sandi baru dan konfirmasinya. Pastikan kata sandi baru minimal 6 karakter."
             },
@@ -3140,7 +3015,7 @@
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
             },
-            "Bantuan Admin": { // This section is now purely informational as admin functions are client-side removed
+            "Bantuan Admin": {
                 answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi. Namun, fungsi manajemen pengguna lain dari sisi klien tidak didukung secara langsung oleh Firebase SDK karena alasan keamanan. Ini memerlukan fungsi backend (misalnya, Firebase Cloud Functions)."
             },
             "Kembali ke awal": {
@@ -3243,6 +3118,42 @@
             passwordInput.value = ''; // Clear fields
         });
 
+        // New: Forgot Password Link click
+        forgotPasswordLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            showForgotPasswordModal();
+        });
+
+        // New: Forgot Password Form submission
+        forgotPasswordForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = forgotPasswordEmailInput.value.trim();
+            forgotPasswordMessageEl.classList.add('hidden'); // Hide previous message
+
+            if (!email) {
+                showMessage(forgotPasswordMessageEl, 'Email tidak boleh kosong.', true);
+                showNotification('Email tidak boleh kosong.', 'error');
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage(forgotPasswordMessageEl, 'Link reset kata sandi telah dikirim ke email Anda. Silakan cek kotak masuk Anda.', false);
+                showNotification('Link reset kata sandi telah dikirim!', 'success');
+                forgotPasswordEmailInput.value = ''; // Clear email input
+            } catch (error) {
+                console.error("Error sending password reset email:", error);
+                let errorMessage = 'Gagal mengirim link reset kata sandi. Silakan coba lagi.';
+                if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Format email tidak valid.';
+                } else if (error.code === 'auth/user-not-found') {
+                    errorMessage = 'Tidak ada pengguna dengan email tersebut.';
+                }
+                showMessage(forgotPasswordMessageEl, errorMessage, true);
+                showNotification(errorMessage, 'error');
+            }
+        });
+
         // Logout button
         logoutBtn.addEventListener('click', handleLogout);
 
@@ -3283,10 +3194,6 @@
 
         // Add Category Form Submission
         addCategoryForm.addEventListener('submit', addCategory);
-
-        // Profile Picture Upload/Delete (Event listeners removed)
-        // profilePictureInput.addEventListener('change', handleProfilePictureUpload);
-        // deleteProfilePictureBtn.addEventListener('click', deleteProfilePicture);
 
         // Local Data Import/Export
         exportAllDataBtn.addEventListener('click', exportAllData);
@@ -3343,9 +3250,9 @@
         window.hideConfirmationModal = hideConfirmationModal; // For modal close button
         window.hideEditTransactionModal = hideEditTransactionModal; // For modal close button
         window.confirmAction = showConfirmationModal; // Expose for internal use
-        // window.deleteUser = deleteUser; // Removed as admin functionality is removed
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
         window.deleteBudget = deleteBudget; // Expose for budget deletion
+        window.hideForgotPasswordModal = hideForgotPasswordModal; // Expose for modal close button
 
         // Cegah pinch zoom
         document.addEventListener('gesturestart', function (e) {
