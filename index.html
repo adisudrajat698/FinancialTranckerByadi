@@ -1062,7 +1062,7 @@
         let isLoggedIn = false;
         let authMode = 'login'; // 'login' or 'register'
         let currentUser = null; // Stores the username of the logged-in user
-        let currentConfirmationCallback = null; // Used for confirmation modal
+        // let currentConfirmationCallback = null; // Removed as showConfirmationModal now takes callbacks directly
 
         // Pagination variables
         const transactionsPerPage = 10;
@@ -2107,62 +2107,71 @@
             showNotification('Salin data JSON dari jendela yang muncul dan simpan secara manual.', 'info', 5000);
         }
 
-        function importAllData(event) {
+        async function importAllData(event) { // Make it async
             const file = event.target.files[0];
             if (!file) {
                 return;
             }
 
-            if (file.type !== 'application/json') {
+            // Relax file type check: check for .json extension
+            if (!file.name.toLowerCase().endsWith('.json')) {
                 showNotification('Hanya file JSON yang diizinkan.', 'error');
                 return;
             }
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) { // Make onload handler async
                 try {
                     const importedData = JSON.parse(e.target.result);
 
-                    // Basic validation of imported data structure
-                    if (!importedData || !Array.isArray(importedData.transactions) || !Array.isArray(importedData.categories) || !Array.isArray(importedData.budgets)) {
-                        showNotification('Format file JSON tidak valid.', 'error');
+                    // Relax validation for optional fields like budgets and profilePicture
+                    // Ensure core data (transactions, categories) exists
+                    if (!importedData || !Array.isArray(importedData.transactions) || !Array.isArray(importedData.categories)) {
+                        showNotification('Format file JSON tidak valid. Data transaksi atau kategori tidak ditemukan.', 'error');
                         return;
                     }
 
-                    confirmAction('Apakah Anda yakin ingin mengimpor data ini? Ini akan menimpa semua data Anda saat ini.', () => {
-                        let users = getLocalStorage('users') || {};
-                        if (!users[currentUser]) {
-                            users[currentUser] = {}; // Initialize if user didn't exist (shouldn't happen if logged in)
-                        }
-                        users[currentUser].transactions = importedData.transactions;
-                        users[currentUser].categories = importedData.categories;
-                        users[currentUser].budgets = importedData.budgets; // Import budgets
-                        users[currentUser].profilePicture = importedData.profilePicture || null; // Ensure profile picture is handled
-                        setLocalStorage('users', users);
-                        setLocalStorage('loggedInUser', currentUser); // Re-set loggedInUser just in case
-
-                        showNotification('Data berhasil diimpor dan dipulihkan!', 'success');
-                        // Re-render all sections to reflect restored data
-                        renderDashboard();
-                        renderTransactions();
-                        renderBudgets(); // Re-render budgets
-                        renderReports();
-                        renderAnalysis();
-                        renderManageCategories();
-                        loadProfilePicture();
+                    const confirmImport = await new Promise(resolve => { // Await user confirmation
+                        showConfirmationModal('Apakah Anda yakin ingin mengimpor data ini? Ini akan menimpa semua data Anda saat ini.', () => resolve(true), () => resolve(false));
                     });
+
+                    if (!confirmImport) {
+                        showNotification('Impor data dibatalkan.', 'info');
+                        return;
+                    }
+
+                    let users = getLocalStorage('users') || {};
+                    if (!users[currentUser]) {
+                        users[currentUser] = {};
+                    }
+                    users[currentUser].transactions = importedData.transactions;
+                    users[currentUser].categories = importedData.categories;
+                    // Handle budgets and profilePicture gracefully if they don't exist in importedData
+                    users[currentUser].budgets = importedData.budgets || []; // Default to empty array if not present
+                    users[currentUser].profilePicture = importedData.profilePicture || null; // Default to null if not present
+
+                    setLocalStorage('users', users);
+                    setLocalStorage('loggedInUser', currentUser);
+
+                    showNotification('Data berhasil diimpor dan dipulihkan!', 'success');
+                    renderDashboard();
+                    renderTransactions();
+                    renderBudgets();
+                    renderReports();
+                    renderAnalysis();
+                    renderManageCategories();
+                    loadProfilePicture();
 
                 } catch (error) {
                     console.error("Error parsing imported JSON:", error);
-                    showNotification('Gagal membaca atau mengurai file JSON. Pastikan formatnya benar.', 'error');
+                    showNotification('Gagal membaca atau mengurai file JSON. Pastikan formatnya benar dan tidak rusak.', 'error');
                 }
             };
             reader.onerror = function() {
                 showNotification('Gagal membaca file.', 'error');
             };
             reader.readAsText(file);
-            // Clear the file input value to allow selecting the same file again if needed
-            event.target.value = '';
+            event.target.value = ''; // Clear the file input value to allow selecting the same file again if needed
         }
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
@@ -3180,15 +3189,6 @@
 
         // Budget form submission
         budgetForm.addEventListener('submit', addBudget);
-
-        // Confirmation Modal Buttons
-        // confirmYesBtn.addEventListener('click', () => { // Modified to use new showConfirmationModal
-        //     if (currentConfirmationCallback) {
-        //         currentConfirmationCallback();
-        //     }
-        //     hideConfirmationModal();
-        // });
-        // confirmNoBtn.addEventListener('click', hideConfirmationModal); // Modified to use new showConfirmationModal
 
         // Edit Transaction Form Submission
         editTransactionForm.addEventListener('submit', updateTransaction);
