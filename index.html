@@ -429,6 +429,7 @@
             <ul class="space-y-2">
               <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard"><i data-feather="home" class="inline-block w-4 h-4 mr-2"></i> Dashboard </a></li>
               <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="inline-block w-4 h-4 mr-2"></i> Transaksi </a></li>
+              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-4 h-4 mr-2"></i> Rencana Anggaran </a></li> <!-- New Budgeting Item -->
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
@@ -595,6 +596,43 @@
                         <button id="prevPageBtn" class="btn-secondary px-4 py-2 rounded-md" disabled>Sebelumnya</button>
                         <span id="pageInfo" class="text-gray-700">Halaman 1 dari 1</span>
                         <button id="nextPageBtn" class="btn-secondary px-4 py-2 rounded-md" disabled>Berikutnya</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- New Budgeting Section -->
+            <section id="budgetingSection" class="hidden">
+                <h2 class="text-3xl font-bold mb-6">Rencana Anggaran</h2>
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Tetapkan Anggaran Baru</h3>
+                    <form id="budgetForm" class="space-y-4">
+                        <div>
+                            <label for="budgetItemCategory" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <select id="budgetItemCategory" required class="block">
+                                <!-- Categories will be loaded here -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="budgetAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggaran (Rp)</label>
+                            <input type="number" id="budgetAmount" placeholder="Contoh: 500000" required min="1" class="block">
+                        </div>
+                        <div>
+                            <label for="budgetStartDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                            <input type="date" id="budgetStartDate" required class="block">
+                        </div>
+                        <div>
+                            <label for="budgetEndDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
+                            <input type="date" id="budgetEndDate" required class="block">
+                        </div>
+                        <button type="submit" class="w-full btn-primary font-semibold">Simpan Anggaran</button>
+                    </form>
+                    <p id="budgetMessage" class="text-red-500 text-sm hidden mt-4"></p>
+                </div>
+
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-4">Daftar Anggaran Anda</h3>
+                    <div id="budgetList" class="space-y-4">
+                        <p class="text-gray-500 text-center">Belum ada anggaran yang ditetapkan.</p>
                     </div>
                 </div>
             </section>
@@ -901,6 +939,17 @@
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageInfo = document.getElementById('pageInfo');
 
+        // New Budgeting Section Elements
+        const budgetingSidebarItem = document.getElementById('budgetingSidebarItem');
+        const budgetingSection = document.getElementById('budgetingSection');
+        const budgetForm = document.getElementById('budgetForm');
+        const budgetItemCategorySelect = document.getElementById('budgetItemCategory');
+        const budgetAmountInput = document.getElementById('budgetAmount');
+        const budgetStartDateInput = document.getElementById('budgetStartDate');
+        const budgetEndDateInput = document.getElementById('budgetEndDate');
+        const budgetListEl = document.getElementById('budgetList');
+        const budgetMessageEl = document.getElementById('budgetMessage');
+
         const reportsSection = document.getElementById('reportsSection');
         const reportMonthSelect = document.getElementById('reportMonthSelect');
         const reportYearSelect = document.getElementById('reportYearSelect');
@@ -1031,6 +1080,7 @@
                 options: [
                     "Informasi Dashboard",
                     "Manajemen Transaksi",
+                    "Rencana Anggaran", // New option
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
@@ -1089,6 +1139,28 @@
             },
             "Apa fungsi paginasi di daftar transaksi?": {
                 answer: "Paginasi digunakan untuk membagi daftar transaksi menjadi beberapa halaman, biasanya 10 transaksi per halaman. Ini membantu dalam mengelola dan melihat data transaksi yang banyak secara lebih efisien. Anda bisa menggunakan tombol 'Sebelumnya' dan 'Berikutnya' untuk navigasi."
+            },
+            "Rencana Anggaran": { // New chatbot entry for budgeting
+                answer: "Menu 'Rencana Anggaran' memungkinkan Anda menetapkan batas pengeluaran untuk kategori tertentu dalam periode waktu tertentu. Anda akan diberi peringatan jika pengeluaran Anda melebihi anggaran yang ditetapkan.",
+                options: [
+                    "Bagaimana cara menetapkan anggaran baru?",
+                    "Bagaimana cara melihat anggaran yang sudah ada?",
+                    "Bagaimana cara menghapus anggaran?",
+                    "Bagaimana peringatan anggaran bekerja?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara menetapkan anggaran baru?": {
+                answer: "Di menu 'Rencana Anggaran', pada formulir 'Tetapkan Anggaran Baru', pilih Kategori, masukkan Jumlah Anggaran, dan tentukan Tanggal Mulai serta Tanggal Akhir periode anggaran. Klik 'Simpan Anggaran' untuk menyimpannya."
+            },
+            "Bagaimana cara melihat anggaran yang sudah ada?": {
+                answer: "Daftar semua anggaran yang Anda tetapkan akan ditampilkan di bagian 'Daftar Anggaran Anda' pada menu 'Rencana Anggaran'. Anda bisa melihat detail setiap anggaran di sana."
+            },
+            "Bagaimana cara menghapus anggaran?": {
+                answer: "Untuk menghapus anggaran, temukan anggaran di 'Daftar Anggaran Anda', lalu klik tombol 'Hapus' di samping anggaran tersebut. Anda akan diminta konfirmasi sebelum anggaran dihapus."
+            },
+            "Bagaimana peringatan anggaran bekerja?": {
+                answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jika jumlah transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
             },
             "Laporan Keuangan": {
                 answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
@@ -1164,6 +1236,7 @@
                 options: [
                     "Informasi Dashboard",
                     "Manajemen Transaksi",
+                    "Rencana Anggaran", // New option
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
@@ -1251,6 +1324,7 @@
                 if (currentUser === ADMIN_USERNAME) {
                     dashboardSidebarItem.classList.add('hidden');
                     transactionsSidebarItem.classList.add('hidden');
+                    budgetingSidebarItem.classList.add('hidden'); // Hide for admin
                     reportsSidebarItem.classList.add('hidden');
                     analysisSidebarItem.classList.add('hidden'); // Hide for admin
                     settingsSidebarItem.classList.add('hidden');
@@ -1259,6 +1333,7 @@
                 } else {
                     dashboardSidebarItem.classList.remove('hidden');
                     transactionsSidebarItem.classList.remove('hidden');
+                    budgetingSidebarItem.classList.remove('hidden'); // Show for regular user
                     reportsSidebarItem.classList.remove('hidden');
                     analysisSidebarItem.classList.remove('hidden'); // Show for regular user
                     settingsSidebarItem.classList.remove('hidden');
@@ -1275,6 +1350,7 @@
                 // Hide all sidebar items on logout
                 dashboardSidebarItem.classList.add('hidden');
                 transactionsSidebarItem.classList.add('hidden');
+                budgetingSidebarItem.classList.add('hidden');
                 reportsSidebarItem.classList.add('hidden');
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
@@ -1324,6 +1400,7 @@
                         password: password,
                         transactions: [],
                         categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'],
+                        budgets: [], // Initialize budgets array
                         profilePicture: null // Initialize profile picture as null
                     }; // Default categories and profile picture
                     setLocalStorage('users', users);
@@ -1400,7 +1477,11 @@
                 renderCategoryOptions(transactionCategoryInput); // Populate categories for new transaction form
                 currentPage = 1; // Reset pagination
                 renderTransactions();
-            } else if (sectionId === 'reportsSection') {
+            } else if (sectionId === 'budgetingSection') { // New: Handle budgeting section
+                renderCategoryOptions(budgetItemCategorySelect);
+                renderBudgets();
+            }
+            else if (sectionId === 'reportsSection') {
                 populateReportYears();
                 renderReports();
             } else if (sectionId === 'analysisSection') {
@@ -1421,14 +1502,18 @@
             const users = getLocalStorage('users') || {};
             // Return empty data if currentUser is admin, as admin doesn't have personal transactions
             if (currentUser === ADMIN_USERNAME) {
-                return { transactions: [], categories: [], profilePicture: null };
+                return { transactions: [], categories: [], budgets: [], profilePicture: null }; // Include budgets for admin
             }
-            // Ensure profilePicture exists for existing users
+            // Ensure profilePicture and budgets exist for existing users
             if (users[currentUser] && !users[currentUser].profilePicture) {
                 users[currentUser].profilePicture = null;
                 setLocalStorage('users', users); // Save updated user data
             }
-            return users[currentUser] || { transactions: [], categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'], profilePicture: null };
+            if (users[currentUser] && !users[currentUser].budgets) {
+                users[currentUser].budgets = [];
+                setLocalStorage('users', users); // Save updated user data
+            }
+            return users[currentUser] || { transactions: [], categories: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'], budgets: [], profilePicture: null };
         }
 
         function saveUserData(data) {
@@ -1453,7 +1538,7 @@
             saveUserData(userData);
         }
 
-        function addTransaction(event) {
+        async function addTransaction(event) {
             event.preventDefault();
             const date = transactionDateInput.value;
             const description = transactionDescriptionInput.value.trim();
@@ -1465,6 +1550,39 @@
                 showMessage(authMessage, 'Semua field harus diisi dengan benar.');
                 showNotification('Semua field harus diisi dengan benar.', 'error');
                 return;
+            }
+
+            // Budgeting check for expense transactions
+            if (type === 'expense') {
+                const budgets = getUserBudgets();
+                const activeBudgets = budgets.filter(b => {
+                    const budgetStart = new Date(b.startDate);
+                    const budgetEnd = new Date(b.endDate);
+                    const transactionDate = new Date(date);
+                    return b.category === category && transactionDate >= budgetStart && transactionDate <= budgetEnd;
+                });
+
+                if (activeBudgets.length > 0) {
+                    const currentExpensesForCategory = getUserTransactions().filter(t =>
+                        t.type === 'expense' &&
+                        t.category === category &&
+                        new Date(t.date) >= new Date(activeBudgets[0].startDate) &&
+                        new Date(t.date) <= new Date(activeBudgets[0].endDate)
+                    ).reduce((sum, t) => sum + t.amount, 0);
+
+                    const budgetLimit = activeBudgets[0].amount;
+                    const remainingBudget = budgetLimit - currentExpensesForCategory;
+
+                    if (amount > remainingBudget) {
+                        const confirm = await new Promise(resolve => {
+                            showConfirmationModal(`Transaksi ini (${formatRupiah(amount)}) akan melebihi anggaran Anda untuk kategori '${category}' (Sisa anggaran: ${formatRupiah(remainingBudget)}). Lanjutkan?`, () => resolve(true), () => resolve(false));
+                        });
+                        if (!confirm) {
+                            showNotification('Transaksi dibatalkan karena melebihi anggaran.', 'info');
+                            return;
+                        }
+                    }
+                }
             }
 
             const newTransaction = {
@@ -1486,10 +1604,11 @@
             const today = new Date().toISOString().split('T')[0];
             transactionDateInput.value = today; // Reset date to today
             renderDashboard();
-            currentPage = 1; // Reset pagination on new transaction
+            currentPage = 1; // Reset pagination
             renderTransactions();
             renderReports();
             renderAnalysis(); // Update analysis charts
+            renderBudgets(); // Update budgets display
         }
 
         function deleteTransaction(id) {
@@ -1504,6 +1623,7 @@
                 renderTransactions();
                 renderReports();
                 renderAnalysis(); // Update analysis charts
+                renderBudgets(); // Update budgets display
             });
         }
 
@@ -1552,6 +1672,7 @@
                 renderTransactions();
                 renderReports();
                 renderAnalysis(); // Update analysis charts
+                renderBudgets(); // Update budgets display
             }
         }
 
@@ -1615,11 +1736,12 @@
             renderManageCategories(); // Re-render category list in settings
             renderCategoryOptions(transactionCategoryInput); // Update transaction form categories
             renderCategoryOptions(editTransactionCategoryInput); // Update edit form categories
+            renderCategoryOptions(budgetItemCategorySelect); // Update budget form categories
             renderAnalysis(); // Update analysis charts
         }
 
         function deleteCategory(categoryToDelete) {
-            confirmAction(`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete}"? Transaksi yang terkait tidak akan terhapus, tetapi kategorinya akan dialihkan ke 'Lain-lain'.`, () => {
+            confirmAction(`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete}"? Transaksi dan anggaran yang terkait tidak akan terhapus, tetapi kategorinya akan dialihkan ke 'Lain-lain'.`, () => {
                 let categories = getUserCategories();
                 categories = categories.filter(cat => cat !== categoryToDelete);
                 saveUserCategories(categories);
@@ -1633,15 +1755,26 @@
                 });
                 saveUserTransactions(transactions);
 
+                // Update budgets that used this category
+                let budgets = getUserBudgets();
+                budgets.forEach(b => {
+                    if (b.category === categoryToDelete) {
+                        b.category = 'Lain-lain'; // Assign to a default or 'Uncategorized'
+                    }
+                });
+                saveUserBudgets(budgets);
+
                 showMessage(passwordMessageEl, 'Kategori berhasil dihapus!', false);
                 showNotification('Kategori berhasil dihapus!', 'success');
                 renderManageCategories();
                 renderCategoryOptions(transactionCategoryInput);
                 renderCategoryOptions(editTransactionCategoryInput);
+                renderCategoryOptions(budgetItemCategorySelect); // Update budget form categories
                 renderTransactions(); // Re-render to reflect category changes
                 renderReports();
                 renderDashboard(); // Re-render dashboard for category summary
                 renderAnalysis(); // Update analysis charts
+                renderBudgets(); // Update budgets display
             });
         }
 
@@ -1662,6 +1795,157 @@
                 });
             }
         }
+
+        // --- Budgeting Functions ---
+
+        function getUserBudgets() {
+            if (currentUser === ADMIN_USERNAME) return [];
+            return getUserData().budgets;
+        }
+
+        function saveUserBudgets(budgets) {
+            if (currentUser === ADMIN_USERNAME) return;
+            let userData = getUserData();
+            userData.budgets = budgets;
+            saveUserData(userData);
+        }
+
+        function addBudget(event) {
+            event.preventDefault();
+            const category = budgetItemCategorySelect.value;
+            const amount = parseFloat(budgetAmountInput.value);
+            const startDate = budgetStartDateInput.value;
+            const endDate = budgetEndDateInput.value;
+
+            if (!category || isNaN(amount) || amount <= 0 || !startDate || !endDate) {
+                showMessage(budgetMessageEl, 'Semua field harus diisi dengan benar.', true);
+                showNotification('Semua field harus diisi dengan benar.', 'error');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showMessage(budgetMessageEl, 'Tanggal mulai tidak boleh lebih lambat dari tanggal akhir.', true);
+                showNotification('Tanggal mulai tidak boleh lebih lambat dari tanggal akhir.', 'error');
+                return;
+            }
+
+            let budgets = getUserBudgets();
+
+            // Check for overlapping budgets for the same category
+            const overlappingBudget = budgets.find(b =>
+                b.category === category &&
+                ((new Date(startDate) <= new Date(b.endDate) && new Date(endDate) >= new Date(b.startDate)))
+            );
+
+            if (overlappingBudget) {
+                showMessage(budgetMessageEl, `Sudah ada anggaran untuk kategori '${category}' yang tumpang tindih dengan periode ini.`, true);
+                showNotification(`Anggaran untuk '${category}' tumpang tindih.`, 'error');
+                return;
+            }
+
+            const newBudget = {
+                id: Date.now(),
+                category,
+                amount,
+                startDate,
+                endDate
+            };
+
+            budgets.push(newBudget);
+            saveUserBudgets(budgets);
+            showMessage(budgetMessageEl, 'Anggaran berhasil ditambahkan!', false);
+            showNotification('Anggaran berhasil ditambahkan!', 'success');
+            budgetForm.reset();
+            renderBudgets();
+        }
+
+        function deleteBudget(id) {
+            confirmAction('Apakah Anda yakin ingin menghapus anggaran ini?', () => {
+                let budgets = getUserBudgets();
+                budgets = budgets.filter(b => b.id !== id);
+                saveUserBudgets(budgets);
+                showNotification('Anggaran berhasil dihapus!', 'success');
+                renderBudgets();
+            });
+        }
+
+        function renderBudgets() {
+            const budgets = getUserBudgets();
+            const transactions = getUserTransactions();
+            budgetListEl.innerHTML = '';
+
+            if (budgets.length === 0) {
+                budgetListEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada anggaran yang ditetapkan.</p>';
+                return;
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize today's date to start of day
+
+            budgets.sort((a, b) => new Date(a.startDate) - new Date(b.startDate)); // Sort by start date
+
+            budgets.forEach(budget => {
+                const budgetStart = new Date(budget.startDate);
+                const budgetEnd = new Date(budget.endDate);
+                budgetEnd.setHours(23, 59, 59, 999); // Normalize end date to end of day
+
+                const expensesForBudget = transactions.filter(t =>
+                    t.type === 'expense' &&
+                    t.category === budget.category &&
+                    new Date(t.date) >= budgetStart &&
+                    new Date(t.date) <= budgetEnd
+                ).reduce((sum, t) => sum + t.amount, 0);
+
+                const remainingAmount = budget.amount - expensesForBudget;
+                const percentageUsed = (expensesForBudget / budget.amount) * 100;
+
+                let statusText = '';
+                let statusColor = 'text-gray-600';
+                let progressBarColor = 'bg-blue-400';
+
+                if (today > budgetEnd) {
+                    statusText = 'Berakhir';
+                    statusColor = 'text-gray-500';
+                    progressBarColor = 'bg-gray-400';
+                } else if (today < budgetStart) {
+                    statusText = 'Mendatang';
+                    statusColor = 'text-blue-500';
+                    progressBarColor = 'bg-blue-200';
+                } else if (remainingAmount <= 0) {
+                    statusText = 'Anggaran Habis!';
+                    statusColor = 'text-red-500 font-bold';
+                    progressBarColor = 'bg-red-500';
+                } else if (percentageUsed >= 75) {
+                    statusText = 'Hampir Habis!';
+                    statusColor = 'text-orange-500 font-bold';
+                    progressBarColor = 'bg-orange-400';
+                } else {
+                    statusText = 'Aktif';
+                    statusColor = 'text-green-500';
+                    progressBarColor = 'bg-green-400';
+                }
+
+                const budgetDiv = document.createElement('div');
+                budgetDiv.className = 'card p-4 mb-4';
+                budgetDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-xl font-semibold">${budget.category}</h4>
+                        <button class="btn-danger text-xs px-2 py-1" onclick="deleteBudget(${budget.id})">Hapus</button>
+                    </div>
+                    <p class="text-gray-700">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
+                    <p class="text-lg font-medium">Anggaran: ${formatRupiah(budget.amount)}</p>
+                    <p class="text-lg font-medium">Terpakai: <span class="text-expense">${formatRupiah(expensesForBudget)}</span></p>
+                    <p class="text-lg font-medium">Sisa: <span class="${remainingAmount <= 0 ? 'text-red-500' : 'text-green-500'}">${formatRupiah(remainingAmount)}</span></p>
+                    <p class="text-sm mt-1 ${statusColor}">Status: ${statusText}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                        <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${Math.min(100, percentageUsed)}%;"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 text-right mt-1">${percentageUsed.toFixed(2)}% Terpakai</p>
+                `;
+                budgetListEl.appendChild(budgetDiv);
+            });
+        }
+
 
         // --- Password Change ---
 
@@ -1840,7 +2124,7 @@
                     const importedData = JSON.parse(e.target.result);
 
                     // Basic validation of imported data structure
-                    if (!importedData || !Array.isArray(importedData.transactions) || !Array.isArray(importedData.categories)) {
+                    if (!importedData || !Array.isArray(importedData.transactions) || !Array.isArray(importedData.categories) || !Array.isArray(importedData.budgets)) {
                         showNotification('Format file JSON tidak valid.', 'error');
                         return;
                     }
@@ -1852,6 +2136,7 @@
                         }
                         users[currentUser].transactions = importedData.transactions;
                         users[currentUser].categories = importedData.categories;
+                        users[currentUser].budgets = importedData.budgets; // Import budgets
                         users[currentUser].profilePicture = importedData.profilePicture || null; // Ensure profile picture is handled
                         setLocalStorage('users', users);
                         setLocalStorage('loggedInUser', currentUser); // Re-set loggedInUser just in case
@@ -1860,6 +2145,7 @@
                         // Re-render all sections to reflect restored data
                         renderDashboard();
                         renderTransactions();
+                        renderBudgets(); // Re-render budgets
                         renderReports();
                         renderAnalysis();
                         renderManageCategories();
@@ -2738,15 +3024,23 @@
         }
 
         // --- Modal Functions ---
-        function showConfirmationModal(message, callback) {
+        function showConfirmationModal(message, onConfirm, onCancel) {
             confirmationModalMessage.textContent = message;
-            currentConfirmationCallback = callback;
+            confirmYesBtn.onclick = () => {
+                hideConfirmationModal();
+                if (onConfirm) onConfirm();
+            };
+            confirmNoBtn.onclick = () => {
+                hideConfirmationModal();
+                if (onCancel) onCancel();
+            };
             confirmationModal.classList.remove('hidden');
         }
 
         function hideConfirmationModal() {
             confirmationModal.classList.add('hidden');
-            currentConfirmationCallback = null;
+            confirmYesBtn.onclick = null;
+            confirmNoBtn.onclick = null;
         }
 
         function showEditTransactionModal() {
@@ -2884,14 +3178,17 @@
         prevPageBtn.addEventListener('click', prevPage);
         nextPageBtn.addEventListener('click', nextPage);
 
+        // Budget form submission
+        budgetForm.addEventListener('submit', addBudget);
+
         // Confirmation Modal Buttons
-        confirmYesBtn.addEventListener('click', () => {
-            if (currentConfirmationCallback) {
-                currentConfirmationCallback();
-            }
-            hideConfirmationModal();
-        });
-        confirmNoBtn.addEventListener('click', hideConfirmationModal);
+        // confirmYesBtn.addEventListener('click', () => { // Modified to use new showConfirmationModal
+        //     if (currentConfirmationCallback) {
+        //         currentConfirmationCallback();
+        //     }
+        //     hideConfirmationModal();
+        // });
+        // confirmNoBtn.addEventListener('click', hideConfirmationModal); // Modified to use new showConfirmationModal
 
         // Edit Transaction Form Submission
         editTransactionForm.addEventListener('submit', updateTransaction);
@@ -2935,6 +3232,8 @@
             const today = new Date().toISOString().split('T')[0];
             transactionDateInput.value = today;
             editTransactionDateInput.value = today; // Also for edit form
+            budgetStartDateInput.value = today; // Set default start date for budget
+            budgetEndDateInput.value = today; // Set default end date for budget
         });
 
         // Make functions globally accessible for onclick in HTML
@@ -2946,6 +3245,7 @@
         window.confirmAction = showConfirmationModal; // Expose for internal use
         window.deleteUser = deleteUser; // Expose for admin panel
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
+        window.deleteBudget = deleteBudget; // Expose for budget deletion
 
         // Cegah pinch zoom
         document.addEventListener('gesturestart', function (e) {
