@@ -295,52 +295,6 @@
             100% { opacity: 0; transform: translateY(-20px); }
         }
 
-        /* Profile Picture Styles */
-        .profile-picture-container {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #e2e8f0; /* gray-200 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-bottom: 1rem;
-        }
-        .profile-picture-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .profile-picture-container svg {
-            width: 60px;
-            height: 60px;
-            color: #94a3b8; /* gray-400 */
-        }
-
-        .profile-picture-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            overflow: hidden;
-            background-color: #e2e8f0; /* gray-200 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-        .profile-picture-small img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .profile-picture-small svg {
-            width: 20px;
-            height: 20px;
-            color: #94a3b8; /* gray-400 */
-        }
-
         /* New styles for JSON display modal */
         #jsonDisplayModal .modal-content {
             width: 90%;
@@ -417,12 +371,10 @@
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-4 flex flex-col md:relative md:flex-shrink-0">
         <div class="text-2xl font-bold mb-4 text-center">KeuanganKu</div>
         <div class="flex flex-col items-center mb-8">
-            <div class="profile-picture-container profile-picture-small">
-                <img id="profilePictureDisplaySidebar" src="" alt="Foto Profil">
-                <svg id="profilePicturePlaceholderSidebar" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-            </div>
+            <!-- Profile picture elements removed -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 mb-2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
             <p id="sidebarUsername" class="text-lg font-semibold text-white mt-2"></p>
         </div>
         <nav class="flex-grow">
@@ -475,12 +427,10 @@
             <section id="dashboardSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="profile-picture-small">
-                        <img id="profilePictureDisplayDashboard" src="" alt="Foto Profil">
-                        <svg id="profilePicturePlaceholderDashboard" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                        </svg>
-                    </div>
+                    <!-- Profile picture elements removed -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
                     <p class="text-xl text-gray-700">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -736,25 +686,7 @@
 
             <section id="settingsSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
-                <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Foto Profil</h3>
-                    <div class="flex flex-col items-center mb-4">
-                        <div class="profile-picture-container">
-                            <img id="profilePictureDisplaySettings" src="" alt="Foto Profil">
-                            <svg id="profilePicturePlaceholderSettings" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                            </svg>
-                        </div>
-                        <input type="file" id="profilePictureInput" accept="image/*" class="hidden">
-                        <label for="profilePictureInput" class="btn-primary cursor-pointer text-sm font-medium py-2 px-4 rounded-md mb-2">
-                            Ubah Foto Profil
-                        </label>
-                        <button id="deleteProfilePictureBtn" class="btn-danger text-sm font-medium py-2 px-4 rounded-md">
-                            Hapus Foto Profil
-                        </button>
-                    </div>
-                    <p id="profilePictureMessage" class="text-red-500 text-sm hidden text-center"></p>
-                </div>
+                <!-- Profile Picture section removed -->
 
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
@@ -926,14 +858,15 @@
             getDocs,
             writeBatch
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import {
-            getStorage,
-            ref,
-            uploadBytes,
-            getDownloadURL,
-            deleteObject,
-            listAll
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        // Removed Storage import as profile picture functionality is removed
+        // import {
+        //     getStorage,
+        //     ref,
+        //     uploadBytes,
+        //     getDownloadURL,
+        //     deleteObject,
+        //     listAll
+        // } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Firebase Configuration (provided by the environment)
         const firebaseConfig = {
@@ -950,7 +883,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
+        // const storage = getStorage(app); // Removed Storage initialization
 
         // Global variables for Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -1054,20 +987,20 @@
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
 
-        // Profile Picture Elements
-        const profilePictureDisplaySettings = document.getElementById('profilePictureDisplaySettings');
-        const profilePicturePlaceholderSettings = document.getElementById('profilePicturePlaceholderSettings');
-        const profilePictureInput = document.getElementById('profilePictureInput');
-        const deleteProfilePictureBtn = document.getElementById('deleteProfilePictureBtn');
-        const profilePictureMessage = document.getElementById('profilePictureMessage');
+        // Profile Picture Elements (Removed)
+        // const profilePictureDisplaySettings = document.getElementById('profilePictureDisplaySettings');
+        // const profilePicturePlaceholderSettings = document.getElementById('profilePicturePlaceholderSettings');
+        // const profilePictureInput = document.getElementById('profilePictureInput');
+        // const deleteProfilePictureBtn = document.getElementById('deleteProfilePictureBtn');
+        // const profilePictureMessage = document.getElementById('profilePictureMessage');
 
-        // New Profile Picture Elements for Sidebar and Dashboard
-        const profilePictureDisplaySidebar = document.getElementById('profilePictureDisplaySidebar');
-        const profilePicturePlaceholderSidebar = document.getElementById('profilePicturePlaceholderSidebar');
+        // New Profile Picture Elements for Sidebar and Dashboard (Removed)
+        // const profilePictureDisplaySidebar = document.getElementById('profilePictureDisplaySidebar');
+        // const profilePicturePlaceholderSidebar = document.getElementById('profilePicturePlaceholderSidebar');
         const sidebarUsername = document.getElementById('sidebarUsername');
 
-        const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
-        const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
+        // const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
+        // const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
 
         // Admin section elements (Removed from HTML, but kept here for reference if needed)
         // const adminSidebarItem = document.getElementById('adminSidebarItem');
@@ -1134,7 +1067,7 @@
         let unsubscribeTransactions = null;
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
-        let unsubscribeProfile = null;
+        // let unsubscribeProfile = null; // Removed profile listener
 
         // --- Utility Functions ---
 
@@ -1186,7 +1119,7 @@
                 unsubscribeAllFirestoreListeners(); // Unsubscribe on logout
             }
             updateUIBasedOnAuth();
-            loadProfilePicture(); // Load profile picture on initial auth check or state change
+            // loadProfilePicture(); // Removed profile picture loading
         });
 
         async function handleAuth(event) {
@@ -1206,9 +1139,10 @@
                 if (authMode === 'register') {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                     // Initialize user data in Firestore
-                    await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'data'), {
-                        profilePictureUrl: null
-                    });
+                    // Removed profile data initialization
+                    // await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`, 'data'), {
+                    //     profilePictureUrl: null
+                    // });
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'categories'), {
                         list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
                     });
@@ -1304,7 +1238,7 @@
                 });
                 sidebarUsername.textContent = ''; // Clear username in sidebar
             }
-            loadProfilePicture(); // Always attempt to load/clear profile picture based on auth state
+            // loadProfilePicture(); // Removed profile picture loading
         }
 
         // --- Firestore Data Management ---
@@ -1358,16 +1292,16 @@
                 showNotification('Gagal memuat anggaran. Silakan coba lagi.', 'error');
             });
 
-            // Profile data listener (for profile picture URL)
-            const profileDocRef = doc(db, `artifacts/${appId}/users/${uid}/profile`, 'data');
-            unsubscribeProfile = onSnapshot(profileDocRef, (docSnap) => {
-                const profileData = docSnap.exists() ? docSnap.data() : { profilePictureUrl: null };
-                console.log("Firestore Profile updated:", profileData); // Log fetched profile data
-                window._userProfile = profileData;
-                loadProfilePicture();
-            }, (error) => {
-                console.error("Error fetching profile data:", error);
-            });
+            // Profile data listener (for profile picture URL) - Removed
+            // const profileDocRef = doc(db, `artifacts/${appId}/users/${uid}/profile`, 'data');
+            // unsubscribeProfile = onSnapshot(profileDocRef, (docSnap) => {
+            //     const profileData = docSnap.exists() ? docSnap.data() : { profilePictureUrl: null };
+            //     console.log("Firestore Profile updated:", profileData); // Log fetched profile data
+            //     window._userProfile = profileData;
+            //     loadProfilePicture();
+            // }, (error) => {
+            //     console.error("Error fetching profile data:", error);
+            // });
         }
 
         // Unsubscribe all listeners (on logout)
@@ -1375,11 +1309,11 @@
             if (unsubscribeTransactions) unsubscribeTransactions();
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
-            if (unsubscribeProfile) unsubscribeProfile();
+            // if (unsubscribeProfile) unsubscribeProfile(); // Removed profile listener
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
-            window._userProfile = { profilePictureUrl: null };
+            window._userProfile = { profilePictureUrl: null }; // Keep this for consistency, but it won't be used for display
             console.log("All Firestore listeners unsubscribed.");
         }
 
@@ -1516,7 +1450,7 @@
                 renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
-                loadProfilePicture();
+                // loadProfilePicture(); // Removed profile picture loading
             } else if (sectionId === 'helpSection') {
                 startChatbot();
             }
@@ -1930,155 +1864,56 @@
             }
         }
 
-        // --- Profile Picture Management ---
+        // --- Profile Picture Management (All functions removed) ---
 
-        function loadProfilePicture() {
-            const profileData = window._userProfile || { profilePictureUrl: null };
-            const profilePictureUrl = profileData.profilePictureUrl;
+        // function loadProfilePicture() {
+        //     const profileData = window._userProfile || { profilePictureUrl: null };
+        //     const profilePictureUrl = profileData.profilePictureUrl;
 
-            // Update sidebar profile picture
-            if (profilePictureUrl) {
-                profilePictureDisplaySidebar.src = profilePictureUrl;
-                profilePictureDisplaySidebar.classList.remove('hidden');
-                profilePicturePlaceholderSidebar.classList.add('hidden');
-            } else {
-                profilePictureDisplaySidebar.src = ''; // Clear src
-                profilePictureDisplaySidebar.classList.add('hidden');
-                profilePicturePlaceholderSidebar.classList.remove('hidden');
-            }
+        //     // Update sidebar profile picture
+        //     if (profilePictureUrl) {
+        //         profilePictureDisplaySidebar.src = profilePictureUrl;
+        //         profilePictureDisplaySidebar.classList.remove('hidden');
+        //         profilePicturePlaceholderSidebar.classList.add('hidden');
+        //     } else {
+        //         profilePictureDisplaySidebar.src = ''; // Clear src
+        //         profilePictureDisplaySidebar.classList.add('hidden');
+        //         profilePicturePlaceholderSidebar.classList.remove('hidden');
+        //     }
 
-            // Update dashboard profile picture
-            if (profilePictureUrl) {
-                profilePictureDisplayDashboard.src = profilePictureUrl;
-                profilePictureDisplayDashboard.classList.remove('hidden');
-                profilePicturePlaceholderDashboard.classList.add('hidden');
-            } else {
-                profilePictureDisplayDashboard.src = ''; // Clear src
-                profilePictureDisplayDashboard.classList.add('hidden');
-                profilePicturePlaceholderDashboard.classList.remove('hidden');
-            }
+        //     // Update dashboard profile picture
+        //     if (profilePictureUrl) {
+        //         profilePictureDisplayDashboard.src = profilePictureUrl;
+        //         profilePictureDisplayDashboard.classList.remove('hidden');
+        //         profilePicturePlaceholderDashboard.classList.add('hidden');
+        //     } else {
+        //         profilePictureDisplayDashboard.src = ''; // Clear src
+        //         profilePictureDisplayDashboard.classList.add('hidden');
+        //         profilePicturePlaceholderDashboard.classList.remove('hidden');
+        //     }
 
-            // Update settings profile picture
-            if (profilePictureUrl) {
-                profilePictureDisplaySettings.src = profilePictureUrl;
-                profilePictureDisplaySettings.classList.remove('hidden');
-                profilePicturePlaceholderSettings.classList.add('hidden');
-                deleteProfilePictureBtn.classList.remove('hidden');
-            } else {
-                profilePictureDisplaySettings.src = ''; // Clear src
-                profilePictureDisplaySettings.classList.add('hidden');
-                profilePicturePlaceholderSettings.classList.remove('hidden');
-                deleteProfilePictureBtn.classList.add('hidden');
-            }
-            profilePictureMessage.classList.add('hidden'); // Clear any previous messages
-        }
+        //     // Update settings profile picture
+        //     if (profilePictureUrl) {
+        //         profilePictureDisplaySettings.src = profilePictureUrl;
+        //         profilePictureDisplaySettings.classList.remove('hidden');
+        //         profilePicturePlaceholderSettings.classList.add('hidden');
+        //         deleteProfilePictureBtn.classList.remove('hidden');
+        //     } else {
+        //         profilePictureDisplaySettings.src = ''; // Clear src
+        //         profilePictureDisplaySettings.classList.add('hidden');
+        //         profilePicturePlaceholderSettings.classList.remove('hidden');
+        //         deleteProfilePictureBtn.classList.add('hidden');
+        //     }
+        //     profilePictureMessage.classList.add('hidden'); // Clear any previous messages
+        // }
 
-        async function handleProfilePictureUpload(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+        // async function handleProfilePictureUpload(event) {
+        //     // Functionality removed
+        // }
 
-            profilePictureMessage.classList.add('hidden'); // Hide previous messages
-
-            if (!currentFirebaseUser) { // Removed admin check
-                showNotification('Anda harus login untuk mengunggah foto profil.', 'error');
-                return;
-            }
-
-            // Basic file type and size validation
-            if (!file.type.startsWith('image/')) {
-                showMessage(profilePictureMessage, 'Hanya file gambar yang diizinkan.', true);
-                showNotification('Hanya file gambar yang diizinkan.', 'error');
-                return;
-            }
-
-            // Warning for large files (e.g., > 1MB)
-            const MAX_FILE_SIZE_MB = 1;
-            if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-                showMessage(profilePictureMessage, `Ukuran gambar terlalu besar. Maksimal ${MAX_FILE_SIZE_MB}MB.`, true);
-                showNotification(`Ukuran gambar terlalu besar. Maksimal ${MAX_FILE_SIZE_MB}MB.`, 'error');
-                return;
-            }
-
-            try {
-                const userId = currentFirebaseUser.uid;
-                // Construct the path for the profile picture, ensuring uniqueness if multiple files with same name are uploaded
-                // For simplicity, we'll overwrite if the name is the same. For unique names, you could use a UUID.
-                const imageRef = ref(storage, `artifacts/${appId}/users/${userId}/profilePicture/${file.name}`);
-                await uploadBytes(imageRef, file);
-                const downloadURL = await getDownloadURL(imageRef);
-
-                await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'), {
-                    profilePictureUrl: downloadURL
-                }, { merge: true }); // Merge to not overwrite other profile data
-
-                showNotification('Foto profil berhasil diunggah!', 'success');
-                showMessage(profilePictureMessage, 'Foto profil berhasil diunggah!', false);
-                // UI will update via Firestore listener
-            } catch (error) {
-                console.error("Error uploading profile picture:", error);
-                // Log the Firebase error code for better debugging
-                console.error("Firebase Storage Error Code:", error.code);
-                let errorMessage = 'Gagal mengunggah foto profil. Silakan coba lagi.';
-                if (error.code === 'storage/unauthorized') {
-                    errorMessage = 'Tidak diizinkan mengunggah. Periksa aturan keamanan Firebase Storage Anda.';
-                } else if (error.code === 'storage/object-not-found') {
-                    errorMessage = 'File tidak ditemukan di penyimpanan.';
-                } else if (error.code === 'storage/canceled') {
-                    errorMessage = 'Unggahan dibatalkan.';
-                } else if (error.code === 'storage/quota-exceeded') {
-                    errorMessage = 'Kuota penyimpanan terlampaui.';
-                }
-                showMessage(profilePictureMessage, errorMessage, true);
-                showNotification(errorMessage, 'error');
-            }
-        }
-
-        async function deleteProfilePicture() {
-            confirmAction('Apakah Anda yakin ingin menghapus foto profil Anda?', async () => {
-                if (!currentFirebaseUser) { // Removed admin check
-                    showNotification('Anda harus login untuk menghapus foto profil.', 'error');
-                    return;
-                }
-
-                const userId = currentFirebaseUser.uid;
-                const profileData = window._userProfile || { profilePictureUrl: null };
-                const profilePictureUrl = profileData.profilePictureUrl;
-
-                if (!profilePictureUrl) {
-                    showNotification('Tidak ada foto profil untuk dihapus.', 'info');
-                    return;
-                }
-
-                try {
-                    // Get the storage reference from the URL
-                    const imageRef = ref(storage, profilePictureUrl);
-                    await deleteObject(imageRef);
-
-                    // Update Firestore to remove the URL
-                    await setDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'), {
-                        profilePictureUrl: null
-                    }, { merge: true });
-
-                    showNotification('Foto profil berhasil dihapus!', 'success');
-                    showMessage(profilePictureMessage, 'Foto profil berhasil dihapus!', false);
-                    // UI will update via Firestore listener
-                } catch (error) {
-                    console.error("Error deleting profile picture:", error);
-                    // Log the Firebase error code for better debugging
-                    console.error("Firebase Storage Error Code:", error.code);
-                    let errorMessage = 'Gagal menghapus foto profil. Silakan coba lagi.';
-                    if (error.code === 'storage/unauthorized') {
-                        errorMessage = 'Tidak diizinkan menghapus. Periksa aturan keamanan Firebase Storage Anda.';
-                    } else if (error.code === 'storage/object-not-found') {
-                        errorMessage = 'Foto profil tidak ditemukan di penyimpanan.';
-                    }
-                    showMessage(profilePictureMessage, errorMessage, true);
-                    showNotification(errorMessage, 'error');
-                }
-            });
-        }
+        // async function deleteProfilePicture() {
+        //     // Functionality removed
+        // }
 
         // --- Local Data Import/Export ---
 
@@ -2099,14 +1934,15 @@
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
 
-                const profileDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'));
-                const profilePictureUrl = profileDoc.exists() ? profileDoc.data().profilePictureUrl : null;
+                // Removed profile picture URL from export
+                // const profileDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'));
+                // const profilePictureUrl = profileDoc.exists() ? profileDoc.data().profilePictureUrl : null;
 
                 const dataToExport = {
                     transactions,
                     categories,
-                    budgets,
-                    profilePictureUrl
+                    budgets
+                    // profilePictureUrl // Removed from export
                 };
 
                 const dataStr = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
@@ -2187,10 +2023,10 @@
                         list: importedData.budgets || []
                     });
 
-                    // Import profile picture URL (if present)
-                    batch.set(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'), {
-                        profilePictureUrl: importedData.profilePictureUrl || null
-                    }, { merge: true });
+                    // Import profile picture URL (if present) - Removed
+                    // batch.set(doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data'), {
+                    //     profilePictureUrl: importedData.profilePictureUrl || null
+                    // }, { merge: true });
 
 
                     await batch.commit(); // Commit all batch operations
@@ -2356,7 +2192,7 @@
                     latestTransactionsEl.appendChild(transactionDiv);
                 });
             }
-            loadProfilePicture(); // Ensure profile picture is loaded on dashboard
+            // loadProfilePicture(); // Removed profile picture loading
         }
 
         function renderIncomeExpenseChart(income, expense) {
@@ -3075,24 +2911,24 @@
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 console.log("Metadata deleted.");
 
-                // 3. Delete profile data (which contains profile picture URL)
-                const profileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data');
-                const profileDocSnap = await getDoc(profileDocRef);
-                const profileData = profileDocSnap.exists() ? profileDocSnap.data() : null;
-                const profilePictureUrl = profileData ? profileData.profilePictureUrl : null;
+                // 3. Delete profile data (which contains profile picture URL) - Removed
+                // const profileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'data');
+                // const profileDocSnap = await getDoc(profileDocRef);
+                // const profileData = profileDocSnap.exists() ? profileDocSnap.data() : null;
+                // const profilePictureUrl = profileData ? profileData.profilePictureUrl : null;
 
-                // Delete profile picture from Storage if it exists
-                if (profilePictureUrl) {
-                    try {
-                        const imageRef = ref(storage, profilePictureUrl);
-                        await deleteObject(imageRef);
-                        console.log("Profile picture deleted from Storage.");
-                    } catch (storageError) {
-                        console.warn("Could not delete profile picture from Storage (might not exist or permission issue):", storageError);
-                    }
-                }
-                await deleteDoc(profileDocRef);
-                console.log("Profile data deleted.");
+                // Delete profile picture from Storage if it exists - Removed
+                // if (profilePictureUrl) {
+                //     try {
+                //         const imageRef = ref(storage, profilePictureUrl);
+                //         await deleteObject(imageRef);
+                //         console.log("Profile picture deleted from Storage.");
+                //     } catch (storageError) {
+                //         console.warn("Could not delete profile picture from Storage (might not exist or permission issue):", storageError);
+                //     }
+                // }
+                // await deleteDoc(profileDocRef);
+                // console.log("Profile data deleted.");
 
                 // 4. Delete the Firebase Authentication user
                 await deleteFirebaseAuthUser(currentFirebaseUser);
@@ -3276,7 +3112,6 @@
             "Pengaturan Akun": {
                 answer: "Menu 'Pengaturan' memungkinkan Anda untuk mengelola profil, kata sandi, kategori, serta melakukan backup dan ekspor data.",
                 options: [
-                    "Bagaimana cara mengelola foto profil?",
                     "Bagaimana cara mengubah kata sandi?",
                     "Bagaimana cara mengelola kategori?",
                     "Bagaimana cara backup/pulihkan data?",
@@ -3286,9 +3121,10 @@
                     "Kembali ke awal"
                 ]
             },
-            "Bagaimana cara mengelola foto profil?": {
-                answer: "Di menu 'Pengaturan', pada bagian 'Foto Profil', Anda dapat mengunggah foto profil baru dengan mengklik 'Ubah Foto Profil' atau menghapus foto profil yang sudah ada dengan 'Hapus Foto Profil'."
-            },
+            // Removed "Bagaimana cara mengelola foto profil?" from options
+            // "Bagaimana cara mengelola foto profil?": {
+            //     answer: "Di menu 'Pengaturan', pada bagian 'Foto Profil', Anda dapat mengunggah foto profil baru dengan mengklik 'Ubah Foto Profil' atau menghapus foto profil yang sudah ada dengan 'Hapus Foto Profil'."
+            // },
             "Bagaimana cara mengubah kata sandi?": {
                 answer: "Anda bisa mengubah kata sandi di menu 'Pengaturan', pada bagian 'Ubah Kata Sandi'. Masukkan kata sandi Anda saat ini, lalu masukkan kata sandi baru dan konfirmasinya. Pastikan kata sandi baru minimal 6 karakter."
             },
@@ -3448,9 +3284,9 @@
         // Add Category Form Submission
         addCategoryForm.addEventListener('submit', addCategory);
 
-        // Profile Picture Upload/Delete
-        profilePictureInput.addEventListener('change', handleProfilePictureUpload);
-        deleteProfilePictureBtn.addEventListener('click', deleteProfilePicture);
+        // Profile Picture Upload/Delete (Event listeners removed)
+        // profilePictureInput.addEventListener('change', handleProfilePictureUpload);
+        // deleteProfilePictureBtn.addEventListener('click', deleteProfilePicture);
 
         // Local Data Import/Export
         exportAllDataBtn.addEventListener('click', exportAllData);
