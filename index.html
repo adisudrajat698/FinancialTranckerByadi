@@ -434,7 +434,7 @@
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-4 h-4 mr-2"></i> Bantuan </a></li>
-              <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin">Admin</a></li>
+              <!-- Admin sidebar item removed -->
             </ul>
         </nav>
         <div class="mt-auto">
@@ -830,15 +830,7 @@
                 </div>
             </section>
 
-            <section id="adminSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Panel Admin</h2>
-                <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Kelola Pengguna</h3>
-                    <div id="userList" class="space-y-2">
-                        <p class="text-gray-500 text-center">Tidak ada pengguna lain.</p>
-                    </div>
-                </div>
-            </section>
+            <!-- Admin section removed -->
             </main>
 
         <footer class="bg-gray-800 text-white text-center p-4 text-sm mt-auto">
@@ -916,8 +908,8 @@
             onAuthStateChanged,
             updatePassword,
             deleteUser as deleteFirebaseAuthUser,
-            reauthenticateWithCredential, // Added for reauthentication before deleting account
-            EmailAuthProvider // Added for reauthentication
+            reauthenticateWithCredential,
+            EmailAuthProvider
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore,
@@ -932,7 +924,7 @@
             query,
             where,
             getDocs,
-            writeBatch // Added for batch deletes
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import {
             getStorage,
@@ -940,11 +932,10 @@
             uploadBytes,
             getDownloadURL,
             deleteObject,
-            listAll // Added for deleting all files in a folder
+            listAll
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Firebase Configuration (provided by the environment)
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyDvf_Rg89uX9ODamiUjTCZ-ZTIYA2C7a7w",
             authDomain: "keuanganadi.firebaseapp.com",
@@ -963,7 +954,7 @@
 
         // Global variables for Canvas environment
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        console.log("Using appId for Firestore paths:", appId); // Log the appId being used
+        console.log("Using appId for Firestore paths:", appId);
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // DOM Elements
@@ -1078,10 +1069,10 @@
         const profilePictureDisplayDashboard = document.getElementById('profilePictureDisplayDashboard');
         const profilePicturePlaceholderDashboard = document.getElementById('profilePicturePlaceholderDashboard');
 
-        // Admin section elements
-        const adminSidebarItem = document.getElementById('adminSidebarItem');
-        const adminSection = document.getElementById('adminSection');
-        const userListEl = document.getElementById('userList');
+        // Admin section elements (Removed from HTML, but kept here for reference if needed)
+        // const adminSidebarItem = document.getElementById('adminSidebarItem');
+        // const adminSection = document.getElementById('adminSection');
+        // const userListEl = document.getElementById('userList');
 
         // Specific sidebar items to hide/show
         const dashboardSidebarItem = document.getElementById('dashboardSidebarItem');
@@ -1135,15 +1126,15 @@
         let currentPage = 1;
         let filteredTransactions = []; // To store transactions after search/filter for pagination
 
-        // Super Admin Credentials (for demonstration purposes)
-        const ADMIN_EMAIL = 'admin@keuangan.com'; // Changed to email for Firebase Auth consistency
-        const ADMIN_PASSWORD = 'admin123';
+        // Super Admin Credentials (Removed as admin functionality is removed)
+        // const ADMIN_EMAIL = 'admin@keuangan.com';
+        // const ADMIN_PASSWORD = 'admin123';
 
         // Listeners for Firestore data (unsubscribing when user logs out)
         let unsubscribeTransactions = null;
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
-        let unsubscribeProfile = null; // New unsubscribe for profile
+        let unsubscribeProfile = null;
 
         // --- Utility Functions ---
 
@@ -1162,7 +1153,6 @@
             element.classList.remove('hidden');
             element.classList.toggle('text-red-500', isError);
             element.classList.toggle('text-green-500', !isError);
-            // Removed setTimeout here to keep messages visible until next action/switch
         }
 
         // Function to show a notification
@@ -1184,17 +1174,11 @@
             if (user) {
                 isLoggedIn = true;
                 currentFirebaseUser = user;
-                // For admin, check if it's the hardcoded admin. Otherwise, it's a regular Firebase user.
-                if (user.email === ADMIN_EMAIL) {
-                    showSection('adminSection');
-                    dashboardUsernameEl.textContent = 'Admin';
-                    sidebarUsername.textContent = 'Admin';
-                } else {
-                    showSection('dashboardSection');
-                    dashboardUsernameEl.textContent = user.email; // Display email as username
-                    sidebarUsername.textContent = user.email; // Display email as username
-                    setupFirestoreListeners(user.uid); // Setup listeners for regular users
-                }
+                // No more admin check here, always treat as regular user
+                showSection('dashboardSection');
+                dashboardUsernameEl.textContent = user.email; // Display email as username
+                sidebarUsername.textContent = user.email; // Display email as username
+                setupFirestoreListeners(user.uid); // Setup listeners for regular users
             } else {
                 isLoggedIn = false;
                 currentFirebaseUser = null;
@@ -1217,19 +1201,7 @@
                 return;
             }
 
-            // Handle hardcoded admin login
-            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                // This is a local admin, not a Firebase Auth user in this context
-                // Simulate successful login for admin
-                isLoggedIn = true;
-                currentFirebaseUser = { uid: 'admin_local', email: ADMIN_EMAIL }; // Mock user object for admin
-                showMessage(authMessage, 'Login admin berhasil!', false);
-                showNotification('Login admin berhasil!', 'success');
-                showSection('adminSection');
-                updateUIBasedOnAuth();
-                return;
-            }
-
+            // Removed hardcoded admin login
             try {
                 if (authMode === 'register') {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -1303,26 +1275,15 @@
                     sidebar.classList.add('open');
                 }
 
-                // Show/hide sidebar items based on user role
-                if (currentFirebaseUser && currentFirebaseUser.email === ADMIN_EMAIL) {
-                    dashboardSidebarItem.classList.add('hidden');
-                    transactionsSidebarItem.classList.add('hidden');
-                    budgetingSidebarItem.classList.add('hidden');
-                    reportsSidebarItem.classList.add('hidden');
-                    analysisSidebarItem.classList.add('hidden');
-                    settingsSidebarItem.classList.add('hidden');
-                    helpSidebarItem.classList.add('hidden');
-                    adminSidebarItem.classList.remove('hidden');
-                } else {
-                    dashboardSidebarItem.classList.remove('hidden');
-                    transactionsSidebarItem.classList.remove('hidden');
-                    budgetingSidebarItem.classList.remove('hidden');
-                    reportsSidebarItem.classList.remove('hidden');
-                    analysisSidebarItem.classList.remove('hidden');
-                    settingsSidebarItem.classList.remove('hidden');
-                    helpSidebarItem.classList.remove('hidden');
-                    adminSidebarItem.classList.add('hidden');
-                }
+                // Always show these for logged-in users (admin functionality removed)
+                dashboardSidebarItem.classList.remove('hidden');
+                transactionsSidebarItem.classList.remove('hidden');
+                budgetingSidebarItem.classList.remove('hidden');
+                reportsSidebarItem.classList.remove('hidden');
+                analysisSidebarItem.classList.remove('hidden');
+                settingsSidebarItem.classList.remove('hidden');
+                helpSidebarItem.classList.remove('hidden');
+                // adminSidebarItem.classList.add('hidden'); // This element is removed from HTML
             } else {
                 authSection.classList.remove('hidden');
                 sidebar.classList.add('hidden');
@@ -1335,7 +1296,7 @@
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
                 helpSidebarItem.classList.add('hidden');
-                adminSidebarItem.classList.add('hidden');
+                // adminSidebarItem.classList.add('hidden'); // This element is removed from HTML
 
                 // Hide all other sections
                 document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
@@ -1414,7 +1375,7 @@
             if (unsubscribeTransactions) unsubscribeTransactions();
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
-            if (unsubscribeProfile) unsubscribeProfile(); // Unsubscribe profile listener
+            if (unsubscribeProfile) unsubscribeProfile();
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
@@ -1422,11 +1383,8 @@
             console.log("All Firestore listeners unsubscribed.");
         }
 
-        // Helper to get current user's UID or handle admin case
+        // Helper to get current user's UID
         function getCurrentUserId() {
-            if (currentFirebaseUser && currentFirebaseUser.email === ADMIN_EMAIL) {
-                return 'admin_local'; // Special ID for local admin
-            }
             return currentFirebaseUser ? currentFirebaseUser.uid : null;
         }
 
@@ -1437,13 +1395,13 @@
 
         async function addTransactionToFirestore(transaction) {
             const userId = getCurrentUserId();
-            if (!userId || userId === 'admin_local') {
-                showNotification('Admin tidak dapat menambahkan transaksi ke Firestore.', 'error');
+            if (!userId) {
+                showNotification('Anda harus login untuk menambahkan transaksi.', 'error');
                 return;
             }
             try {
                 await addDoc(collection(db, `artifacts/${appId}/users/${userId}/transactions`), transaction);
-                console.log("Transaction added to Firestore:", transaction); // Log successful add
+                console.log("Transaction added to Firestore:", transaction);
             } catch (error) {
                 console.error("Error adding transaction:", error);
                 showNotification('Gagal menambahkan transaksi. Silakan coba lagi.', 'error');
@@ -1452,13 +1410,13 @@
 
         async function updateTransactionInFirestore(id, updatedTransaction) {
             const userId = getCurrentUserId();
-            if (!userId || userId === 'admin_local') {
-                showNotification('Admin tidak dapat memperbarui transaksi di Firestore.', 'error');
+            if (!userId) {
+                showNotification('Anda harus login untuk memperbarui transaksi.', 'error');
                 return;
             }
             try {
                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/transactions`, id), updatedTransaction);
-                console.log("Transaction updated in Firestore:", id, updatedTransaction); // Log successful update
+                console.log("Transaction updated in Firestore:", id, updatedTransaction);
             } catch (error) {
                 console.error("Error updating transaction:", error);
                 showNotification('Gagal memperbarui transaksi. Silakan coba lagi.', 'error');
@@ -1467,13 +1425,13 @@
 
         async function deleteTransactionFromFirestore(id) {
             const userId = getCurrentUserId();
-            if (!userId || userId === 'admin_local') {
-                showNotification('Admin tidak dapat menghapus transaksi dari Firestore.', 'error');
+            if (!userId) {
+                showNotification('Anda harus login untuk menghapus transaksi.', 'error');
                 return;
             }
             try {
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/transactions`, id));
-                console.log("Transaction deleted from Firestore:", id); // Log successful delete
+                console.log("Transaction deleted from Firestore:", id);
             } catch (error) {
                 console.error("Error deleting transaction:", error);
                 showNotification('Gagal menghapus transaksi. Silakan coba lagi.', 'error');
@@ -1486,13 +1444,13 @@
 
         async function saveUserCategoriesToFirestore(categories) {
             const userId = getCurrentUserId();
-            if (!userId || userId === 'admin_local') {
-                showNotification('Admin tidak dapat menyimpan kategori ke Firestore.', 'error');
+            if (!userId) {
+                showNotification('Anda harus login untuk menyimpan kategori.', 'error');
                 return;
             }
             try {
                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'), { list: categories });
-                console.log("Categories saved to Firestore:", categories); // Log successful save
+                console.log("Categories saved to Firestore:", categories);
             } catch (error) {
                 console.error("Error saving categories:", error);
                 showNotification('Gagal menyimpan kategori. Silakan coba lagi.', 'error');
@@ -1505,13 +1463,13 @@
 
         async function saveUserBudgetsToFirestore(budgets) {
             const userId = getCurrentUserId();
-            if (!userId || userId === 'admin_local') {
-                showNotification('Admin tidak dapat menyimpan anggaran ke Firestore.', 'error');
+            if (!userId) {
+                showNotification('Anda harus login untuk menyimpan anggaran.', 'error');
                 return;
             }
             try {
                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'), { list: budgets });
-                console.log("Budgets saved to Firestore:", budgets); // Log successful save
+                console.log("Budgets saved to Firestore:", budgets);
             } catch (error) {
                 console.error("Error saving budgets:", error);
                 showNotification('Gagal menyimpan anggaran. Silakan coba lagi.', 'error');
@@ -1521,12 +1479,7 @@
         // --- Section Management ---
 
         function showSection(sectionId) {
-            // Prevent non-admin sections for admin user
-            if (currentFirebaseUser && currentFirebaseUser.email === ADMIN_EMAIL && sectionId !== 'adminSection' && sectionId !== 'authSection') {
-                showNotification('Akses ditolak. Admin hanya dapat mengakses panel admin.', 'error');
-                return;
-            }
-
+            // No more admin check here
             document.querySelectorAll('main > section').forEach(section => {
                 section.classList.add('hidden');
             });
@@ -1549,10 +1502,10 @@
             if (sectionId === 'dashboardSection') {
                 renderDashboard();
             } else if (sectionId === 'transactionsSection') {
-                renderCategoryOptions(transactionCategoryInput); // Populate categories for new transaction form
+                renderCategoryOptions(transactionCategoryInput);
                 currentPage = 1; // Reset pagination
                 renderTransactions();
-            } else if (sectionId === 'budgetingSection') { // New: Handle budgeting section
+            } else if (sectionId === 'budgetingSection') {
                 renderCategoryOptions(budgetItemCategorySelect);
                 renderBudgets();
             }
@@ -1560,15 +1513,14 @@
                 populateReportYears();
                 renderReports();
             } else if (sectionId === 'analysisSection') {
-                renderAnalysis(); // Render analysis charts
+                renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
-                loadProfilePicture(); // Load profile picture when entering settings
-            } else if (sectionId === 'helpSection') { // New: Handle help section
+                loadProfilePicture();
+            } else if (sectionId === 'helpSection') {
                 startChatbot();
-            } else if (sectionId === 'adminSection') {
-                renderAdminPanel();
             }
+            // Admin section removed
         }
 
         // --- Transaction Management ---
@@ -1936,26 +1888,7 @@
                 return;
             }
 
-            if (currentFirebaseUser.email === ADMIN_EMAIL) {
-                // Handle local admin password change
-                if (ADMIN_PASSWORD === currentPass) {
-                    if (newPass === confirmNewPass && newPass.length >= 6) {
-                        // In a real app, this would update a backend admin password
-                        showMessage(passwordMessageEl, 'Kata sandi admin lokal berhasil diubah (simulasi)!', false);
-                        showNotification('Kata sandi admin lokal berhasil diubah (simulasi)!', 'success');
-                        changePasswordForm.reset();
-                    } else {
-                        showMessage(passwordMessageEl, 'Kata sandi baru tidak cocok atau terlalu pendek (min 6 karakter).', true);
-                        showNotification('Kata sandi baru tidak cocok atau terlalu pendek (min 6 karakter).', 'error');
-                    }
-                } else {
-                    showMessage(passwordMessageEl, 'Kata sandi admin saat ini salah.', true);
-                    showNotification('Kata sandi admin saat ini salah.', 'error');
-                }
-                return;
-            }
-
-            // For Firebase authenticated users
+            // Removed admin password change logic
             if (!currentPass || !newPass || !confirmNewPass) {
                 showMessage(passwordMessageEl, 'Semua field harus diisi.', true);
                 showNotification('Semua field harus diisi.', 'error');
@@ -1989,7 +1922,7 @@
                     errorMessage = 'Kata sandi saat ini salah.';
                 } else if (error.code === 'auth/requires-recent-login') {
                     errorMessage = 'Untuk alasan keamanan, silakan login ulang dan coba lagi.';
-                } else if (error.code === 'auth/invalid-credential') { // For reauthenticateWithCredential
+                } else if (error.code === 'auth/invalid-credential') {
                     errorMessage = 'Kredensial saat ini tidak valid. Silakan login ulang.';
                 }
                 showMessage(passwordMessageEl, errorMessage, true);
@@ -2048,8 +1981,8 @@
 
             profilePictureMessage.classList.add('hidden'); // Hide previous messages
 
-            if (!currentFirebaseUser || currentFirebaseUser.email === ADMIN_EMAIL) {
-                showNotification('Anda harus login sebagai pengguna biasa untuk mengunggah foto profil.', 'error');
+            if (!currentFirebaseUser) { // Removed admin check
+                showNotification('Anda harus login untuk mengunggah foto profil.', 'error');
                 return;
             }
 
@@ -2090,8 +2023,8 @@
 
         async function deleteProfilePicture() {
             confirmAction('Apakah Anda yakin ingin menghapus foto profil Anda?', async () => {
-                if (!currentFirebaseUser || currentFirebaseUser.email === ADMIN_EMAIL) {
-                    showNotification('Anda harus login sebagai pengguna biasa untuk menghapus foto profil.', 'error');
+                if (!currentFirebaseUser) { // Removed admin check
+                    showNotification('Anda harus login untuk menghapus foto profil.', 'error');
                     return;
                 }
 
@@ -2128,8 +2061,8 @@
         // --- Local Data Import/Export ---
 
         async function exportAllData() {
-            if (!currentFirebaseUser || currentFirebaseUser.email === ADMIN_EMAIL) {
-                showNotification('Anda harus login sebagai pengguna biasa untuk mengekspor data.', 'error');
+            if (!currentFirebaseUser) { // Removed admin check
+                showNotification('Anda harus login untuk mengekspor data.', 'error');
                 return;
             }
 
@@ -2172,8 +2105,8 @@
                 return;
             }
 
-            if (!currentFirebaseUser || currentFirebaseUser.email === ADMIN_EMAIL) {
-                showNotification('Anda harus login sebagai pengguna biasa untuk mengimpor data.', 'error');
+            if (!currentFirebaseUser) { // Removed admin check
+                showNotification('Anda harus login untuk mengimpor data.', 'error');
                 return;
             }
 
@@ -2377,18 +2310,12 @@
             renderCategorySummary(expenseByCategorySummary, expenseCategories, 'expense');
 
             // Display latest 5 transactions
-            // Sort transactions by date (newest first) and then by ID (as a tie-breaker for same date)
+            // Sort transactions by date (newest first). If dates are identical, their relative order is maintained.
             const latest = transactions.slice().sort((a, b) => {
                 const dateA = new Date(a.date);
                 const dateB = new Date(b.date);
-                if (dateB - dateA !== 0) {
-                    return dateB - dateA; // Sort by date descending
-                }
-                // Firestore IDs are strings, comparing them as numbers might not work as expected.
-                // For tie-breaking, you might need another field like a timestamp, or just keep original order.
-                // For now, if dates are same, keep original order from Firestore.
-                return 0; // Keep original order if dates are the same
-            }).slice(0, 5);
+                return dateB - dateA; // Sort by date descending (newest first)
+            }).slice(0, 5); // Take only the top 5
 
             latestTransactionsEl.innerHTML = '';
             if (latest.length === 0) {
@@ -2747,7 +2674,7 @@
 
             // Generate dynamic colors
             const backgroundColors = labels.map((_, i) => {
-                const hue = (i * 137.508) % 360; // Use golden angle approximation for distinct colors
+                const hue = (i * 137.508) % 360;
                 return `hsla(${hue}, 70%, 60%, 0.8)`;
             });
             const borderColors = labels.map((_, i) => {
@@ -2793,7 +2720,7 @@
                 }
             };
 
-            if (canvasElement === expenseByCategoryChartCanvas) {
+            if (canvasElement === topExpenseCategoriesChartCanvas) {
                 expenseByCategoryChartInstance = new Chart(canvasElement, chartConfig);
             } else if (canvasElement === incomeByCategoryChartCanvas) {
                 incomeByCategoryChartInstance = new Chart(canvasElement, chartConfig);
@@ -2971,7 +2898,7 @@
                 chartInstance = topExpenseCategoriesChartInstance;
             } else if (canvasElement === topIncomeCategoriesChartCanvas) {
                 if (topIncomeCategoriesChartInstance) topIncomeCategoriesChartInstance.destroy();
-                chartInstance = topIncomeCategoriesChartInstance;
+                chartInstance = incomeByCategoryChartInstance;
             }
 
             const sortedCategories = Object.entries(categoryData)
@@ -3075,36 +3002,16 @@
             });
         }
 
-        // --- Admin Panel Functions ---
-        async function renderAdminPanel() {
-            userListEl.innerHTML = '';
-            // In a real application, fetching all users would require Firebase Admin SDK on a backend.
-            // For client-side, we can only list users who have logged in and whose data we've interacted with,
-            // or provide a placeholder for admin functionality.
-            // For this example, the admin panel will only show a message.
-            userListEl.innerHTML = '<p class="text-gray-500 text-center">Panel Admin (Fitur manajemen pengguna penuh memerlukan backend). Anda dapat menghapus akun Anda sendiri dari Pengaturan.</p>';
-
-            // If you want to list *all* users (not just the current one), it's not directly supported
-            // in client-side Firebase SDK due to security concerns.
-            // You would need a Cloud Function or a backend server.
-        }
-
-        async function deleteUser(uidToDelete) {
-            confirmAction(`Apakah Anda yakin ingin menghapus pengguna ini? Semua data pengguna ini akan hilang.`, async () => {
-                if (currentFirebaseUser && currentFirebaseUser.uid === uidToDelete) {
-                    showNotification('Anda tidak dapat menghapus akun Anda sendiri dari panel admin. Gunakan Pengaturan.', 'error');
-                    return;
-                }
-                // Client-side Firebase SDK cannot delete arbitrary users by UID.
-                // This would require Firebase Admin SDK on a backend (e.g., Cloud Function).
-                showNotification('Penghapusan pengguna lain tidak didukung di sisi klien. Ini memerlukan fungsi backend.', 'error');
-            });
-        }
+        // --- Admin Panel Functions (Removed) ---
+        // The admin section and related functions are removed from the HTML and JS.
+        // The chatbot still refers to them, but they are no longer functional.
+        // client-side Firebase SDK cannot delete arbitrary users by UID.
+        // This would require Firebase Admin SDK on a backend (e.g., Cloud Function).
 
         // --- Delete Own Account Function ---
         async function deleteOwnAccount() {
-            if (!currentFirebaseUser || currentFirebaseUser.email === ADMIN_EMAIL) {
-                showNotification('Fitur ini hanya untuk pengguna biasa.', 'error');
+            if (!currentFirebaseUser) { // No longer checking for ADMIN_EMAIL as admin is removed
+                showNotification('Fitur ini hanya untuk pengguna yang login.', 'error');
                 return;
             }
 
@@ -3235,8 +3142,7 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Bantuan Admin",
-                    "Kembali ke awal"
+                    "Kembali ke awal" // Removed "Bantuan Admin"
                 ]
             },
             "Informasi Dashboard": {
@@ -3354,7 +3260,7 @@
                     "Bagaimana cara backup/pulihkan data?",
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
-                    "Bagaimana cara menghapus akun saya?", // New option for deleting own account
+                    "Bagaimana cara menghapus akun saya?",
                     "Kembali ke awal"
                 ]
             },
@@ -3373,18 +3279,11 @@
             "Bagaimana cara mengekspor transaksi ke CSV?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Ekspor Data Transaksi (CSV)', klik tombol 'Ekspor Transaksi ke CSV'. Semua transaksi Anda akan diunduh sebagai file CSV yang dapat dibuka di program spreadsheet seperti Excel."
             },
-            "Bagaimana cara menghapus akun saya?": { // New chatbot answer
+            "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
             },
-            "Bantuan Admin": {
-                answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi.",
-                options: [
-                    "Bagaimana cara menghapus pengguna (Admin)?", // This is a placeholder for client-side
-                    "Kembali ke awal"
-                ]
-            },
-            "Bagaimana cara menghapus pengguna (Admin)?": {
-                answer: "Sebagai pengguna 'Admin', Anda dapat melihat daftar pengguna. Namun, penghapusan pengguna lain dari sisi klien tidak didukung secara langsung oleh Firebase SDK karena alasan keamanan. Ini memerlukan fungsi backend (misalnya, Firebase Cloud Functions)."
+            "Bantuan Admin": { // This section is now purely informational as admin functions are client-side removed
+                answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi. Namun, fungsi manajemen pengguna lain dari sisi klien tidak didukung secara langsung oleh Firebase SDK karena alasan keamanan. Ini memerlukan fungsi backend (misalnya, Firebase Cloud Functions)."
             },
             "Kembali ke awal": {
                 answer: "Baik, apa lagi yang bisa saya bantu? Silakan pilih topik dari daftar di bawah:",
@@ -3395,7 +3294,6 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Bantuan Admin",
                     "Kembali ke awal"
                 ]
             }
@@ -3569,17 +3467,7 @@
                     showNotification('Gagal login otomatis. Silakan login manual.', 'error');
                 }
             } else {
-                // If no custom token, try anonymous sign-in or check existing session
-                onAuthStateChanged(auth, (user) => {
-                    if (!user) {
-                        // If no user is logged in, try anonymous sign-in
-                        // Removed anonymous sign-in to force explicit login/registration
-                        // signInAnonymously(auth).catch(error => {
-                        //     console.error("Anonymous sign-in error:", error);
-                        //     showNotification('Gagal login anonim. Silakan login manual.', 'error');
-                        // });
-                    }
-                });
+                // If no custom token, no anonymous sign-in by default now, user must explicitly login/register
             }
 
             // Set default date for transaction form to today
@@ -3597,7 +3485,7 @@
         window.hideConfirmationModal = hideConfirmationModal; // For modal close button
         window.hideEditTransactionModal = hideEditTransactionModal; // For modal close button
         window.confirmAction = showConfirmationModal; // Expose for internal use
-        window.deleteUser = deleteUser; // Expose for admin panel
+        // window.deleteUser = deleteUser; // Removed as admin functionality is removed
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
         window.deleteBudget = deleteBudget; // Expose for budget deletion
 
