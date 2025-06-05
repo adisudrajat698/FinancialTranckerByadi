@@ -728,8 +728,7 @@
 
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Kirim Semua Transaksi ke WhatsApp</h3>
-                    <p class="text-gray-700 mb-4">Masukkan nomor WhatsApp tujuan (misal: 6281234567890 tanpa '+') dan klik tombol untuk mengirim ringkasan transaksi Anda.</p>
-                    <input type="tel" id="whatsappNumberInput" placeholder="Masukkan nomor WhatsApp Anda" class="block mb-4">
+                    <p class="text-gray-700 mb-4">Klik tombol di bawah untuk mengirim semua detail transaksi Anda ke nomor WhatsApp yang ditentukan.</p>
                     <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold">Kirim Semua Transaksi ke WhatsApp</button>
                 </div>
 
@@ -989,8 +988,7 @@
         const exportDataBtn = document.getElementById('exportDataBtn');
         const deleteAccountBtn = document.getElementById('deleteAccountBtn'); // New delete account button
 
-        // WhatsApp Send Button and new input for phone number
-        const whatsappNumberInput = document.getElementById('whatsappNumberInput');
+        // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
 
         // Specific sidebar items to hide/show
@@ -1966,19 +1964,7 @@
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
         function sendTransactionsToWhatsApp() {
-            const targetPhoneNumber = whatsappNumberInput.value.trim(); // Get phone number from input
-
-            if (!targetPhoneNumber) {
-                showNotification('Nomor WhatsApp harus diisi.', 'error');
-                return;
-            }
-
-            // Basic validation for phone number (can be improved)
-            if (!/^\d+$/.test(targetPhoneNumber)) {
-                showNotification('Nomor WhatsApp tidak valid. Hanya angka yang diizinkan.', 'error');
-                return;
-            }
-
+            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
             const transactions = getUserTransactions();
             let totalIncome = 0;
             let totalExpense = 0;
@@ -2093,7 +2079,7 @@
             totalExpenseEl.textContent = formatRupiah(totalExpense);
 
             // Render Income/Expense Chart
-            renderIncomeExpenseChart(income, expense);
+            renderIncomeExpenseChart(totalIncome, totalExpense);
 
             // Render Expense by Category Summary
             renderCategorySummary(expenseByCategorySummary, expenseCategories, 'expense');
