@@ -365,6 +365,63 @@
         .chat-options button:hover {
             background-color: #bae6fd; /* lighter blue */
         }
+
+        /* New Fingerprint Modal Styles */
+        #fingerprintModal .modal-content {
+            text-align: center;
+        }
+        #fingerprintModal svg {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            color: #3b82f6; /* blue-500 */
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px #3b82f6;
+        }
+        input:checked + .toggle-slider:before {
+            -webkit-transform: translateX(20px);
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -380,7 +437,7 @@
             <ul class="space-y-2">
               <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard"><i data-feather="home" class="inline-block w-4 h-4 mr-2"></i> Dashboard </a></li>
               <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="inline-block w-4 h-4 mr-2"></i> Transaksi </a></li>
-              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-4 h-4 mr-2"></i> Rencana Anggaran </a></li> <!-- New Budgeting Item -->
+              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-4 h-4 mr-2"></i> Rencana Anggaran </a></li>
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
@@ -685,6 +742,19 @@
             <section id="settingsSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
 
+                <!-- New Fingerprint Lock Setting -->
+                <div class="card p-6 mb-8" id="fingerprintSettingCard">
+                    <h3 class="text-2xl font-bold mb-4">Kunci Sidik Jari</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-gray-700">Aktifkan kunci sidik jari untuk fitur keamanan tambahan.</p>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="fingerprintToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <p id="fingerprintAvailabilityMessage" class="text-sm mt-2 text-gray-500"></p>
+                </div>
+
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
@@ -838,6 +908,19 @@
         </div>
     </div>
 
+    <!-- New Fingerprint Modal -->
+    <div id="fingerprintModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4" id="fingerprintModalTitle">Verifikasi Sidik Jari</h3>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 12 9.75v6.75m-4.5-3A7.5 7.5 0 0 0 12 10.5a7.5 7.5 0 0 1 7.5 7.5v1.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5v-1.5a7.5 7.5 0 0 1 3.364-5.757z" />
+            </svg>
+            <p id="fingerprintModalMessage" class="mb-6">Sentuh sensor sidik jari Anda.</p>
+            <button id="fingerprintModalCancelBtn" class="btn-secondary">Batal</button>
+        </div>
+    </div>
+
+
     <div id="notificationContainer"></div>
 
     <script type="module">
@@ -905,7 +988,7 @@
         const authSubmitBtn = document.getElementById('authSubmitBtn');
         const authMessage = document.getElementById('authMessage');
         const toggleAuthModeBtn = document.getElementById('toggleAuthMode');
-        const forgotPasswordLink = document.getElementById('forgotPasswordLink'); // New: Forgot Password Link
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
 
         const dashboardSection = document.getElementById('dashboardSection');
         const dashboardUsernameEl = document.getElementById('dashboardUsername');
@@ -959,9 +1042,9 @@
         const expenseByCategoryChartCanvas = document.getElementById('expenseByCategoryChart');
         const incomeByCategoryChartCanvas = document.getElementById('incomeByCategoryChart');
 
-        let monthlySummaryChartInstance = null; // To store Chart.js instance for monthly summary
-        let expenseByCategoryChartInstance = null; // To store Chart.js instance for expense by category
-        let incomeByCategoryChartInstance = null; // To store Chart.js instance for income by category
+        let monthlySummaryChartInstance = null;
+        let expenseByCategoryChartInstance = null;
+        let incomeByCategoryChartInstance = null;
 
         // Analysis Section Elements
         const analysisSidebarItem = document.getElementById('analysisSidebarItem');
@@ -986,7 +1069,7 @@
         const newCategoryNameInput = document.getElementById('newCategoryName');
         const categoryListEl = document.getElementById('categoryList');
         const exportDataBtn = document.getElementById('exportDataBtn');
-        const deleteAccountBtn = document.getElementById('deleteAccountBtn'); // New delete account button
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
 
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
@@ -996,7 +1079,7 @@
         const transactionsSidebarItem = document.getElementById('transactionsSidebarItem');
         const reportsSidebarItem = document.getElementById('reportsSidebarItem');
         const settingsSidebarItem = document.getElementById('settingsSidebarItem');
-        const helpSidebarItem = document.getElementById('helpSidebarItem'); // New help sidebar item
+        const helpSidebarItem = document.getElementById('helpSidebarItem');
 
         const sidebarItems = document.querySelectorAll('.sidebar-item');
 
@@ -1039,10 +1122,20 @@
         const chatDisplay = document.getElementById('chatDisplay');
         const chatOptions = document.getElementById('chatOptions');
 
+        // --- New Fingerprint Elements ---
+        const fingerprintSettingCard = document.getElementById('fingerprintSettingCard');
+        const fingerprintToggle = document.getElementById('fingerprintToggle');
+        const fingerprintAvailabilityMessage = document.getElementById('fingerprintAvailabilityMessage');
+        const fingerprintModal = document.getElementById('fingerprintModal');
+        const fingerprintModalTitle = document.getElementById('fingerprintModalTitle');
+        const fingerprintModalMessage = document.getElementById('fingerprintModalMessage');
+        const fingerprintModalCancelBtn = document.getElementById('fingerprintModalCancelBtn');
+
         // State Variables
         let isLoggedIn = false;
         let currentFirebaseUser = null; // Stores the Firebase User object (auth.currentUser)
         let authMode = 'login'; // 'login' or 'register'
+        let pendingSection = null; // To store sectionId when fingerprint authentication is pending
 
         // Pagination variables
         const transactionsPerPage = 10;
@@ -1098,6 +1191,8 @@
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
                     setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                    // Load fingerprint setting
+                    loadFingerprintSetting();
                 } else {
                     // If email is not verified, sign out and show message
                     await signOut(auth);
@@ -1113,6 +1208,9 @@
                 currentFirebaseUser = null;
                 showSection('authSection');
                 unsubscribeAllFirestoreListeners(); // Unsubscribe on logout
+                // Clear fingerprint setting
+                localStorage.removeItem('isFingerprintEnabled');
+                if (fingerprintToggle) fingerprintToggle.checked = false;
             }
             updateUIBasedOnAuth();
         });
@@ -1216,6 +1314,14 @@
                 analysisSidebarItem.classList.remove('hidden');
                 settingsSidebarItem.classList.remove('hidden');
                 helpSidebarItem.classList.remove('hidden');
+
+                // Show fingerprint setting if WebAuthn is supported
+                if (window.PublicKeyCredential) {
+                    fingerprintSettingCard.classList.remove('hidden');
+                } else {
+                    fingerprintSettingCard.classList.add('hidden');
+                }
+
             } else {
                 authSection.classList.remove('hidden');
                 sidebar.classList.add('hidden');
@@ -1228,6 +1334,9 @@
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
                 helpSidebarItem.classList.add('hidden');
+
+                // Hide fingerprint setting
+                fingerprintSettingCard.classList.add('hidden');
 
                 // Hide all other sections
                 document.querySelectorAll('main > section:not(#authSection)').forEach(section => {
@@ -1396,25 +1505,62 @@
         // --- Section Management ---
 
         function showSection(sectionId) {
+            // Check for fingerprint lock only for specific sections
+            const protectedSections = ['transactionsSection', 'budgetingSection'];
+            const isFingerprintEnabled = localStorage.getItem('isFingerprintEnabled') === 'true';
+
+            if (isFingerprintEnabled && protectedSections.includes(sectionId)) {
+                pendingSection = sectionId; // Store the target section
+                showFingerprintModal('Verifikasi Sidik Jari untuk Akses', 'Sentuh sensor sidik jari Anda untuk melanjutkan.', async () => {
+                    // On success, hide modal and show the pending section
+                    hideFingerprintModal();
+                    document.querySelectorAll('main > section').forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    document.getElementById(pendingSection).classList.remove('hidden');
+                    updateSidebarActiveState(pendingSection); // Update sidebar active state
+                    updateSectionData(pendingSection); // Update data for the displayed section
+                    pendingSection = null; // Clear pending section
+                }, () => {
+                    // On cancel/failure, hide modal and stay on current section (or redirect to dashboard)
+                    hideFingerprintModal();
+                    showNotification('Akses ditolak. Verifikasi sidik jari diperlukan.', 'error');
+                    // Optionally, redirect to dashboard if access to protected section is denied
+                    if (isLoggedIn) {
+                         showSection('dashboardSection');
+                    } else {
+                         showSection('authSection'); // Fallback if somehow not logged in
+                    }
+                    pendingSection = null;
+                });
+                return; // Stop execution here, wait for fingerprint
+            }
+
+            // If not protected or fingerprint not enabled, proceed normally
             document.querySelectorAll('main > section').forEach(section => {
                 section.classList.add('hidden');
             });
             document.getElementById(sectionId).classList.remove('hidden');
 
-            // Update active sidebar item
+            updateSidebarActiveState(sectionId);
+            updateSectionData(sectionId);
+
+            // Close sidebar on mobile after navigating
+            if (window.innerWidth < 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function updateSidebarActiveState(sectionId) {
             sidebarItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.dataset.section + 'Section' === sectionId) {
                     item.classList.add('active');
                 }
             });
+        }
 
-            // Close sidebar on mobile after navigating
-            if (window.innerWidth < 768) {
-                sidebar.classList.remove('open');
-            }
-
-            // Update data for the displayed section
+        function updateSectionData(sectionId) {
             if (sectionId === 'dashboardSection') {
                 renderDashboard();
             } else if (sectionId === 'transactionsSection') {
@@ -1432,6 +1578,7 @@
                 renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
+                loadFingerprintSetting(); // Ensure toggle is correctly set
             } else if (sectionId === 'helpSection') {
                 startChatbot();
             }
@@ -2891,6 +3038,149 @@
             forgotPasswordModal.classList.add('hidden');
         }
 
+        // --- Fingerprint (WebAuthn) Functions ---
+
+        // Function to check if WebAuthn is supported
+        function checkWebAuthnSupport() {
+            if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
+                PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
+                    .then(supported => {
+                        if (supported) {
+                            fingerprintAvailabilityMessage.textContent = 'Sidik Jari/Biometrik didukung.';
+                            fingerprintAvailabilityMessage.classList.remove('text-red-500');
+                            fingerprintAvailabilityMessage.classList.add('text-green-500');
+                            fingerprintToggle.disabled = false;
+                        } else {
+                            fingerprintAvailabilityMessage.textContent = 'Sidik Jari/Biometrik tidak tersedia atau tidak dikonfigurasi pada perangkat ini.';
+                            fingerprintAvailabilityMessage.classList.remove('text-green-500');
+                            fingerprintAvailabilityMessage.classList.add('text-red-500');
+                            fingerprintToggle.disabled = true;
+                            // Ensure toggle is off if not supported
+                            localStorage.setItem('isFingerprintEnabled', 'false');
+                            fingerprintToggle.checked = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error checking WebAuthn availability:", error);
+                        fingerprintAvailabilityMessage.textContent = 'Terjadi kesalahan saat memeriksa dukungan Sidik Jari/Biometrik.';
+                        fingerprintAvailabilityMessage.classList.remove('text-green-500');
+                        fingerprintAvailabilityMessage.classList.add('text-red-500');
+                        fingerprintToggle.disabled = true;
+                        localStorage.setItem('isFingerprintEnabled', 'false');
+                        fingerprintToggle.checked = false;
+                    });
+            } else {
+                fingerprintAvailabilityMessage.textContent = 'Browser Anda tidak mendukung WebAuthn (Sidik Jari/Biometrik).';
+                fingerprintAvailabilityMessage.classList.remove('text-green-500');
+                fingerprintAvailabilityMessage.classList.add('text-red-500');
+                fingerprintToggle.disabled = true;
+                localStorage.setItem('isFingerprintEnabled', 'false');
+                fingerprintToggle.checked = false;
+            }
+        }
+
+        // Load fingerprint setting from localStorage
+        function loadFingerprintSetting() {
+            const isEnabled = localStorage.getItem('isFingerprintEnabled') === 'true';
+            if (fingerprintToggle) {
+                fingerprintToggle.checked = isEnabled;
+                checkWebAuthnSupport(); // Always re-check support on load
+            }
+        }
+
+        // Simulate WebAuthn registration
+        async function registerFingerprint() {
+            try {
+                // A simple challenge for registration (in a real app, this comes from server)
+                const challenge = new Uint8Array(16);
+                crypto.getRandomValues(challenge);
+
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: { name: "KeuanganKu" }, // Relying Party
+                        user: {
+                            id: new Uint8Array(currentFirebaseUser.uid.split('').map(c => c.charCodeAt(0))), // Dummy user ID
+                            name: currentFirebaseUser.email,
+                            displayName: currentFirebaseUser.email
+                        },
+                        pubKeyCredParams: [{ alg: -7, type: "public-key" }], // ES256
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform", // Use built-in biometrics
+                            userVerification: "required", // Require fingerprint/face scan
+                            residentKey: "preferred" // Store credential on device
+                        },
+                        timeout: 60000, // 60 seconds
+                        attestation: "direct" // Optional, for more security
+                    }
+                });
+                console.log("Fingerprint registered:", credential);
+                localStorage.setItem('isFingerprintRegistered', 'true'); // Simulate successful registration
+                showNotification('Sidik jari berhasil didaftarkan!', 'success');
+                return true;
+            } catch (error) {
+                console.error("Fingerprint registration failed:", error);
+                showNotification('Gagal mendaftarkan sidik jari. ' + (error.message || 'Silakan coba lagi.'), 'error');
+                return false;
+            }
+        }
+
+        // Simulate WebAuthn authentication
+        async function authenticateFingerprint() {
+            try {
+                // A simple challenge for authentication (in a real app, this comes from server)
+                const challenge = new Uint8Array(16);
+                crypto.getRandomValues(challenge);
+
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        allowCredentials: [], // Allow any registered credential (real app would specify credential IDs)
+                        userVerification: "required",
+                        timeout: 60000
+                    }
+                });
+                console.log("Fingerprint authenticated:", assertion);
+                showNotification('Verifikasi sidik jari berhasil!', 'success');
+                return true;
+            } catch (error) {
+                console.error("Fingerprint authentication failed:", error);
+                showNotification('Verifikasi sidik jari gagal. ' + (error.message || 'Silakan coba lagi.'), 'error');
+                return false;
+            }
+        }
+
+        // Show fingerprint modal and initiate authentication
+        function showFingerprintModal(title, message, onSuccess, onCancel) {
+            fingerprintModalTitle.textContent = title;
+            fingerprintModalMessage.textContent = message;
+            fingerprintModal.classList.remove('hidden');
+
+            // Set up cancel button listener
+            fingerprintModalCancelBtn.onclick = () => {
+                hideFingerprintModal();
+                if (onCancel) onCancel();
+            };
+
+            // Attempt authentication
+            authenticateFingerprint().then(success => {
+                if (success) {
+                    onSuccess();
+                } else {
+                    onCancel(); // Call onCancel if authentication fails
+                }
+            }).catch(error => {
+                console.error("Error during fingerprint authentication attempt:", error);
+                onCancel(); // Call onCancel on unexpected errors
+            });
+        }
+
+        function hideFingerprintModal() {
+            fingerprintModal.classList.add('hidden');
+            fingerprintModalCancelBtn.onclick = null; // Clear listener
+        }
+
+
         // --- Chatbot Functions ---
         const chatbotQA = {
             "start": {
@@ -2902,7 +3192,8 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Verifikasi Email", // New option
+                    "Verifikasi Email",
+                    "Kunci Sidik Jari", // New option
                     "Kembali ke awal"
                 ]
             },
@@ -3053,6 +3344,24 @@
             "Apa yang harus dilakukan jika tidak menerima email verifikasi?": {
                 answer: "Jika Anda tidak menerima email verifikasi, silakan periksa folder spam atau junk Anda. Terkadang, email bisa masuk ke sana. Anda juga bisa mencoba masuk kembali ke aplikasi; ini sering kali akan memicu pengiriman ulang email verifikasi."
             },
+            "Kunci Sidik Jari": { // New section for chatbot
+                answer: "Fitur 'Kunci Sidik Jari' di Pengaturan memungkinkan Anda untuk menambahkan lapisan keamanan biometrik ke aplikasi Anda. Jika diaktifkan, Anda akan diminta untuk memverifikasi sidik jari atau biometrik perangkat Anda sebelum mengakses bagian sensitif seperti 'Transaksi' dan 'Rencana Anggaran'.",
+                options: [
+                    "Bagaimana cara mengaktifkan Kunci Sidik Jari?",
+                    "Apa yang terjadi jika sidik jari saya tidak dikenali?",
+                    "Apakah ini menyimpan sidik jari saya?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara mengaktifkan Kunci Sidik Jari?": {
+                answer: "Pergi ke 'Pengaturan' dan aktifkan toggle 'Kunci Sidik Jari'. Jika perangkat Anda mendukungnya, Anda akan diminta untuk mendaftarkan atau mengkonfirmasi sidik jari Anda. Setelah itu, kunci sidik jari akan aktif."
+            },
+            "Apa yang terjadi jika sidik jari saya tidak dikenali?": {
+                answer: "Jika sidik jari Anda tidak dikenali saat diminta, akses ke bagian yang dilindungi akan ditolak. Anda bisa mencoba lagi atau membatalkan upaya verifikasi."
+            },
+            "Apakah ini menyimpan sidik jari saya?": {
+                answer: "Tidak, aplikasi ini TIDAK menyimpan data sidik jari Anda. Proses verifikasi sidik jari sepenuhnya ditangani oleh sistem operasi dan perangkat keras perangkat Anda (menggunakan WebAuthn API). Aplikasi hanya menerima konfirmasi berhasil atau gagal dari perangkat."
+            },
             "Bantuan Admin": {
                 answer: "Fitur ini hanya tersedia untuk pengguna dengan peran 'Admin'. Admin dapat mengelola pengguna lain yang terdaftar di aplikasi. Namun, fungsi manajemen pengguna lain dari sisi klien tidak didukung secara langsung oleh Firebase SDK karena alasan keamanan. Ini memerlukan fungsi backend (misalnya, Firebase Cloud Functions)."
             },
@@ -3065,7 +3374,8 @@
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Verifikasi Email", // New option
+                    "Verifikasi Email",
+                    "Kunci Sidik Jari", // New option
                     "Kembali ke awal"
                 ]
             }
@@ -3259,6 +3569,39 @@
         // Delete Account Button
         deleteAccountBtn.addEventListener('click', deleteOwnAccount);
 
+        // --- New Fingerprint Event Listener ---
+        if (fingerprintToggle) {
+            fingerprintToggle.addEventListener('change', async (event) => {
+                const isEnabled = event.target.checked;
+                if (isEnabled) {
+                    // Try to register/authenticate if enabling
+                    const registered = localStorage.getItem('isFingerprintRegistered') === 'true';
+                    let success = false;
+                    if (!registered) {
+                        showNotification('Mendaftarkan sidik jari Anda. Ikuti petunjuk perangkat Anda.', 'info', 5000);
+                        success = await registerFingerprint();
+                    } else {
+                        showNotification('Memverifikasi sidik jari Anda. Ikuti petunjuk perangkat Anda.', 'info', 5000);
+                        success = await authenticateFingerprint();
+                    }
+
+                    if (success) {
+                        localStorage.setItem('isFingerprintEnabled', 'true');
+                        showNotification('Kunci Sidik Jari diaktifkan.', 'success');
+                    } else {
+                        event.target.checked = false; // Turn off toggle if registration/auth fails
+                        localStorage.setItem('isFingerprintEnabled', 'false');
+                        showNotification('Gagal mengaktifkan Kunci Sidik Jari.', 'error');
+                    }
+                } else {
+                    // If disabling, just set to false
+                    localStorage.setItem('isFingerprintEnabled', 'false');
+                    showNotification('Kunci Sidik Jari dinonaktifkan.', 'info');
+                }
+            });
+        }
+
+
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', async () => {
             // Handle initial auth token from Canvas environment
@@ -3280,6 +3623,9 @@
             editTransactionDateInput.value = today; // Also for edit form
             budgetStartDateInput.value = today; // Set default start date for budget
             budgetEndDateInput.value = today; // Set default end date for budget
+
+            // Initial check for WebAuthn support and load setting
+            loadFingerprintSetting();
         });
 
         // Make functions globally accessible for onclick in HTML
@@ -3292,6 +3638,7 @@
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
         window.deleteBudget = deleteBudget; // Expose for budget deletion
         window.hideForgotPasswordModal = hideForgotPasswordModal; // Expose for modal close button
+        window.hideFingerprintModal = hideFingerprintModal; // Expose for modal close button (if used in HTML)
 
         // Cegah pinch zoom
         document.addEventListener('gesturestart', function (e) {
