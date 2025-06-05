@@ -482,7 +482,10 @@
                         </div>
                         <div>
                             <label for="transactionDescription" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                            <input type="text" id="transactionDescription" placeholder="Contoh: Beli Kopi" required class="block">
+                            <div class="flex gap-2">
+                                <input type="text" id="transactionDescription" placeholder="Contoh: Beli Kopi" required class="block flex-grow">
+                                <button type="button" id="smartDescriptionBtn" class="btn-secondary text-sm px-4 py-2 flex-shrink-0">Smart Deskripsi</button>
+                            </div>
                         </div>
                         <div>
                             <label for="transactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
@@ -920,6 +923,7 @@
         const transactionForm = document.getElementById('transactionForm');
         const transactionDateInput = document.getElementById('transactionDate');
         const transactionDescriptionInput = document.getElementById('transactionDescription');
+        const smartDescriptionBtn = document.getElementById('smartDescriptionBtn'); // New: Smart Description Button
         const transactionAmountInput = document.getElementById('transactionAmount');
         const transactionTypeInput = document.getElementById('transactionType');
         const transactionCategoryInput = document.getElementById('transactionCategory');
@@ -1143,7 +1147,7 @@
                         list: []
                     });
 
-                    showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', false);
+                    showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan cek kotak masuk Anda untuk tautan verifikasi.', false);
                     showNotification('Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', 'success', 5000);
                     // Switch to login mode after successful registration
                     authMode = 'login';
@@ -3120,6 +3124,55 @@
             chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom after new messages
         }
 
+        // --- NEW SMART DESCRIPTION AI INTEGRATION ---
+        async function getSmartDescription() {
+            const shortDescription = transactionDescriptionInput.value.trim();
+            if (!shortDescription) {
+                showNotification('Deskripsi singkat tidak boleh kosong untuk AI.', 'error');
+                return;
+            }
+
+            smartDescriptionBtn.disabled = true; // Disable button during processing
+            smartDescriptionBtn.textContent = 'Memproses...';
+
+            try {
+                const prompt = `Perluas deskripsi transaksi keuangan singkat berikut menjadi deskripsi yang lebih detail, dalam bahasa Indonesia. Contoh: 'kopi' -> 'Pembelian kopi di kafe lokal'. Deskripsi singkat: '${shortDescription}'`;
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+                const payload = { contents: chatHistory };
+                // API key is handled by the environment for gemini-2.0-flash
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const generatedText = result.candidates[0].content.parts[0].text;
+                    transactionDescriptionInput.value = generatedText;
+                    showNotification('Deskripsi berhasil disempurnakan!', 'success');
+                } else {
+                    showNotification('Gagal menyempurnakan deskripsi. Coba lagi.', 'error');
+                    console.error("Unexpected API response structure:", result);
+                }
+            } catch (error) {
+                console.error("Error fetching smart description:", error);
+                showNotification('Terjadi kesalahan saat menghubungi AI. Periksa koneksi Anda.', 'error');
+            } finally {
+                smartDescriptionBtn.disabled = false;
+                smartDescriptionBtn.textContent = 'Smart Deskripsi';
+            }
+        }
+        // --- END NEW SMART DESCRIPTION AI INTEGRATION ---
+
 
         // --- Event Listeners ---
 
@@ -3212,6 +3265,9 @@
 
         // Transaction form submission
         transactionForm.addEventListener('submit', addTransaction);
+
+        // Smart Description button click
+        smartDescriptionBtn.addEventListener('click', getSmartDescription);
 
         // Filter, Sort, Search, and Pagination listeners
         transactionSearchInput.addEventListener('input', () => { currentPage = 1; renderTransactions(); });
