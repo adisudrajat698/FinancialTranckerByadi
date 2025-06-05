@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         /* Custom CSS untuk font dan warna */
         body {
@@ -793,6 +796,7 @@
                     <div id="reportTransactionsList" class="overflow-x-auto">
                         <p class="text-gray-500 text-center">Belum ada transaksi untuk laporan.</p>
                     </div>
+                    <button id="generatePdfReportBtn" class="w-full btn-primary font-semibold mt-6">Generate Laporan PDF</button>
                 </div>
             </section>
 
@@ -1107,6 +1111,7 @@
         const reportExpenseByCategory = document.getElementById('reportExpenseByCategory');
         const reportIncomeByCategory = document.getElementById('reportIncomeByCategory');
         const reportTransactionsListEl = document.getElementById('reportTransactionsList');
+        const generatePdfReportBtn = document.getElementById('generatePdfReportBtn'); // New PDF button
 
         // New Chart.js canvas elements
         const monthlySummaryChartCanvas = document.getElementById('monthlySummaryChart');
@@ -2495,6 +2500,18 @@
             reportTotalExpenseEl.textContent = formatRupiah(totalExpense);
             reportNetBalanceEl.textContent = formatRupiah(netBalance);
 
+            // Store report data globally for PDF generation
+            window._currentReportData = {
+                transactions: transactions,
+                totalIncome: totalIncome,
+                totalExpense: totalExpense,
+                netBalance: netBalance,
+                expenseCategories: expenseCategories,
+                incomeCategories: incomeCategories,
+                selectedMonth: selectedMonth,
+                selectedYear: selectedYear
+            };
+
             // Render category breakdown for reports
             renderCategorySummary(reportExpenseByCategory, expenseCategories, 'expense');
             renderCategorySummary(reportIncomeByCategory, incomeCategories, 'income');
@@ -3353,6 +3370,118 @@
             chatDisplay.scrollTop = chatDisplay.scrollHeight; // Scroll to bottom after new messages
         }
 
+        // --- PDF Generation Function ---
+        async function generatePdfReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const reportData = window._currentReportData;
+
+            if (!reportData || !reportData.transactions) {
+                showNotification('Tidak ada data laporan untuk dibuat PDF.', 'error');
+                return;
+            }
+
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            let titleMonth = reportData.selectedMonth === 'all' ? 'Semua Bulan' : monthNames[parseInt(reportData.selectedMonth) - 1];
+            let titleYear = reportData.selectedYear === 'all' ? 'Semua Tahun' : reportData.selectedYear;
+            let reportTitle = `Laporan Keuangan: ${titleMonth} ${titleYear}`;
+
+            let yOffset = 20;
+
+            doc.setFontSize(18);
+            doc.text(reportTitle, 14, yOffset);
+            yOffset += 10;
+
+            doc.setFontSize(12);
+            doc.text(`Total Pemasukan: ${formatRupiah(reportData.totalIncome)}`, 14, yOffset);
+            yOffset += 7;
+            doc.text(`Total Pengeluaran: ${formatRupiah(reportData.totalExpense)}`, 14, yOffset);
+            yOffset += 7;
+            doc.text(`Saldo Bersih: ${formatRupiah(reportData.netBalance)}`, 14, yOffset);
+            yOffset += 10;
+
+            // Expense by Category
+            doc.setFontSize(14);
+            doc.text("Pengeluaran per Kategori:", 14, yOffset);
+            yOffset += 7;
+            if (Object.keys(reportData.expenseCategories).length > 0) {
+                for (const category in reportData.expenseCategories) {
+                    doc.setFontSize(12);
+                    doc.text(`  ${category}: ${formatRupiah(reportData.expenseCategories[category])}`, 14, yOffset);
+                    yOffset += 7;
+                }
+            } else {
+                doc.setFontSize(12);
+                doc.text("  Belum ada pengeluaran berdasarkan kategori.", 14, yOffset);
+                yOffset += 7;
+            }
+            yOffset += 5;
+
+            // Income by Category
+            doc.setFontSize(14);
+            doc.text("Pemasukan per Kategori:", 14, yOffset);
+            yOffset += 7;
+            if (Object.keys(reportData.incomeCategories).length > 0) {
+                for (const category in reportData.incomeCategories) {
+                    doc.setFontSize(12);
+                    doc.text(`  ${category}: ${formatRupiah(reportData.incomeCategories[category])}`, 14, yOffset);
+                    yOffset += 7;
+                }
+            } else {
+                doc.setFontSize(12);
+                doc.text("  Belum ada pemasukan berdasarkan kategori.", 14, yOffset);
+                yOffset += 7;
+            }
+            yOffset += 5;
+
+            // Transaction Details
+            doc.setFontSize(14);
+            doc.text("Detail Transaksi:", 14, yOffset);
+            yOffset += 7;
+
+            if (reportData.transactions.length > 0) {
+                const tableColumn = ["Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
+                const tableRows = [];
+
+                reportData.transactions.forEach(t => {
+                    const transactionData = [
+                        t.date,
+                        t.description,
+                        formatRupiah(t.amount),
+                        t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
+                        t.category
+                    ];
+                    tableRows.push(transactionData);
+                });
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: yOffset,
+                    theme: 'striped',
+                    headStyles: { fillColor: [44, 62, 80] }, // Dark sidebar color for header
+                    styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
+                    columnStyles: {
+                        0: { cellWidth: 20 }, // Date
+                        1: { cellWidth: 50 }, // Description
+                        2: { cellWidth: 30 }, // Amount
+                        3: { cellWidth: 20 }, // Type
+                        4: { cellWidth: 30 }  // Category
+                    }
+                });
+            } else {
+                doc.setFontSize(12);
+                doc.text("  Belum ada transaksi untuk laporan.", 14, yOffset);
+            }
+
+            doc.save(`Laporan_Keuangan_${titleMonth}_${titleYear}.pdf`);
+            showNotification('Laporan PDF berhasil dibuat!', 'success');
+        }
+
 
         // --- Event Listeners ---
 
@@ -3488,6 +3617,9 @@
         // Report Filters
         reportMonthSelect.addEventListener('change', renderReports);
         reportYearSelect.addEventListener('change', renderReports);
+
+        // Generate PDF Report Button
+        generatePdfReportBtn.addEventListener('click', generatePdfReport);
 
         // Delete Account Button
         deleteAccountBtn.addEventListener('click', deleteOwnAccount);
