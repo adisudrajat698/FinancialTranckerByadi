@@ -1175,9 +1175,7 @@
                     errorMessage = 'Format email tidak valid.';
                 } else if (error.code === 'auth/weak-password') {
                     errorMessage = 'Kata sandi terlalu lemah (minimal 6 karakter).';
-                } else if (error.code === 'auth/user-not-found') { // Modified: Specific message for user not found
-                    errorMessage = 'Akun belum terdaftar di database.';
-                } else if (error.code === 'auth/wrong-password') {
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     errorMessage = 'Email atau kata sandi salah.';
                 }
                 showMessage(authMessage, errorMessage, true);
