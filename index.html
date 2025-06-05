@@ -14,13 +14,14 @@
             font-family: 'Inter', sans-serif;
             background-color: #f0f2f5; /* Warna latar belakang umum */
             color: #333;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .sidebar {
             background-color: #2c3e50; /* Warna sidebar gelap */
             color: #ecf0f1; /* Warna teks sidebar */
             width: 250px;
             transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, background-color 0.3s ease, color 0.3s ease;
             z-index: 20;
         }
         .sidebar.open {
@@ -46,14 +47,17 @@
             background-color: #ffffff; /* Warna header putih */
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             z-index: 10;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         .main-content {
             background-color: #f9f9f9; /* Warna latar belakang konten utama */
+            transition: background-color 0.3s ease;
         }
         .card {
             background-color: #ffffff;
             border-radius: 0.75rem; /* rounded-xl */
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         input[type="text"],
         input[type="password"],
@@ -66,7 +70,7 @@
             padding: 0.75rem 1rem;
             width: 100%;
             outline: none;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
         }
         input[type="text"]:focus,
         input[type="password"]:focus,
@@ -134,6 +138,7 @@
             max-width: 90%;
             width: 500px;
             position: relative;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
         .modal-close-btn {
             position: absolute;
@@ -155,6 +160,7 @@
             border-radius: 0.5rem;
             overflow: hidden;
             position: relative;
+            transition: background-color 0.3s ease;
         }
         .chart-bar {
             width: 50%;
@@ -195,11 +201,13 @@
             padding: 0.75rem;
             border-bottom: 1px solid #e5e7eb; /* gray-200 */
             text-align: left;
+            transition: border-color 0.3s ease;
         }
         .responsive-table th {
             background-color: #f3f4f6; /* gray-100 */
             font-weight: 600;
             color: #4b5563;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         @media (max-width: 767px) {
             .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr {
@@ -312,6 +320,7 @@
             overflow-y: scroll;
             resize: vertical; /* Allow vertical resizing */
             border-radius: 0.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         #copyJsonBtn {
             margin-top: 1rem;
@@ -334,6 +343,7 @@
             overflow-y: auto;
             margin-bottom: 1rem;
             background-color: #f9fafb;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .chat-message {
             margin-bottom: 0.75rem;
@@ -364,6 +374,142 @@
         }
         .chat-options button:hover {
             background-color: #bae6fd; /* lighter blue */
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #1a202c; /* dark gray */
+            color: #e2e8f0; /* light gray */
+        }
+        body.dark-mode .sidebar {
+            background-color: #2d3748; /* darker sidebar */
+            color: #edf2f7; /* lighter text */
+        }
+        body.dark-mode .sidebar-item:hover {
+            background-color: #4a5568; /* darker hover */
+        }
+        body.dark-mode .sidebar-item.active {
+            background-color: #63b3ed; /* lighter blue for active */
+            color: #1a202c;
+        }
+        body.dark-mode .header {
+            background-color: #2d3748;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .main-content {
+            background-color: #1a202c;
+        }
+        body.dark-mode .card {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="password"],
+        body.dark-mode input[type="number"],
+        body.dark-mode input[type="date"],
+        body.dark-mode select {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        body.dark-mode input::placeholder {
+            color: #cbd5e0;
+        }
+        body.dark-mode .btn-secondary {
+            background-color: #a0aec0;
+            color: #2d3748;
+        }
+        body.dark-mode .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+        body.dark-mode .text-gray-700 {
+            color: #cbd5e0;
+        }
+        body.dark-mode .text-gray-600 {
+            color: #a0aec0;
+        }
+        body.dark-mode .text-gray-500 {
+            color: #718096;
+        }
+        body.dark-mode .text-blue-500 {
+            color: #63b3ed;
+        }
+        body.dark-mode .text-blue-600 {
+            color: #4299e1;
+        }
+        body.dark-mode .text-red-600 {
+            color: #fc8181;
+        }
+        body.dark-mode .modal-content {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.4);
+        }
+        body.dark-mode .modal-close-btn {
+            color: #a0aec0;
+        }
+        body.dark-mode .chart-bar-container {
+            background-color: #4a5568;
+        }
+        body.dark-mode .chart-bar span {
+            color: #e2e8f0;
+        }
+        body.dark-mode .responsive-table th {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border-bottom-color: #2d3748;
+        }
+        body.dark-mode .responsive-table td {
+            border-bottom-color: #2d3748;
+        }
+        body.dark-mode .responsive-table tr {
+            border-color: #2d3748;
+        }
+        body.dark-mode .responsive-table td:before {
+            color: #a0aec0;
+        }
+        body.dark-mode .jsonDisplayModal #jsonOutput {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        body.dark-mode #chatDisplay {
+            background-color: #4a5568;
+            border-color: #63b3ed;
+            color: #e2e8f0;
+        }
+        body.dark-mode .chat-message.user {
+            background-color: #4299e1;
+            color: white;
+        }
+        body.dark-mode .chat-message.bot {
+            background-color: #a0aec0;
+            color: #2d3748;
+        }
+        body.dark-mode .chat-options button {
+            background-color: #63b3ed;
+            color: #1a202c;
+        }
+        body.dark-mode .chat-options button:hover {
+            background-color: #4299e1;
+        }
+        body.dark-mode .text-income {
+            color: #68d391; /* lighter green for dark mode */
+        }
+        body.dark-mode .text-expense {
+            color: #fc8181; /* lighter red for dark mode */
+        }
+        body.dark-mode .bg-green-50 {
+            background-color: #2d3748;
+        }
+        body.dark-mode .bg-red-50 {
+            background-color: #2d3748;
+        }
+        body.dark-mode .border-gray-200 {
+            border-color: #4a5568;
+        }
+        body.dark-mode .bg-white {
+            background-color: #2d3748;
         }
     </style>
 </head>
@@ -686,6 +832,14 @@
                 <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
 
                 <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Mode Tampilan</h3>
+                    <div class="flex items-center space-x-2">
+                        <label for="darkModeToggle" class="block text-sm font-medium text-gray-700">Mode Gelap</label>
+                        <input type="checkbox" id="darkModeToggle" class="toggle toggle-primary">
+                    </div>
+                </div>
+
+                <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
                         <div>
@@ -987,6 +1141,7 @@
         const categoryListEl = document.getElementById('categoryList');
         const exportDataBtn = document.getElementById('exportDataBtn');
         const deleteAccountBtn = document.getElementById('deleteAccountBtn'); // New delete account button
+        const darkModeToggle = document.getElementById('darkModeToggle'); // New dark mode toggle
 
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
@@ -1083,6 +1238,34 @@
             setTimeout(() => {
                 notification.remove();
             }, duration);
+        }
+
+        // --- Dark Mode Functionality ---
+        function enableDarkMode() {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('darkMode', 'enabled');
+        }
+
+        function disableDarkMode() {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('darkMode', 'disabled');
+        }
+
+        function toggleDarkMode() {
+            if (document.body.classList.contains('dark-mode')) {
+                disableDarkMode();
+            } else {
+                enableDarkMode();
+            }
+        }
+
+        // Initialize dark mode based on local storage
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            enableDarkMode();
+            darkModeToggle.checked = true;
+        } else {
+            disableDarkMode();
+            darkModeToggle.checked = false;
         }
 
         // --- Authentication Functions ---
@@ -2395,7 +2578,11 @@
                             stacked: false,
                             title: {
                                 display: true,
-                                text: 'Bulan'
+                                text: 'Bulan',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
                             }
                         },
                         y: {
@@ -2403,12 +2590,17 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Jumlah (Rp)'
+                                text: 'Jumlah (Rp)',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             },
                             ticks: {
                                 callback: function(value, index, values) {
                                     return formatRupiah(value);
-                                }
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
+                            },
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
                             }
                         }
                     },
@@ -2425,6 +2617,11 @@
                                     }
                                     return label;
                                 }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             }
                         }
                     }
@@ -2488,6 +2685,11 @@
                                     }
                                     return label;
                                 }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             }
                         }
                     }
@@ -2619,19 +2821,28 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Bulan'
+                                text: 'Bulan',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
                             }
                         },
                         y: {
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Jumlah (Rp)'
+                                text: 'Jumlah (Rp)',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             },
                             ticks: {
                                 callback: function(value, index, values) {
                                     return formatRupiah(value);
-                                }
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
+                            },
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
                             }
                         }
                     },
@@ -2648,6 +2859,11 @@
                                     }
                                     return label;
                                 }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             }
                         }
                     }
@@ -2713,18 +2929,27 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Jumlah (Rp)'
+                                text: 'Jumlah (Rp)',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             },
                             ticks: {
                                 callback: function(value, index, values) {
                                     return formatRupiah(value);
-                                }
+                                },
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
+                            },
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'
                             }
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'Kategori'
+                                text: 'Kategori',
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
                             }
                         }
                     },
@@ -2741,6 +2966,11 @@
                                     }
                                     return label;
                                 }
+                            }
+                        },
+                        legend: {
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#e2e8f0' : '#333'
                             }
                         }
                     }
@@ -3021,7 +3251,7 @@
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
                     "Bagaimana cara menghapus akun saya?",
-                    "Kembali ke awal"
+                    "Mode Gelap" // New option for dark mode
                 ]
             },
             "Bagaimana cara mengubah kata sandi?": {
@@ -3038,6 +3268,9 @@
             },
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
+            },
+            "Mode Gelap": { // New chatbot response for dark mode
+                answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
             },
             "Verifikasi Email": { // New section for chatbot
                 answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
@@ -3258,6 +3491,10 @@
 
         // Delete Account Button
         deleteAccountBtn.addEventListener('click', deleteOwnAccount);
+
+        // Dark Mode Toggle Listener
+        darkModeToggle.addEventListener('change', toggleDarkMode);
+
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', async () => {
