@@ -589,7 +589,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-6 text-center flex flex-col items-center">
-                        <i data-feather="credit-card" class="w-10 h-10 text-blue-500 mb-2"></i>
+                        <i data-feather="dollar-sign" class="w-10 h-10 text-blue-500 mb-2"></i>
                         <h3 class="text-lg font-medium text-gray-600">Saldo Saat Ini</h3>
                         <p id="currentBalance" class="text-4xl font-bold mt-2">Rp 0</p>
                     </div>
@@ -616,6 +616,17 @@
                         <div id="expenseByCategorySummary" class="space-y-3">
                             <p class="text-gray-500 text-center">Belum ada pengeluaran berdasarkan kategori.</p>
                         </div>
+                    </div>
+                </div>
+                <!-- New Currency Exchange Rates section on Dashboard -->
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Nilai Tukar Mata Uang (IDR sebagai basis)</h3>
+                    <div id="exchangeRatesDisplay" class="space-y-2">
+                        <p class="text-gray-500 text-center">Memuat nilai tukar...</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <p class="text-sm text-gray-600" id="lastUpdatedCurrency"></p>
+                        <button id="refreshRatesBtn" class="btn-secondary text-xs px-3 py-1">Segarkan</button>
                     </div>
                 </div>
 
@@ -850,6 +861,64 @@
                     </div>
                 </div>
 
+                <!-- New section for Currency Converter -->
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Konverter Mata Uang</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="fromCurrencyAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
+                            <input type="number" id="fromCurrencyAmount" value="1" min="0" step="any" class="block">
+                        </div>
+                        <div>
+                            <label for="fromCurrencySelect" class="block text-sm font-medium text-gray-700 mb-1">Dari Mata Uang</label>
+                            <select id="fromCurrencySelect" class="block">
+                                <option value="IDR">IDR - Indonesian Rupiah</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="CHF">CHF - Swiss Franc</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                                <option value="SGD">SGD - Singapore Dollar</option>
+                                <option value="HKD">HKD - Hong Kong Dollar</option>
+                                <option value="KRW">KRW - South Korean Won</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="BRL">BRL - Brazilian Real</option>
+                                <option value="RUB">RUB - Russian Ruble</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="toCurrencyAmount" class="block text-sm font-medium text-gray-700 mb-1">Hasil Konversi</label>
+                            <input type="text" id="toCurrencyAmount" readonly class="block bg-gray-100 dark:bg-gray-700">
+                        </div>
+                        <div>
+                            <label for="toCurrencySelect" class="block text-sm font-medium text-gray-700 mb-1">Ke Mata Uang</label>
+                            <select id="toCurrencySelect" class="block">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="IDR">IDR - Indonesian Rupiah</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                                <option value="CHF">CHF - Swiss Franc</option>
+                                <option value="CNY">CNY - Chinese Yuan</option>
+                                <option value="SGD">SGD - Singapore Dollar</option>
+                                <option value="HKD">HKD - Hong Kong Dollar</option>
+                                <option value="KRW">KRW - South Korean Won</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="BRL">BRL - Brazilian Real</option>
+                                <option value="RUB">RUB - Russian Ruble</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600" id="currencyConversionStatus">Pilih mata uang dan masukkan jumlah.</p>
+                </div>
+
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
@@ -1081,6 +1150,19 @@
         const incomeExpenseChart = document.getElementById('incomeExpenseChart');
         const expenseByCategorySummary = document.getElementById('expenseByCategorySummary');
 
+        // Currency Exchange Elements
+        const exchangeRatesDisplay = document.getElementById('exchangeRatesDisplay');
+        const lastUpdatedCurrencyEl = document.getElementById('lastUpdatedCurrency');
+        const refreshRatesBtn = document.getElementById('refreshRatesBtn');
+
+        // Currency Converter Elements
+        const fromCurrencyAmountInput = document.getElementById('fromCurrencyAmount');
+        const fromCurrencySelect = document.getElementById('fromCurrencySelect');
+        const toCurrencyAmountInput = document.getElementById('toCurrencyAmount');
+        const toCurrencySelect = document.getElementById('toCurrencySelect');
+        const currencyConversionStatusEl = document.getElementById('currencyConversionStatus');
+
+
         const transactionsSection = document.getElementById('transactionsSection');
         const transactionForm = document.getElementById('transactionForm');
         const transactionDateInput = document.getElementById('transactionDate');
@@ -1221,6 +1303,11 @@
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
 
+        // Exchange Rate API Key (Example - replace with your actual key if deploying)
+        // For local development or simple demos, you might use a public key or leave it for development.
+        // It's recommended to handle API keys securely in a production environment (e.g., via backend).
+        const EXCHANGE_RATE_API_KEY = "66a672118f9b21a247ab9d4a"; // Ganti dengan kunci API Anda
+
         // --- Utility Functions ---
 
         // Function to format number as Rupiah
@@ -1229,6 +1316,16 @@
                 style: 'currency',
                 currency: 'IDR',
                 minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Function to format general currency (e.g., USD, EUR)
+        function formatCurrency(amount, currencyCode) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: currencyCode,
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }).format(amount);
         }
 
@@ -1293,6 +1390,7 @@
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
                     setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                    fetchExchangeRates(); // Fetch exchange rates on login
                 } else {
                     // If email is not verified, sign out and show message
                     await signOut(auth);
@@ -1429,6 +1527,111 @@
                     section.classList.add('hidden');
                 });
                 sidebarUsername.textContent = ''; // Clear username in sidebar
+            }
+        }
+
+        // --- Exchange Rate API Integration ---
+        let currentExchangeRates = {};
+        const API_BASE_URL = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/`;
+        let lastExchangeRateFetchTime = null;
+
+        async function fetchExchangeRates(baseCurrency = 'IDR') {
+            if (EXCHANGE_RATE_API_KEY === "YOUR_EXCHANGE_RATE_API_KEY") {
+                 exchangeRatesDisplay.innerHTML = `
+                    <p class="text-red-500 text-center">
+                        Kesalahan API: Harap ganti "YOUR_EXCHANGE_RATE_API_KEY" dengan kunci API ExchangeRate-API.com Anda yang valid.
+                    </p>
+                `;
+                currencyConversionStatusEl.textContent = 'Kesalahan API: Harap ganti kunci API.';
+                showNotification('Ganti kunci API Anda.', 'error', 5000);
+                return;
+            }
+
+            exchangeRatesDisplay.innerHTML = `<p class="text-gray-500 text-center">Memuat nilai tukar...</p>`;
+            lastUpdatedCurrencyEl.textContent = 'Terakhir diperbarui: Memuat...';
+            currencyConversionStatusEl.textContent = 'Memuat nilai tukar...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${baseCurrency}`);
+                const data = await response.json();
+
+                if (data.result === 'success') {
+                    currentExchangeRates = data.conversion_rates;
+                    lastExchangeRateFetchTime = new Date();
+                    renderExchangeRates(baseCurrency);
+                    showNotification('Nilai tukar berhasil dimuat.', 'success');
+                } else {
+                    console.error("Error fetching exchange rates:", data['error-type']);
+                    exchangeRatesDisplay.innerHTML = `<p class="text-red-500 text-center">Gagal memuat nilai tukar: ${data['error-type']}.</p>`;
+                    currencyConversionStatusEl.textContent = 'Gagal memuat nilai tukar.';
+                    showNotification('Gagal memuat nilai tukar.', 'error');
+                }
+            } catch (error) {
+                console.error("Network error fetching exchange rates:", error);
+                exchangeRatesDisplay.innerHTML = `<p class="text-red-500 text-center">Gagal memuat nilai tukar. Kesalahan jaringan.</p>`;
+                currencyConversionStatusEl.textContent = 'Gagal memuat nilai tukar. Kesalahan jaringan.';
+                showNotification('Gagal memuat nilai tukar. Kesalahan jaringan.', 'error');
+            }
+        }
+
+        function renderExchangeRates(baseCurrency) {
+            if (Object.keys(currentExchangeRates).length === 0) {
+                exchangeRatesDisplay.innerHTML = `<p class="text-gray-500 text-center">Tidak ada nilai tukar yang tersedia.</p>`;
+                return;
+            }
+
+            exchangeRatesDisplay.innerHTML = '';
+            const desiredCurrencies = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'CNY', 'SGD', 'KRW']; // Display key currencies
+
+            desiredCurrencies.forEach(currency => {
+                if (currentExchangeRates[currency]) {
+                    const rateDiv = document.createElement('div');
+                    rateDiv.className = 'flex justify-between items-center text-md border-b border-gray-200 pb-1';
+                    rateDiv.innerHTML = `
+                        <span class="font-medium">${baseCurrency} ke ${currency}</span>
+                        <span class="font-semibold">1 ${baseCurrency} = ${currentExchangeRates[currency].toFixed(4)} ${currency}</span>
+                    `;
+                    exchangeRatesDisplay.appendChild(rateDiv);
+                }
+            });
+            if (lastExchangeRateFetchTime) {
+                lastUpdatedCurrencyEl.textContent = `Terakhir diperbarui: ${lastExchangeRateFetchTime.toLocaleTimeString()} pada ${lastExchangeRateFetchTime.toLocaleDateString()}`;
+            }
+            updateCurrencyConversion(); // Update converter when rates are fetched
+        }
+
+        function updateCurrencyConversion() {
+            const amount = parseFloat(fromCurrencyAmountInput.value);
+            const fromCurrency = fromCurrencySelect.value;
+            const toCurrency = toCurrencySelect.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                toCurrencyAmountInput.value = '';
+                currencyConversionStatusEl.textContent = 'Masukkan jumlah yang valid.';
+                return;
+            }
+
+            if (Object.keys(currentExchangeRates).length === 0) {
+                toCurrencyAmountInput.value = 'Nilai tukar tidak tersedia.';
+                currencyConversionStatusEl.textContent = 'Tidak ada nilai tukar yang dimuat.';
+                return;
+            }
+
+            let convertedAmount = 0;
+
+            try {
+                // First, convert the 'from' amount to the base currency (IDR)
+                const amountInBase = amount / currentExchangeRates[fromCurrency];
+
+                // Then, convert the amount in base currency to the 'to' currency
+                convertedAmount = amountInBase * currentExchangeRates[toCurrency];
+
+                toCurrencyAmountInput.value = formatCurrency(convertedAmount, toCurrency);
+                currencyConversionStatusEl.textContent = `1 ${fromCurrency} = ${(currentExchangeRates[toCurrency] / currentExchangeRates[fromCurrency]).toFixed(4)} ${toCurrency}`;
+            } catch (error) {
+                console.error("Error during currency conversion:", error);
+                toCurrencyAmountInput.value = 'Error';
+                currencyConversionStatusEl.textContent = 'Gagal mengonversi mata uang. Pastikan mata uang tersedia.';
             }
         }
 
@@ -1612,6 +1815,7 @@
             // Update data for the displayed section
             if (sectionId === 'dashboardSection') {
                 renderDashboard();
+                fetchExchangeRates(); // Fetch exchange rates when dashboard is shown
             } else if (sectionId === 'transactionsSection') {
                 renderCategoryOptions(transactionCategoryInput);
                 currentPage = 1; // Reset pagination
@@ -1627,6 +1831,7 @@
                 renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
+                // No specific render function needed for currency converter section as it updates on input/select change
             } else if (sectionId === 'helpSection') {
                 startChatbot();
             }
@@ -3167,6 +3372,7 @@
                     "Apa itu Total Pemasukan/Pengeluaran?",
                     "Bagaimana grafik di Dashboard bekerja?",
                     "Transaksi Terbaru di Dashboard",
+                    "Nilai Tukar Mata Uang", // New option
                     "Kembali ke awal"
                 ]
             },
@@ -3181,6 +3387,9 @@
             },
             "Transaksi Terbaru di Dashboard": {
                 answer: "Bagian 'Transaksi Terbaru' di Dashboard menampilkan hingga 5 transaksi terakhir yang Anda masukkan, memudahkan Anda untuk melacak aktivitas keuangan terkini."
+            },
+            "Nilai Tukar Mata Uang": { // New chatbot response
+                answer: "Bagian Nilai Tukar Mata Uang di Dashboard dan Konverter Mata Uang di Pengaturan menampilkan nilai tukar mata uang *realtime* (berbasis IDR sebagai standar). Anda dapat melihat nilai tukar mata uang utama dan mengonversi jumlah antar mata uang."
             },
             "Manajemen Transaksi": {
                 answer: "Di menu 'Transaksi', Anda bisa menambah, melihat, mengedit, dan menghapus semua transaksi keuangan Anda.",
@@ -3269,14 +3478,22 @@
             "Pengaturan Akun": {
                 answer: "Menu 'Pengaturan' memungkinkan Anda untuk mengelola profil, kata sandi, kategori, serta melakukan backup dan ekspor data.",
                 options: [
+                    "Mode Gelap", // Moved this option up
+                    "Konverter Mata Uang", // New option
                     "Bagaimana cara mengubah kata sandi?",
                     "Bagaimana cara mengelola kategori?",
                     "Bagaimana cara backup/pulihkan data?",
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
                     "Bagaimana cara menghapus akun saya?",
-                    "Mode Gelap" // New option for dark mode
+                    "Kembali ke awal"
                 ]
+            },
+            "Mode Gelap": { // New chatbot response for dark mode
+                answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
+            },
+            "Konverter Mata Uang": { // New chatbot response
+                answer: "Di menu 'Pengaturan', Anda akan menemukan 'Konverter Mata Uang'. Anda bisa memasukkan jumlah dalam satu mata uang dan memilih mata uang sumber dan target untuk melihat konversi berdasarkan nilai tukar *realtime*."
             },
             "Bagaimana cara mengubah kata sandi?": {
                 answer: "Anda bisa mengubah kata sandi di menu 'Pengaturan', pada bagian 'Ubah Kata Sandi'. Masukkan kata sandi Anda saat ini, lalu masukkan kata sandi baru dan konfirmasinya. Pastikan kata sandi baru minimal 6 karakter."
@@ -3292,9 +3509,6 @@
             },
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
-            },
-            "Mode Gelap": { // New chatbot response for dark mode
-                answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
             },
             "Verifikasi Email": { // New section for chatbot
                 answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
@@ -3634,6 +3848,12 @@
         // Dark Mode Toggle Listener
         darkModeToggle.addEventListener('change', toggleDarkMode);
 
+        // Currency exchange and conversion listeners
+        refreshRatesBtn.addEventListener('click', () => fetchExchangeRates('IDR'));
+        fromCurrencyAmountInput.addEventListener('input', updateCurrencyConversion);
+        fromCurrencySelect.addEventListener('change', updateCurrencyConversion);
+        toCurrencySelect.addEventListener('change', updateCurrencyConversion);
+
 
         // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', async () => {
@@ -3656,6 +3876,9 @@
             editTransactionDateInput.value = today; // Also for edit form
             budgetStartDateInput.value = today; // Set default start date for budget
             budgetEndDateInput.value = today; // Set default end date for budget
+
+            // Initial fetch of exchange rates
+            fetchExchangeRates();
         });
 
         // Make functions globally accessible for onclick in HTML
