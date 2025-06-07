@@ -1354,7 +1354,7 @@
                     if (!userCredential.user.emailVerified) {
                         await signOut(auth); // Sign out unverified user
                         showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
-                        showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
+                        showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
                         return; // Stop further execution
                     }
                     showMessage(authMessage, 'Login berhasil!', false);
