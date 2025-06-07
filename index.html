@@ -251,6 +251,7 @@
             .responsive-table td:nth-of-type(3):before { content: "Jumlah"; }
             .responsive-table td:nth-of-type(4):before { content: "Tipe"; }
             .responsive-table td:nth-of-type(5):before { content: "Kategori"; }
+            .responsive-table td:nth-of-type(6):before { content: "Jumlah (JPY)"; } /* New for JPY */
         }
 
         /* Responsiveness */
@@ -701,6 +702,15 @@
                         <span id="pageInfo" class="text-gray-700">Halaman 1 dari 1</span>
                         <button id="nextPageBtn" class="btn-secondary px-4 py-2 rounded-md" disabled>Berikutnya</button>
                     </div>
+                     <div class="mt-4">
+                        <label for="currencyConverter" class="block text-sm font-medium text-gray-700 mb-1">Konversi Mata Uang (IDR ke JPY)</label>
+                        <div class="flex space-x-2">
+                            <input type="number" id="amountToConvert" placeholder="Jumlah IDR" class="flex-grow">
+                            <button id="convertCurrencyBtn" class="btn-primary">Konversi</button>
+                        </div>
+                        <p id="convertedAmount" class="text-lg font-semibold mt-2 text-blue-600">JPY 0</p>
+                        <p id="exchangeRateInfo" class="text-sm text-gray-500">Nilai tukar: 1 IDR = 0 JPY</p>
+                    </div>
                 </div>
             </section>
 
@@ -774,6 +784,9 @@
                         <p class="text-lg">Total Pemasukan: <span id="reportTotalIncome" class="font-semibold text-income">Rp 0</span></p>
                         <p class="text-lg">Total Pengeluaran: <span id="reportTotalExpense" class="font-semibold text-expense">Rp 0</span></p>
                         <p class="text-lg">Saldo Bersih: <span id="reportNetBalance" class="font-semibold">Rp 0</span></p>
+                        <p class="text-lg">Total Pemasukan (JPY): <span id="reportTotalIncomeJPY" class="font-semibold text-income">JPY 0</span></p>
+                        <p class="text-lg">Total Pengeluaran (JPY): <span id="reportTotalExpenseJPY" class="font-semibold text-expense">JPY 0</span></p>
+                        <p class="text-lg">Saldo Bersih (JPY): <span id="reportNetBalanceJPY" class="font-semibold">JPY 0</span></p>
                     </div>
 
                     <h4 class="text-xl font-bold mt-8 mb-4">Grafik Pemasukan dan Pengeluaran Bulanan</h4>
@@ -1098,6 +1111,14 @@
         const nextPageBtn = document.getElementById('nextPageBtn');
         const pageInfo = document.getElementById('pageInfo');
 
+        // Exchange Rate Elements
+        const amountToConvertInput = document.getElementById('amountToConvert');
+        const convertCurrencyBtn = document.getElementById('convertCurrencyBtn');
+        const convertedAmountEl = document.getElementById('convertedAmount');
+        const exchangeRateInfoEl = document.getElementById('exchangeRateInfo');
+        const EXCHANGE_RATE_API_KEY = "66a672118f9b21a247ab9d4a"; // API Key from user
+        let currentExchangeRate = 0; // To store the fetched exchange rate
+
         // New Budgeting Section Elements
         const budgetingSidebarItem = document.getElementById('budgetingSidebarItem');
         const budgetingSection = document.getElementById('budgetingSection');
@@ -1115,6 +1136,10 @@
         const reportTotalIncomeEl = document.getElementById('reportTotalIncome');
         const reportTotalExpenseEl = document.getElementById('reportTotalExpense');
         const reportNetBalanceEl = document.getElementById('reportNetBalance');
+        const reportTotalIncomeJPYEl = document.getElementById('reportTotalIncomeJPY'); // New JPY total income
+        const reportTotalExpenseJPYEl = document.getElementById('reportTotalExpenseJPY'); // New JPY total expense
+        const reportNetBalanceJPYEl = document.getElementById('reportNetBalanceJPY'); // New JPY net balance
+
         const reportExpenseByCategory = document.getElementById('reportExpenseByCategory');
         const reportIncomeByCategory = document.getElementById('reportIncomeByCategory');
         const reportTransactionsListEl = document.getElementById('reportTransactionsList');
@@ -1232,6 +1257,15 @@
             }).format(amount);
         }
 
+        // Function to format number as JPY
+        function formatJPY(amount) {
+            return new Intl.NumberFormat('ja-JP', {
+                style: 'currency',
+                currency: 'JPY',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
         // Function to show a message (e.g., error, success)
         function showMessage(element, message, isError = true) {
             element.textContent = message;
@@ -1293,6 +1327,7 @@
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
                     setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                    fetchExchangeRate(); // Fetch exchange rate on login
                 } else {
                     // If email is not verified, sign out and show message
                     await signOut(auth);
@@ -1431,6 +1466,52 @@
                 sidebarUsername.textContent = ''; // Clear username in sidebar
             }
         }
+
+        // --- Exchange Rate API Integration ---
+        async function fetchExchangeRate() {
+            const baseCurrency = 'IDR';
+            const targetCurrency = 'JPY';
+            const apiUrl = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/${baseCurrency}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.result === 'success' && data.conversion_rates && data.conversion_rates[targetCurrency]) {
+                    currentExchangeRate = data.conversion_rates[targetCurrency];
+                    exchangeRateInfoEl.textContent = `Nilai tukar: 1 IDR = ${currentExchangeRate.toFixed(4)} JPY`;
+                    showNotification('Nilai tukar berhasil diperbarui!', 'success');
+                } else {
+                    throw new Error('Gagal mendapatkan nilai tukar JPY dari API.');
+                }
+            } catch (error) {
+                console.error("Error fetching exchange rate:", error);
+                exchangeRateInfoEl.textContent = 'Gagal memuat nilai tukar.';
+                showNotification('Gagal memuat nilai tukar. Fitur konversi mungkin tidak akurat.', 'error', 5000);
+            }
+        }
+
+        function convertIdrToJpy() {
+            const amountIdr = parseFloat(amountToConvertInput.value);
+            if (isNaN(amountIdr) || amountIdr <= 0) {
+                convertedAmountEl.textContent = 'JPY 0';
+                showNotification('Masukkan jumlah IDR yang valid.', 'error');
+                return;
+            }
+
+            if (currentExchangeRate === 0) {
+                showNotification('Nilai tukar belum tersedia. Coba lagi nanti.', 'error');
+                return;
+            }
+
+            const converted = amountIdr * currentExchangeRate;
+            convertedAmountEl.textContent = formatJPY(converted);
+            showNotification(`${formatRupiah(amountIdr)} = ${formatJPY(converted)}`, 'info');
+        }
+
 
         // --- Firestore Data Management ---
 
@@ -1616,6 +1697,7 @@
                 renderCategoryOptions(transactionCategoryInput);
                 currentPage = 1; // Reset pagination
                 renderTransactions();
+                fetchExchangeRate(); // Ensure exchange rate is fetched when transactions section is shown
             } else if (sectionId === 'budgetingSection') {
                 renderCategoryOptions(budgetItemCategorySelect);
                 renderBudgets();
@@ -2211,18 +2293,20 @@
                 return;
             }
 
-            const headers = ["ID", "Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
+            const headers = ["ID", "Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori", "Jumlah (JPY)"]; // Added JPY
             const csvRows = [];
             csvRows.push(headers.join(','));
 
             transactions.forEach(t => {
+                const amountJPY = currentExchangeRate ? (t.amount * currentExchangeRate).toFixed(2) : 'N/A'; // Calculate JPY amount
                 const row = [
                     t.id,
                     t.date,
                     `"${t.description.replace(/"/g, '""')}"`, // Handle commas and quotes in description
                     t.amount,
                     t.type,
-                    `"${t.category.replace(/"/g, '""')}"`
+                    `"${t.category.replace(/"/g, '""')}"`,
+                    amountJPY // Add JPY amount to CSV
                 ];
                 csvRows.push(row.join(','));
             });
@@ -2400,6 +2484,7 @@
             } else {
                 transactionsToDisplay.forEach(t => {
                     const transactionDiv = document.createElement('div');
+                    const amountJPY = currentExchangeRate ? (t.amount * currentExchangeRate).toFixed(2) : 'N/A'; // Calculate JPY amount
                     transactionDiv.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border border-gray-200 bg-white`;
                     transactionDiv.innerHTML = `
                         <div class="flex-grow mb-2 sm:mb-0">
@@ -2408,6 +2493,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">${formatRupiah(t.amount)}</p>
+                            <p class="text-sm font-semibold text-gray-600 mr-2">(${formatJPY(amountJPY)})</p>
                             <button class="btn-secondary text-xs px-2 py-1" onclick="editTransaction('${t.id}')">Edit</button>
                             <button class="btn-danger text-xs px-2 py-1" onclick="deleteTransaction('${t.id}')">Hapus</button>
                         </div>
@@ -2478,6 +2564,9 @@
 
             let totalIncome = 0;
             let totalExpense = 0;
+            let totalIncomeJPY = 0; // New
+            let totalExpenseJPY = 0; // New
+
             const expenseCategories = {};
             const incomeCategories = {};
             const monthlyData = {}; // For monthly summary chart
@@ -2492,20 +2581,27 @@
 
                 if (t.type === 'income') {
                     totalIncome += t.amount;
+                    totalIncomeJPY += t.amount * currentExchangeRate; // New
                     incomeCategories[t.category] = (incomeCategories[t.category] || 0) + t.amount;
                     monthlyData[monthYear].income += t.amount;
                 } else {
                     totalExpense += t.amount;
+                    totalExpenseJPY += t.amount * currentExchangeRate; // New
                     expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
                     monthlyData[monthYear].expense += t.amount;
                 }
             });
 
             const netBalance = totalIncome - totalExpense;
+            const netBalanceJPY = totalIncomeJPY - totalExpenseJPY; // New
 
             reportTotalIncomeEl.textContent = formatRupiah(totalIncome);
             reportTotalExpenseEl.textContent = formatRupiah(totalExpense);
             reportNetBalanceEl.textContent = formatRupiah(netBalance);
+
+            reportTotalIncomeJPYEl.textContent = formatJPY(totalIncomeJPY); // New
+            reportTotalExpenseJPYEl.textContent = formatJPY(totalExpenseJPY); // New
+            reportNetBalanceJPYEl.textContent = formatJPY(netBalanceJPY); // New
 
             // Store report data globally for PDF generation
             window._currentReportData = {
@@ -2513,6 +2609,9 @@
                 totalIncome: totalIncome,
                 totalExpense: totalExpense,
                 netBalance: netBalance,
+                totalIncomeJPY: totalIncomeJPY, // New
+                totalExpenseJPY: totalExpenseJPY, // New
+                netBalanceJPY: netBalanceJPY, // New
                 expenseCategories: expenseCategories,
                 incomeCategories: incomeCategories,
                 selectedMonth: selectedMonth,
@@ -2539,9 +2638,10 @@
                         <tr>
                             <th>Deskripsi</th>
                             <th>Tanggal</th>
-                            <th>Jumlah</th>
+                            <th>Jumlah (Rp)</th>
                             <th>Tipe</th>
                             <th>Kategori</th>
+                            <th>Jumlah (JPY)</th> <!-- New column -->
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -2549,6 +2649,7 @@
                 const tbody = table.querySelector('tbody');
 
                 transactions.forEach(t => {
+                    const amountJPY = currentExchangeRate ? (t.amount * currentExchangeRate).toFixed(2) : 'N/A';
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${t.description}</td>
@@ -2556,6 +2657,7 @@
                         <td class="${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</td>
                         <td>${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
                         <td>${t.category}</td>
+                        <td>${formatJPY(amountJPY)}</td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -3183,7 +3285,7 @@
                 answer: "Bagian 'Transaksi Terbaru' di Dashboard menampilkan hingga 5 transaksi terakhir yang Anda masukkan, memudahkan Anda untuk melacak aktivitas keuangan terkini."
             },
             "Manajemen Transaksi": {
-                answer: "Di menu 'Transaksi', Anda bisa menambah, melihat, mengedit, dan menghapus semua transaksi keuangan Anda.",
+                answer: "Di menu 'Transaksi', Anda bisa menambah, melihat, mengedit, dan menghapus semua transaksi keuangan Anda. Selain itu, Anda bisa mengkonversi jumlah IDR ke JPY.",
                 options: [
                     "Bagaimana cara menambahkan transaksi baru?",
                     "Bagaimana cara melihat daftar semua transaksi?",
@@ -3191,6 +3293,7 @@
                     "Bagaimana cara mengedit transaksi yang sudah ada?",
                     "Bagaimana cara menghapus transaksi?",
                     "Apa fungsi paginasi di daftar transaksi?",
+                    "Bagaimana cara mengkonversi mata uang?", // New option
                     "Kembali ke awal"
                 ]
             },
@@ -3211,6 +3314,9 @@
             },
             "Apa fungsi paginasi di daftar transaksi?": {
                 answer: "Paginasi digunakan untuk membagi daftar transaksi menjadi beberapa halaman, biasanya 10 transaksi per halaman. Ini membantu dalam mengelola dan melihat data transaksi yang banyak secara lebih efisien. Anda bisa menggunakan tombol 'Sebelumnya' dan 'Berikutnya' untuk navigasi."
+            },
+             "Bagaimana cara mengkonversi mata uang?": { // New chatbot response
+                answer: "Di menu 'Transaksi', pada bagian bawah, Anda akan menemukan 'Konversi Mata Uang (IDR ke JPY)'. Masukkan jumlah dalam Rupiah (IDR) di kolom yang tersedia, lalu klik tombol 'Konversi' untuk melihat jumlah yang dikonversi dalam Yen Jepang (JPY) berdasarkan nilai tukar terbaru."
             },
             "Rencana Anggaran": {
                 answer: "Menu 'Rencana Anggaran' memungkinkan Anda menetapkan batas pengeluaran untuk kategori tertentu dalam periode waktu tertentu. Anda akan diberi peringatan jika pengeluaran Anda melebihi anggaran yang ditetapkan.",
@@ -3235,7 +3341,7 @@
                 answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jika jumlah transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
             },
             "Laporan Keuangan": {
-                answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
+                answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih dalam IDR dan JPY, serta grafik bulanan dan per kategori.",
                 options: [
                     "Bagaimana cara memfilter laporan?",
                     "Jenis grafik apa saja yang ada di laporan keuangan?",
@@ -3409,6 +3515,12 @@
             doc.text(`Total Pengeluaran: ${formatRupiah(reportData.totalExpense)}`, 14, yOffset);
             yOffset += 7;
             doc.text(`Saldo Bersih: ${formatRupiah(reportData.netBalance)}`, 14, yOffset);
+            yOffset += 7;
+            doc.text(`Total Pemasukan (JPY): ${formatJPY(reportData.totalIncomeJPY)}`, 14, yOffset); // New
+            yOffset += 7;
+            doc.text(`Total Pengeluaran (JPY): ${formatJPY(reportData.totalExpenseJPY)}`, 14, yOffset); // New
+            yOffset += 7;
+            doc.text(`Saldo Bersih (JPY): ${formatJPY(reportData.netBalanceJPY)}`, 14, yOffset); // New
             yOffset += 10;
 
             // Expense by Category
@@ -3451,16 +3563,18 @@
             yOffset += 7;
 
             if (reportData.transactions.length > 0) {
-                const tableColumn = ["Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
+                const tableColumn = ["Tanggal", "Deskripsi", "Jumlah (Rp)", "Tipe", "Kategori", "Jumlah (JPY)"]; // New column
                 const tableRows = [];
 
                 reportData.transactions.forEach(t => {
+                    const amountJPY = currentExchangeRate ? (t.amount * currentExchangeRate).toFixed(2) : 'N/A';
                     const transactionData = [
                         t.date,
                         t.description,
                         formatRupiah(t.amount),
                         t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
-                        t.category
+                        t.category,
+                        formatJPY(amountJPY) // Add JPY amount to PDF
                     ];
                     tableRows.push(transactionData);
                 });
@@ -3475,9 +3589,10 @@
                     columnStyles: {
                         0: { cellWidth: 20 }, // Date
                         1: { cellWidth: 50 }, // Description
-                        2: { cellWidth: 30 }, // Amount
+                        2: { cellWidth: 30 }, // Amount (Rp)
                         3: { cellWidth: 20 }, // Type
-                        4: { cellWidth: 30 }  // Category
+                        4: { cellWidth: 30 },  // Category
+                        5: { cellWidth: 30 }   // Amount (JPY)
                     }
                 });
             } else {
@@ -3591,6 +3706,13 @@
         prevPageBtn.addEventListener('click', prevPage);
         nextPageBtn.addEventListener('click', nextPage);
 
+        // Exchange Rate Converter Listener
+        convertCurrencyBtn.addEventListener('click', convertIdrToJpy);
+        amountToConvertInput.addEventListener('input', () => {
+            // Clear converted amount when input changes
+            convertedAmountEl.textContent = 'JPY 0';
+        });
+
         // Budget form submission
         budgetForm.addEventListener('submit', addBudget);
 
@@ -3656,6 +3778,9 @@
             editTransactionDateInput.value = today; // Also for edit form
             budgetStartDateInput.value = today; // Set default start date for budget
             budgetEndDateInput.value = today; // Set default end date for budget
+
+            // Fetch exchange rate initially
+            fetchExchangeRate();
         });
 
         // Make functions globally accessible for onclick in HTML
