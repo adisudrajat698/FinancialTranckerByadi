@@ -1293,6 +1293,25 @@
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
                     setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                          showNotification(`Selamat datang kembali, ${user.email}!`, 'info', 4000);
+
+      setTimeout(() => {
+        const transactions = window._userTransactions || [];
+        const totalIncome = transactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+        const totalExpense = transactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+        const balance = totalIncome - totalExpense;
+
+        showNotification(
+          `💰 Saldo: ${formatRupiah(balance)} | ⬇️ Pemasukan: ${formatRupiah(totalIncome)} | ⬆️ Pengeluaran: ${formatRupiah(totalExpense)}`,
+          'info',
+          8000
+        );
+      }, 2000);
+
                 } else {
                     // If email is not verified, sign out and show message
                     await signOut(auth);
