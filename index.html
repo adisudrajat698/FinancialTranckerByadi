@@ -2194,19 +2194,6 @@
         }
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
-        function sendTransactionsToWhatsApp() {
-            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
-            const transactions = getUserTransactions();
-            let totalIncome = 0;
-            let totalExpense = 0;
-
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                } else {
-                    totalExpense += t.amount;
-                }
-            });
 
             const currentBalance = totalIncome - totalExpense;
 
