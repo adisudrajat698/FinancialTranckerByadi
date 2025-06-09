@@ -1157,6 +1157,42 @@
 
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
+        sendWhatsappSummaryBtn.addEventListener('click', async () => {
+    if (!window._userTransactions || window._userTransactions.length === 0) {
+        showNotification('Tidak ada transaksi untuk dikirim.', 'info');
+        return;
+    }
+
+    const phoneNumber = '6282124064576'; // GANTI dengan nomor lu
+    const apiKey = '1133504'; // GANTI dengan API Key dari CallMeBot
+
+    let message = `📊 Ringkasan Transaksi AdiWallet:\n\n`;
+
+    window._userTransactions.forEach(tx => {
+        const tanggal = tx.date || '-';
+        const deskripsi = tx.description || '-';
+        const jumlah = formatRupiah(tx.amount || 0);
+        const tipe = tx.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+        message += `📅 ${tanggal}\n📝 ${deskripsi}\n💰 ${jumlah}\n📌 ${tipe}\n\n`;
+    });
+
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phoneNumber}&text=${encodeURIComponent(message)}&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const resultText = await response.text();
+        if (resultText.includes('Message sent')) {
+            showNotification('Transaksi berhasil dikirim ke WhatsApp!', 'success');
+        } else {
+            showNotification('Gagal mengirim ke WhatsApp. Coba periksa API Key.', 'error');
+            console.error('CallMeBot response:', resultText);
+        }
+    } catch (error) {
+        showNotification('Terjadi kesalahan saat mengirim pesan.', 'error');
+        console.error('Fetch error:', error);
+    }
+});
+
 
         // Specific sidebar items to hide/show
         const dashboardSidebarItem = document.getElementById('dashboardSidebarItem');
