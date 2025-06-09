@@ -1690,6 +1690,14 @@
             };
 
             await addTransactionToFirestore(newTransaction);
+                // Kirim otomatis ke WhatsApp
+    const phoneNumber = "6282124064576"; // GANTI nomor WA kamu
+    const apiKey = "1133504";             // GANTI dengan API key dari CallMeBot
+
+    const tipeText = type === "income" ? "Pemasukan" : "Pengeluaran";
+    const msg = `📥 Transaksi Baru!\nTanggal: ${date}\nTipe: ${tipeText}\nKategori: ${category}\nJumlah: Rp${amount}\nDeskripsi: ${description}`;
+
+    await sendToWhatsappUsingCallMeBot(phoneNumber, msg, apiKey);
 
             showMessage(authMessage, 'Transaksi berhasil ditambahkan!', false);
             showNotification('Transaksi berhasil ditambahkan!', 'success');
@@ -3693,6 +3701,20 @@
         }, false);
 
         feather.replace();
+        
+        async function sendToWhatsappUsingCallMeBot(phoneNumber, messageText, apiKey) {
+    const encodedMsg = encodeURIComponent(messageText);
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phoneNumber}&text=${encodedMsg}&apikey=${apiKey}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Gagal kirim ke WhatsApp");
+        showNotification("✅ Transaksi dikirim ke WhatsApp!", "success");
+    } catch (err) {
+        console.error("WA Error:", err);
+        showNotification("❌ Gagal kirim ke WhatsApp", "error");
+    }
+}
+
     </script>
 </body>
 </html>
