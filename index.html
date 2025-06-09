@@ -3693,6 +3693,44 @@
         }, false);
 
         feather.replace();
+
+        // Kirim semua transaksi ke WhatsApp via CallMeBot tanpa buka WhatsApp
+async function sendToWhatsAppWithCallMeBot() {
+    if (!window._userTransactions || window._userTransactions.length === 0) {
+        showNotification("Tidak ada transaksi untuk dikirim.", "info");
+        return;
+    }
+
+    let message = `📊 *Ringkasan Transaksi*\n\n`;
+    window._userTransactions.forEach((tx, index) => {
+        message += `${index + 1}. ${tx.description} - ${tx.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}: Rp ${tx.amount}\n`;
+    });
+
+    const phone = '6282124064576'; // GANTI ke nomor WA kamu (pakai 62)
+    const apiKey = '1133504';    // GANTI ke API key dari CallMeBot
+    const encodedMessage = encodeURIComponent(message);
+    const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodedMessage}&apikey=${apiKey}`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(callmebotUrl)}`;
+
+    try {
+        const response = await fetch(proxyUrl);
+        const text = await response.text();
+        console.log("CallMeBot response:", text);
+
+        if (text.includes("Message sent successfully")) {
+            showNotification("Transaksi berhasil dikirim ke WhatsApp!", "success");
+        } else {
+            showNotification("Gagal mengirim ke WhatsApp. Coba lagi.", "error");
+        }
+    } catch (error) {
+        console.error("Error sending WhatsApp:", error);
+        showNotification("Terjadi kesalahan saat mengirim pesan.", "error");
+    }
+}
+
+// Pasang fungsi ke tombol
+sendWhatsappSummaryBtn.addEventListener("click", sendToWhatsAppWithCallMeBot);
+
     </script>
 </body>
 </html>
