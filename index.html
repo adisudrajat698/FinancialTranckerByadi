@@ -2158,8 +2158,11 @@
         }
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
-        function sendTransactionsToWhatsApp() {
-            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
+      // --- Send All Data to WhatsApp (Click-to-Chat) ---
+        async function sendTransactionsToWhatsApp() { // Tambahkan 'async' di sini
+            const targetPhoneNumber = '6282124064576';
+            const callmebotApiKey = '1133504'; // API Key CallMeBot Anda
+
             const transactions = getUserTransactions();
             let totalIncome = 0;
             let totalExpense = 0;
@@ -2174,16 +2177,13 @@
 
             const currentBalance = totalIncome - totalExpense;
 
-            // Prepare summary message
             let message = `Ringkasan Keuangan Anda:\n`;
             message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
             message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
             message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
 
-            // Add all transactions
             if (transactions.length > 0) {
                 message += `Detail Semua Transaksi:\n`;
-                // Sort transactions by date (newest first) for better readability
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 transactions.forEach(t => {
                     const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
@@ -2193,16 +2193,25 @@
                 message += `Belum ada transaksi tercatat.\n`;
             }
 
-            // Encode the message for URL
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMessage}`;
+            try {
+                const encodedMessage = encodeURIComponent(message);
+                const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=${targetPhoneNumber}&apikey=${callmebotApiKey}&text=${encodedMessage}`;
 
-            // Open WhatsApp in a new tab
-            window.open(whatsappUrl, '_blank');
+                const response = await fetch(callmebotUrl); // Mengirim permintaan ke CallMeBot
+                const textResponse = await response.text(); // Mendapatkan respons teks dari CallMeBot
 
-            showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
+                // Memeriksa apakah respons berhasil
+                if (response.ok && textResponse.includes("Message sent to")) {
+                    showNotification('Ringkasan transaksi berhasil dikirim ke WhatsApp!', 'success');
+                } else {
+                    console.error("CallMeBot API Error:", textResponse);
+                    showNotification('Gagal mengirim ringkasan transaksi ke WhatsApp. Pastikan nomor dan API Key benar, dan layanan CallMeBot aktif.', 'error');
+                }
+            } catch (error) {
+                console.error("Network or CallMeBot API call failed:", error);
+                showNotification('Terjadi kesalahan saat mencoba mengirim ke WhatsApp. Periksa koneksi internet Anda.', 'error');
+            }
         }
-
         // --- Data Export (CSV) ---
         function exportTransactionsToCSV() {
             const transactions = getUserTransactions();
