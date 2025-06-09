@@ -2157,51 +2157,51 @@
             event.target.value = ''; // Clear the file input value to allow selecting the same file again if needed
         }
 
-        // --- Send All Data to WhatsApp (Click-to-Chat) ---
-        function sendTransactionsToWhatsApp() {
-            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
-            const transactions = getUserTransactions();
-            let totalIncome = 0;
-            let totalExpense = 0;
+        // // --- Send All Data to WhatsApp (Click-to-Chat) ---
+        // function sendTransactionsToWhatsApp() {
+        //     const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
+        //     const transactions = getUserTransactions();
+        //     let totalIncome = 0;
+        //     let totalExpense = 0;
 
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                } else {
-                    totalExpense += t.amount;
-                }
-            });
+        //     transactions.forEach(t => {
+        //         if (t.type === 'income') {
+        //             totalIncome += t.amount;
+        //         } else {
+        //             totalExpense += t.amount;
+        //         }
+        //     });
 
-            const currentBalance = totalIncome - totalExpense;
+        //     const currentBalance = totalIncome - totalExpense;
 
-            // Prepare summary message
-            let message = `Ringkasan Keuangan Anda:\n`;
-            message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
-            message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
-            message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
+        //     // Prepare summary message
+        //     let message = `Ringkasan Keuangan Anda:\n`;
+        //     message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
+        //     message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
+        //     message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
 
-            // Add all transactions
-            if (transactions.length > 0) {
-                message += `Detail Semua Transaksi:\n`;
-                // Sort transactions by date (newest first) for better readability
-                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-                transactions.forEach(t => {
-                    const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-                    message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatRupiah(t.amount)} | ${t.description}\n`;
-                });
-            } else {
-                message += `Belum ada transaksi tercatat.\n`;
-            }
+        //     // Add all transactions
+        //     if (transactions.length > 0) {
+        //         message += `Detail Semua Transaksi:\n`;
+        //         // Sort transactions by date (newest first) for better readability
+        //         transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        //         transactions.forEach(t => {
+        //             const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+        //             message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatRupiah(t.amount)} | ${t.description}\n`;
+        //         });
+        //     } else {
+        //         message += `Belum ada transaksi tercatat.\n`;
+        //     }
 
-            // Encode the message for URL
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMessage}`;
+        //     // Encode the message for URL
+        //     const encodedMessage = encodeURIComponent(message);
+        //     const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMessage}`;
 
-            // Open WhatsApp in a new tab
-            window.open(whatsappUrl, '_blank');
+        //     // Open WhatsApp in a new tab
+        //     window.open(whatsappUrl, '_blank');
 
-            showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
-        }
+        //     showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
+        // }
 
         // --- Data Export (CSV) ---
         function exportTransactionsToCSV() {
@@ -3616,7 +3616,8 @@
         });
 
         // Send WhatsApp All Transactions Button
-        sendWhatsappSummaryBtn.addEventListener('click', sendTransactionsToWhatsApp);
+        sendWhatsappSummaryBtn.removeEventListener('click', sendTransactionsToWhatsApp); // Hapus listener lama jika ada
+sendWhatsappSummaryBtn.addEventListener('click', sendTransactionsToWhatsAppCallMeBot); // Tambahkan listener baru
 
         // Export Data Button (CSV)
         exportDataBtn.addEventListener('click', exportTransactionsToCSV);
@@ -3693,6 +3694,74 @@
         }, false);
 
         feather.replace();
+
+        // Function to send all transactions to WhatsApp using CallMeBot
+async function sendTransactionsToWhatsAppCallMeBot() {
+    // === Konfigurasi CallMeBot Anda ===
+    // Ganti dengan nomor telepon pribadi Anda yang terdaftar di CallMeBot
+    const targetPhoneNumber = '6282124064576'; // Ganti dengan nomor Anda yang terdaftar di CallMeBot
+    // Ganti dengan API Key CallMeBot Anda yang sudah didapatkan
+    const callmebotApiKey = '1133504'; // PASTI GANTI INI!
+    // Jika Anda menggunakan fitur yang memerlukan ID Perangkat (misalnya, untuk device yang terhubung),
+    // ganti dengan ID perangkat Anda. Jika tidak, biarkan atau hapus baris ini.
+    // const deviceId = 'your_device_id';
+
+    if (!callmebotApiKey || targetPhoneNumber === '6282124064576' || callmebotApiKey === '1133504') {
+        showNotification('Konfigurasi CallMeBot belum lengkap. Harap masukkan API Key dan nomor telepon yang benar.', 'error');
+        return;
+    }
+
+    const transactions = getUserTransactions();
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    transactions.forEach(t => {
+        if (t.type === 'income') {
+            totalIncome += t.amount;
+        } else {
+            totalExpense += t.amount;
+        }
+    });
+
+    const currentBalance = totalIncome - totalExpense;
+
+    let message = `Ringkasan Keuangan Anda:\n`;
+    message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
+    message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
+    message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
+
+    if (transactions.length > 0) {
+        message += `Detail Semua Transaksi:\n`;
+        // Sort transactions by date (newest first) for better readability
+        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+        transactions.forEach(t => {
+            const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
+            message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatRupiah(t.amount)} | ${t.description}\n`;
+        });
+    } else {
+        message += `Belum ada transaksi tercatat.\n`;
+    }
+
+    // Encode the message for URL
+    const encodedMessage = encodeURIComponent(message);
+
+    // CallMeBot API Endpoint
+    // Pastikan format URL ini sesuai dengan dokumentasi CallMeBot terbaru.
+    // Umumnya: https://api.callmebot.com/whatsapp.php?phone=[phone_number]&text=[message]&apikey=[api_key]
+    const callmebotUrl = `https://api.callmebot.com/whatsapp.php?phone=<span class="math-inline">\{targetPhoneNumber\}&text\=</span>{encodedMessage}&apikey=${callmebotApiKey}`;
+
+    try {
+        const response = await fetch(callmebotUrl, { method: 'GET' });
+        // Untuk CallMeBot, respons 200 OK tidak selalu berarti pesan terkirim.
+        // Namun, dari sisi aplikasi, kita menganggap permintaan telah dikirim.
+        // Jika ada masalah jaringan atau API Key salah, ini akan ditangkap oleh catch.
+
+        showNotification('Ringkasan transaksi berhasil dikirim melalui WhatsApp!', 'success');
+    } catch (error) {
+        console.error("Error sending message via CallMeBot:", error);
+        showNotification('Gagal mengirim ringkasan transaksi. Periksa koneksi internet atau konfigurasi CallMeBot Anda.', 'error');
+    }
+}
     </script>
 </body>
 </html>
