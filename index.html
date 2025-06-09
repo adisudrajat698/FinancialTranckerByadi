@@ -2158,8 +2158,19 @@
         }
 
         // --- Send All Data to WhatsApp (Click-to-Chat) ---
-        function sendTransactionsToWhatsApp() {
-            const targetPhoneNumber = '6282124064576'; // Nomor WhatsApp tujuan
+       // --- Send All Data to WhatsApp (Menggunakan CallMeBot API) ---
+        async function sendTransactionsToWhatsApp() {
+            // Ganti 'YOUR_CALLMEBOT_API_KEY' dengan API Key yang Anda dapatkan dari CallMeBot
+            const callMeBotApiKey = '1133504';
+            // Ganti 'YOUR_TARGET_PHONE_NUMBER' dengan nomor telepon yang terdaftar di CallMeBot (biasanya nomor WA Anda sendiri)
+            const targetPhoneNumberForBot = '6282124064576'; // Contoh: 6281234567890 (tanpa +)
+
+            // Pastikan Anda sudah mendapatkan API Key dan mendaftarkan nomor di CallMeBot
+            if (callMeBotApiKey === '1133504' || targetPhoneNumberForBot === '6282124064576') {
+                showNotification('Harap atur API Key CallMeBot dan Nomor Telepon di kode.', 'error');
+                return;
+            }
+
             const transactions = getUserTransactions();
             let totalIncome = 0;
             let totalExpense = 0;
@@ -2195,12 +2206,26 @@
 
             // Encode the message for URL
             const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${targetPhoneNumber}?text=${encodedMessage}`;
 
-            // Open WhatsApp in a new tab
-            window.open(whatsappUrl, '_blank');
+            // CallMeBot API Endpoint
+            const callMeBotApiUrl = `https://api.callmebot.com/whatsapp.php?phone=${targetPhoneNumberForBot}&apikey=${callMeBotApiKey}&text=${encodedMessage}`;
 
-            showNotification('WhatsApp akan terbuka. Mohon kirim pesan secara manual.', 'info', 5000);
+            try {
+                // Menggunakan fetch untuk mengirim permintaan ke CallMeBot API
+                const response = await fetch(callMeBotApiUrl);
+                const data = await response.text(); // Ambil respons dalam bentuk teks
+
+                // CallMeBot biasanya merespons dengan "OK" atau "SUCCESS" jika berhasil
+                if (response.ok && (data.includes('OK') || data.includes('SUCCESS'))) {
+                    showNotification('Ringkasan transaksi berhasil dikirim ke WhatsApp!', 'success');
+                } else {
+                    console.error("CallMeBot error response:", data); // Log respons CallMeBot untuk debugging
+                    showNotification('Gagal mengirim ringkasan transaksi ke WhatsApp. Silakan coba lagi.', 'error');
+                }
+            } catch (error) {
+                console.error("Network or CallMeBot API call failed:", error);
+                showNotification('Terjadi kesalahan jaringan atau API CallMeBot. Periksa koneksi internet Anda.', 'error');
+            }
         }
 
         // --- Data Export (CSV) ---
