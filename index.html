@@ -536,6 +536,8 @@
               <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-4 h-4 mr-2"></i> Rencana Anggaran </a></li> <!-- New Budgeting Item -->
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
+              <li id="savingsCalculatorSidebarItem"><a href="#" class="sidebar-item" data-section="savingsCalculator"><i data-feather="calendar" class="inline-block w-4 h-4 mr-2"></i> Kalkulator Tabungan </a></li>
+
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-4 h-4 mr-2"></i> Bantuan </a></li>
             </ul>
@@ -923,6 +925,33 @@
                     </div>
                 </div>
             </section>
+
+            <section id="savingsCalculator" class="hidden">
+  <h2 class="text-3xl font-bold mb-6">Kalkulator Tabungan</h2>
+  <div class="card p-6 mb-6 max-w-xl mx-auto">
+    <form id="savingsForm" class="space-y-4">
+      <div>
+        <label for="savingsTarget" class="block text-sm font-medium text-gray-700 mb-1">Target Tabungan (Rp)</label>
+        <input type="number" id="savingsTarget" required min="1" placeholder="Contoh: 1000000">
+      </div>
+      <div>
+        <label for="savingsAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Menabung</label>
+        <input type="number" id="savingsAmount" required min="1" placeholder="Contoh: 10000">
+      </div>
+      <div>
+        <label for="savingsPeriod" class="block text-sm font-medium text-gray-700 mb-1">Periode</label>
+        <select id="savingsPeriod" required>
+          <option value="daily">Per Hari</option>
+          <option value="monthly">Per Bulan</option>
+          <option value="yearly">Per Tahun</option>
+        </select>
+      </div>
+      <button type="submit" class="w-full btn-primary font-semibold">Hitung</button>
+    </form>
+  </div>
+  <div id="savingsResult" class="text-center text-lg font-medium text-gray-700 hidden"></div>
+</section>
+
             </main>
 
         <footer class="bg-gray-800 text-white text-center p-4 text-sm mt-auto">
@@ -3702,6 +3731,54 @@
         }, false);
 
         feather.replace();
+
+        
+document.getElementById('savingsForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const target = parseInt(document.getElementById('savingsTarget').value);
+  const amount = parseInt(document.getElementById('savingsAmount').value);
+  const period = document.getElementById('savingsPeriod').value;
+  const resultEl = document.getElementById('savingsResult');
+
+  if (target <= 0 || amount <= 0) {
+    resultEl.innerHTML = 'Masukkan jumlah yang valid.';
+    resultEl.classList.remove('hidden');
+    return;
+  }
+
+  let units, finalDate;
+  const now = new Date();
+
+  if (period === 'daily') {
+    units = Math.ceil(target / amount);
+    now.setDate(now.getDate() + units);
+  } else if (period === 'monthly') {
+    units = Math.ceil(target / amount);
+    now.setMonth(now.getMonth() + units);
+  } else if (period === 'yearly') {
+    units = Math.ceil(target / amount);
+    now.setFullYear(now.getFullYear() + units);
+  }
+
+  const formattedDate = now.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+  let periodText = { daily: 'hari', monthly: 'bulan', yearly: 'tahun' }[period];
+
+  resultEl.innerHTML = `
+    Dengan menabung ${formatRupiah(amount)} per ${periodText},<br>
+    kamu bisa mencapai target ${formatRupiah(target)} dalam ${units} ${periodText}.<br>
+    Estimasi tercapai pada: ${formattedDate}.
+  `;
+  resultEl.classList.remove('hidden');
+});
+
+// Fungsi bantu format angka jadi Rupiah
+function formatRupiah(amount) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0
+  }).format(amount);
+}
     </script>
 </body>
 </html>
