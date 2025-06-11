@@ -641,8 +641,12 @@
                             <input type="text" id="transactionDescription" placeholder="Contoh: Beli Kopi" required class="block">
                         </div>
                         <div>
-                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                             <input type="number" id="transactionAmount" placeholder="Contoh: 25000" required min="1" class="block">
+                        </div>
+                        <div>
+                            <label for="transactionCurrency" class="block text-sm font-medium text-gray-700 mb-1">Mata Uang</label>
+                            <select id="transactionCurrency" required class="block"></select>
                         </div>
                         <div>
                             <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
@@ -878,6 +882,27 @@
   <p id="savingsResult" class="text-center mt-4 text-lg font-semibold text-blue-600 hidden"></p>
 </div>
 
+                 <!-- New Currency Converter Section -->
+                <div class="card p-6 mt-8 mb-8">
+                    <h3 class="text-2xl font-bold mb-4">Penukar Mata Uang</h3>
+                    <form id="currencyConverterForm" class="space-y-4">
+                        <div>
+                            <label for="amountToConvert" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
+                            <input type="number" id="amountToConvert" placeholder="Masukkan jumlah" required min="0" step="any" class="block">
+                        </div>
+                        <div>
+                            <label for="fromCurrency" class="block text-sm font-medium text-gray-700 mb-1">Dari Mata Uang</label>
+                            <select id="fromCurrency" required class="block"></select>
+                        </div>
+                        <div>
+                            <label for="toCurrency" class="block text-sm font-medium text-gray-700 mb-1">Ke Mata Uang</label>
+                            <select id="toCurrency" required class="block"></select>
+                        </div>
+                        <button type="submit" class="w-full btn-primary font-semibold">Konversi</button>
+                    </form>
+                    <p id="conversionResult" class="text-center mt-4 text-lg font-semibold text-blue-600 hidden"></p>
+                    <p id="exchangeRateInfo" class="text-center mt-2 text-sm text-gray-500 hidden"></p>
+                </div>
                 
 
                 <div class="card p-6 mb-8">
@@ -987,8 +1012,12 @@
                     <input type="text" id="editTransactionDescription" required class="block">
                 </div>
                 <div>
-                    <label for="editTransactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                    <label for="editTransactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
                     <input type="number" id="editTransactionAmount" required min="1" class="block">
+                </div>
+                 <div>
+                    <label for="editTransactionCurrency" class="block text-sm font-medium text-gray-700 mb-1">Mata Uang</label>
+                    <select id="editTransactionCurrency" required class="block"></select>
                 </div>
                 <div>
                     <label for="editTransactionType" class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
@@ -1116,6 +1145,7 @@
         const transactionDateInput = document.getElementById('transactionDate');
         const transactionDescriptionInput = document.getElementById('transactionDescription');
         const transactionAmountInput = document.getElementById('transactionAmount');
+        const transactionCurrencyInput = document.getElementById('transactionCurrency'); // New: Currency Input
         const transactionTypeInput = document.getElementById('transactionType');
         const transactionCategoryInput = document.getElementById('transactionCategory');
         const allTransactionsListEl = document.getElementById('allTransactionsList');
@@ -1185,6 +1215,14 @@
         const deleteAccountBtn = document.getElementById('deleteAccountBtn'); // New delete account button
         const darkModeToggle = document.getElementById('darkModeToggle'); // New dark mode toggle
 
+        // New Currency Converter Elements
+        const currencyConverterForm = document.getElementById('currencyConverterForm');
+        const amountToConvertInput = document.getElementById('amountToConvert');
+        const fromCurrencySelect = document.getElementById('fromCurrency');
+        const toCurrencySelect = document.getElementById('toCurrency');
+        const conversionResultEl = document.getElementById('conversionResult');
+        const exchangeRateInfoEl = document.getElementById('exchangeRateInfo');
+
         // WhatsApp Send Button
         const sendWhatsappSummaryBtn = document.getElementById('sendWhatsappSummaryBtn');
 
@@ -1210,6 +1248,7 @@
         const editTransactionDateInput = document.getElementById('editTransactionDate');
         const editTransactionDescriptionInput = document.getElementById('editTransactionDescription');
         const editTransactionAmountInput = document.getElementById('editTransactionAmount');
+        const editTransactionCurrencyInput = document.getElementById('editTransactionCurrency'); // New: Currency Input
         const editTransactionTypeInput = document.getElementById('editTransactionType');
         const editTransactionCategoryInput = document.getElementById('editTransactionCategory');
 
@@ -1240,6 +1279,10 @@
         let isLoggedIn = false;
         let currentFirebaseUser = null; // Stores the Firebase User object (auth.currentUser)
         let authMode = 'login'; // 'login' or 'register'
+        const baseCurrency = 'IDR'; // Mata uang dasar untuk tampilan saldo
+
+        // Cache for exchange rates
+        let exchangeRates = {};
 
         // Pagination variables
         const transactionsPerPage = 10;
@@ -1253,7 +1296,19 @@
 
         // --- Utility Functions ---
 
-        // Function to format number as Rupiah
+        // Fungsi untuk memformat angka sebagai Rupiah atau Yen
+        function formatCurrency(amount, currencyCode) {
+            // Jika mata uang adalah JPY, tidak ada desimal
+            const options = {
+                style: 'currency',
+                currency: currencyCode,
+                minimumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
+                maximumFractionDigits: currencyCode === 'JPY' ? 0 : 2,
+            };
+            return new Intl.NumberFormat('id-ID', options).format(amount);
+        }
+
+        // Fungsi untuk memformat angka sebagai Rupiah
         function formatRupiah(amount) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -1367,6 +1422,11 @@
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'budgets'), {
                         list: []
                     });
+                     // Initialize with common currencies, and add IDR and JPY specifically
+                    await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'currencies'), {
+                        list: ['IDR', 'JPY', 'USD', 'EUR', 'GBP']
+                    });
+
 
                     showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', false);
                     showNotification('Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', 'success', 5000);
@@ -1512,6 +1572,17 @@
                 console.error("Error fetching budgets:", error);
                 showNotification('Gagal memuat anggaran. Silakan coba lagi.', 'error');
             });
+
+            // Currencies listener
+            const currenciesDocRef = doc(db, `artifacts/${appId}/users/${uid}/metadata`, 'currencies');
+            onSnapshot(currenciesDocRef, (docSnap) => {
+                const currencies = docSnap.exists() ? docSnap.data().list : ['IDR', 'JPY', 'USD', 'EUR', 'GBP'];
+                window._userCurrencies = currencies;
+                populateCurrencySelectors();
+            }, (error) => {
+                console.error("Error fetching currencies:", error);
+                showNotification('Gagal memuat mata uang. Silakan coba lagi.', 'error');
+            });
         }
 
         // Unsubscribe all listeners (on logout)
@@ -1522,6 +1593,7 @@
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
+            window._userCurrencies = []; // Clear currencies as well
             console.log("All Firestore listeners unsubscribed.");
         }
 
@@ -1618,6 +1690,126 @@
             }
         }
 
+        function getUserCurrencies() {
+            return window._userCurrencies || [];
+        }
+
+        // --- Exchange Rate API Integration ---
+
+        const EXCHANGE_RATE_API_KEY = '66a672118f9b21a247ab9d4a'; // Ganti dengan kunci API Anda dari ExchangeRate-API.com
+        const EXCHANGE_RATE_API_URL = `https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/`;
+
+        async function getExchangeRates(base) {
+            if (exchangeRates[base]) {
+                console.log(`Menggunakan cache untuk ${base} nilai tukar.`);
+                return exchangeRates[base];
+            }
+
+            try {
+                const response = await fetch(`${EXCHANGE_RATE_API_URL}${base}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
+                }
+                const data = await response.json();
+                if (data.result === 'success') {
+                    exchangeRates[base] = data.conversion_rates;
+                    console.log(`Nilai tukar untuk ${base} diambil dari API.`, data.conversion_rates);
+                    return data.conversion_rates;
+                } else {
+                    throw new Error(`ExchangeRate-API error: ${data['error-type']}`);
+                }
+            } catch (error) {
+                console.error("Error fetching exchange rates:", error);
+                showNotification(`Gagal mengambil nilai tukar: ${error.message}. Coba lagi nanti.`, 'error', 5000);
+                return null;
+            }
+        }
+
+        async function convertCurrency() {
+            const amount = parseFloat(amountToConvertInput.value);
+            const from = fromCurrencySelect.value;
+            const to = toCurrencySelect.value;
+
+            conversionResultEl.classList.add('hidden');
+            exchangeRateInfoEl.classList.add('hidden');
+            conversionResultEl.classList.remove('text-red-500'); // Clear error style
+
+            if (isNaN(amount) || amount <= 0) {
+                conversionResultEl.textContent = "Jumlah harus angka positif.";
+                conversionResultEl.classList.remove("hidden");
+                conversionResultEl.classList.add("text-red-500");
+                return;
+            }
+            if (from === to) {
+                conversionResultEl.textContent = `Jumlah yang dikonversi: ${formatCurrency(amount, to)}`;
+                conversionResultEl.classList.remove("hidden");
+                exchangeRateInfoEl.textContent = `1 ${from} = 1 ${to}`;
+                exchangeRateInfoEl.classList.remove("hidden");
+                return;
+            }
+
+            const rates = await getExchangeRates(from);
+            if (!rates) {
+                conversionResultEl.textContent = "Gagal mendapatkan nilai tukar. Coba lagi nanti.";
+                conversionResultEl.classList.remove("hidden");
+                conversionResultEl.classList.add("text-red-500");
+                return;
+            }
+
+            const rate = rates[to];
+            if (!rate) {
+                conversionResultEl.textContent = `Nilai tukar untuk ${to} tidak tersedia dari ${from}.`;
+                conversionResultEl.classList.remove("hidden");
+                conversionResultEl.classList.add("text-red-500");
+                return;
+            }
+
+            const convertedAmount = amount * rate;
+            conversionResultEl.textContent = `Jumlah yang dikonversi: ${formatCurrency(convertedAmount, to)}`;
+            conversionResultEl.classList.remove("hidden");
+            exchangeRateInfoEl.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+            exchangeRateInfoEl.classList.remove("hidden");
+        }
+
+        // Populate currency dropdowns
+        function populateCurrencySelectors() {
+            const currencies = getUserCurrencies();
+            fromCurrencySelect.innerHTML = '';
+            toCurrencySelect.innerHTML = '';
+            transactionCurrencyInput.innerHTML = '';
+            editTransactionCurrencyInput.innerHTML = '';
+
+            currencies.forEach(currency => {
+                const optionFrom = document.createElement('option');
+                optionFrom.value = currency;
+                optionFrom.textContent = currency;
+                fromCurrencySelect.appendChild(optionFrom);
+
+                const optionTo = document.createElement('option');
+                optionTo.value = currency;
+                optionTo.textContent = currency;
+                toCurrencySelect.appendChild(optionTo);
+
+                const optionTransaction = document.createElement('option');
+                optionTransaction.value = currency;
+                optionTransaction.textContent = currency;
+                transactionCurrencyInput.appendChild(optionTransaction);
+
+                const optionEditTransaction = document.createElement('option');
+                optionEditTransaction.value = currency;
+                optionEditTransaction.textContent = currency;
+                editTransactionCurrencyInput.appendChild(optionEditTransaction);
+            });
+            // Set default for currency converter
+            fromCurrencySelect.value = 'IDR';
+            toCurrencySelect.value = 'JPY'; // Default to JPY as requested by user
+
+            // Set default for transaction form
+            transactionCurrencyInput.value = 'IDR';
+        }
+
+
         // --- Section Management ---
 
         function showSection(sectionId) {
@@ -1644,6 +1836,7 @@
                 renderDashboard();
             } else if (sectionId === 'transactionsSection') {
                 renderCategoryOptions(transactionCategoryInput);
+                populateCurrencySelectors(); // Ensure currency selector is populated
                 currentPage = 1; // Reset pagination
                 renderTransactions();
             } else if (sectionId === 'budgetingSection') {
@@ -1657,6 +1850,7 @@
                 renderAnalysis();
             } else if (sectionId === 'settingsSection') {
                 renderManageCategories();
+                populateCurrencySelectors(); // Populate currency selectors on settings section load
             } else if (sectionId === 'helpSection') {
                 startChatbot();
             }
@@ -1669,10 +1863,11 @@
             const date = transactionDateInput.value;
             const description = transactionDescriptionInput.value.trim();
             const amount = parseFloat(transactionAmountInput.value);
+            const currency = transactionCurrencyInput.value; // Get currency
             const type = transactionTypeInput.value;
             const category = transactionCategoryInput.value;
 
-            if (!date || !description || isNaN(amount) || amount <= 0 || !category) {
+            if (!date || !description || isNaN(amount) || amount <= 0 || !category || !currency) {
                 showMessage(authMessage, 'Semua field harus diisi dengan benar.');
                 showNotification('Semua field harus diisi dengan benar.', 'error');
                 return;
@@ -1689,19 +1884,37 @@
                 });
 
                 if (activeBudgets.length > 0) {
+                    // Convert current transaction amount to base currency (IDR for budget check)
+                    let amountInBaseCurrency = amount;
+                    if (currency !== baseCurrency) {
+                        const rates = await getExchangeRates(currency);
+                        if (rates && rates[baseCurrency]) {
+                            amountInBaseCurrency = amount * rates[baseCurrency];
+                        } else {
+                            showNotification('Gagal mendapatkan nilai tukar untuk pengecekan anggaran. Lanjutkan tanpa pengecekan anggaran.', 'info', 5000);
+                        }
+                    }
+
                     const currentExpensesForCategory = getUserTransactions().filter(t =>
                         t.type === 'expense' &&
                         t.category === category &&
                         new Date(t.date) >= new Date(activeBudgets[0].startDate) &&
-                        new Date(t.date) <= new Date(activeBudgets[0].endDate)
-                    ).reduce((sum, t) => sum + t.amount, 0);
+                        new Date(t.date) <= new Date(activeBudbuds[0].endDate)
+                    ).reduce((sum, t) => {
+                        // Sum in base currency
+                        let txAmount = t.amount;
+                        if (t.currency && t.currency !== baseCurrency && exchangeRates[t.currency] && exchangeRates[t.currency][baseCurrency]) {
+                            txAmount = t.amount * exchangeRates[t.currency][baseCurrency];
+                        }
+                        return sum + txAmount;
+                    }, 0);
 
-                    const budgetLimit = activeBudgets[0].amount;
+                    const budgetLimit = activeBudgets[0].amount; // Budget is assumed to be in base currency
                     const remainingBudget = budgetLimit - currentExpensesForCategory;
 
-                    if (amount > remainingBudget) {
+                    if (amountInBaseCurrency > remainingBudget) {
                         const confirm = await new Promise(resolve => {
-                            showConfirmationModal(`Transaksi ini (${formatRupiah(amount)}) akan melebihi anggaran Anda untuk kategori '${category}' (Sisa anggaran: ${formatRupiah(remainingBudget)}). Lanjutkan?`, () => resolve(true), () => resolve(false));
+                            showConfirmationModal(`Transaksi ini (${formatCurrency(amount, currency)} yang setara dengan ${formatRupiah(amountInBaseCurrency)}) akan melebihi anggaran Anda untuk kategori '${category}' (Sisa anggaran: ${formatRupiah(remainingBudget)}). Lanjutkan?`, () => resolve(true), () => resolve(false));
                         });
                         if (!confirm) {
                             showNotification('Transaksi dibatalkan karena melebihi anggaran.', 'info');
@@ -1715,6 +1928,7 @@
                 date: date,
                 description: description,
                 amount: amount,
+                currency: currency, // Save currency
                 type: type,
                 category: category
             };
@@ -1726,6 +1940,7 @@
             transactionForm.reset(); // Clear form
             const today = new Date().toISOString().split('T')[0];
             transactionDateInput.value = today; // Reset date to today
+            transactionCurrencyInput.value = 'IDR'; // Reset currency to default
             // UI will update via Firestore listener (onSnapshot)
         }
 
@@ -1750,6 +1965,8 @@
                 editTransactionTypeInput.value = transactionToEdit.type;
                 renderCategoryOptions(editTransactionCategoryInput); // Populate categories for edit form
                 editTransactionCategoryInput.value = transactionToEdit.category;
+                populateCurrencySelectors(); // Populate currency for edit form
+                editTransactionCurrencyInput.value = transactionToEdit.currency || baseCurrency; // Set existing currency
 
                 showEditTransactionModal();
             }
@@ -1761,16 +1978,17 @@
             const date = editTransactionDateInput.value;
             const description = editTransactionDescriptionInput.value.trim();
             const amount = parseFloat(editTransactionAmountInput.value);
+            const currency = editTransactionCurrencyInput.value; // Get currency
             const type = editTransactionTypeInput.value;
             const category = editTransactionCategoryInput.value;
 
-            if (!date || !description || isNaN(amount) || amount <= 0 || !category) {
+            if (!date || !description || isNaN(amount) || amount <= 0 || !category || !currency) {
                 showMessage(authMessage, 'Semua field harus diisi dengan benar.');
                 showNotification('Semua field harus diisi dengan benar.', 'error');
                 return;
             }
 
-            const updatedTransaction = { date, description, amount, type, category };
+            const updatedTransaction = { date, description, amount, currency, type, category }; // Save currency
 
             await updateTransactionInFirestore(id, updatedTransaction);
 
@@ -1935,7 +2153,7 @@
             });
         }
 
-        function renderBudgets() {
+        async function renderBudgets() {
             const budgets = getUserBudgets();
             const transactions = getUserTransactions();
             budgetListEl.innerHTML = '';
@@ -1950,17 +2168,33 @@
 
             budgets.sort((a, b) => new Date(a.startDate) - new Date(b.startDate)); // Sort by start date
 
-            budgets.forEach(budget => {
+            // Fetch exchange rates for base currency (IDR) if not available
+            const rates = await getExchangeRates(baseCurrency);
+            if (!rates) {
+                showNotification('Gagal mendapatkan nilai tukar untuk tampilan anggaran. Anggaran akan ditampilkan tanpa konversi.', 'error', 5000);
+                return;
+            }
+
+            for (const budget of budgets) {
                 const budgetStart = new Date(budget.startDate);
                 const budgetEnd = new Date(budget.endDate);
                 budgetEnd.setHours(23, 59, 59, 999); // Normalize end date to end of day
 
-                const expensesForBudget = transactions.filter(t =>
-                    t.type === 'expense' &&
-                    t.category === budget.category &&
-                    new Date(t.date) >= budgetStart &&
-                    new Date(t.date) <= budgetEnd
-                ).reduce((sum, t) => sum + t.amount, 0);
+                let expensesForBudget = 0;
+                for (const t of transactions) {
+                    if (t.type === 'expense' && t.category === budget.category && new Date(t.date) >= budgetStart && new Date(t.date) <= budgetEnd) {
+                        let amountInBase = t.amount;
+                        if (t.currency && t.currency !== baseCurrency) {
+                            const transactionRates = await getExchangeRates(t.currency);
+                            if (transactionRates && transactionRates[baseCurrency]) {
+                                amountInBase = t.amount * transactionRates[baseCurrency];
+                            } else {
+                                console.warn(`Gagal mengonversi ${t.currency} ke ${baseCurrency} untuk transaksi ${t.id}. Menggunakan nilai asli.`);
+                            }
+                        }
+                        expensesForBudget += amountInBase;
+                    }
+                }
 
                 const remainingAmount = budget.amount - expensesForBudget;
                 const percentageUsed = (expensesForBudget / budget.amount) * 100;
@@ -2009,7 +2243,7 @@
                     <p class="text-xs text-gray-500 text-right mt-1">${percentageUsed.toFixed(2)}% Terpakai</p>
                 `;
                 budgetListEl.appendChild(budgetDiv);
-            });
+            }
         }
 
 
@@ -2087,10 +2321,14 @@
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
 
+                const currenciesDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'currencies'));
+                const currencies = currenciesDoc.exists() ? currenciesDoc.data().list : [];
+
                 const dataToExport = {
                     transactions,
                     categories,
-                    budgets
+                    budgets,
+                    currencies // Export currencies as well
                 };
 
                 const dataStr = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
@@ -2156,6 +2394,7 @@
                             date: t.date,
                             description: t.description,
                             amount: t.amount,
+                            currency: t.currency || baseCurrency, // Import currency, default to base if not present
                             type: t.type,
                             category: t.category
                         });
@@ -2170,6 +2409,12 @@
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'), {
                         list: importedData.budgets || []
                     });
+
+                    // Import currencies
+                    batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'currencies'), {
+                        list: importedData.currencies || ['IDR', 'JPY', 'USD', 'EUR', 'GBP']
+                    });
+
 
                     await batch.commit(); // Commit all batch operations
 
@@ -2197,17 +2442,35 @@
             let totalIncome = 0;
             let totalExpense = 0;
 
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                } else {
-                    totalExpense += t.amount;
+             // Fetch exchange rates for base currency (IDR) if not available
+            const rates = await getExchangeRates(baseCurrency);
+            if (!rates) {
+                showNotification('Gagal mendapatkan nilai tukar untuk ringkasan WhatsApp. Ringkasan mungkin tidak akurat.', 'error', 5000);
+                return;
+            }
+
+            for (const t of transactions) {
+                let amountInBase = t.amount;
+                // Convert to base currency if different
+                if (t.currency && t.currency !== baseCurrency) {
+                    const transactionRates = await getExchangeRates(t.currency);
+                    if (transactionRates && transactionRates[baseCurrency]) {
+                        amountInBase = t.amount * transactionRates[baseCurrency];
+                    } else {
+                        console.warn(`Gagal mengonversi ${t.currency} ke ${baseCurrency} untuk transaksi ${t.id}. Menggunakan nilai asli.`);
+                    }
                 }
-            });
+
+                if (t.type === 'income') {
+                    totalIncome += amountInBase;
+                } else {
+                    totalExpense += amountInBase;
+                }
+            }
 
             const currentBalance = totalIncome - totalExpense;
 
-            let message = `Ringkasan Keuangan Anda:\n`;
+            let message = `Ringkasan Keuangan Anda (dalam ${baseCurrency}):\n`;
             message += `Saldo Saat Ini: ${formatRupiah(currentBalance)}\n`;
             message += `Total Pemasukan: ${formatRupiah(totalIncome)}\n`;
             message += `Total Pengeluaran: ${formatRupiah(totalExpense)}\n\n`;
@@ -2217,7 +2480,7 @@
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 transactions.forEach(t => {
                     const typeLabel = t.type === 'income' ? 'Pemasukan' : 'Pengeluaran';
-                    message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatRupiah(t.amount)} | ${t.description}\n`;
+                    message += `- ${t.date} | ${typeLabel} | ${t.category} | ${formatCurrency(t.amount, t.currency || baseCurrency)} | ${t.description}\n`;
                 });
             } else {
                 message += `Belum ada transaksi tercatat.\n`;
@@ -2250,7 +2513,7 @@
                 return;
             }
 
-            const headers = ["ID", "Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
+            const headers = ["ID", "Tanggal", "Deskripsi", "Jumlah", "Mata Uang", "Tipe", "Kategori"]; // Add Currency header
             const csvRows = [];
             csvRows.push(headers.join(','));
 
@@ -2260,6 +2523,7 @@
                     t.date,
                     `"${t.description.replace(/"/g, '""')}"`, // Handle commas and quotes in description
                     t.amount,
+                    t.currency || baseCurrency, // Include currency
                     t.type,
                     `"${t.category.replace(/"/g, '""')}"`
                 ];
@@ -2279,7 +2543,7 @@
 
         // --- Render Functions ---
 
-        function renderDashboard() {
+        async function renderDashboard() {
             // Display current username/email
             if (currentFirebaseUser) {
                 dashboardUsernameEl.textContent = currentFirebaseUser.email;
@@ -2296,15 +2560,39 @@
             const expenseCategories = {};
             const incomeCategories = {};
 
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                    incomeCategories[t.category] = (incomeCategories[t.category] || 0) + t.amount;
-                } else {
-                    totalExpense += t.amount;
-                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
+            // Fetch exchange rates for base currency (IDR)
+            const rates = await getExchangeRates(baseCurrency);
+            if (!rates) {
+                showNotification('Gagal mendapatkan nilai tukar untuk dashboard. Saldo mungkin tidak akurat.', 'error', 5000);
+            }
+
+            for (const t of transactions) {
+                let amountInBase = t.amount;
+                // Convert to base currency if different
+                if (t.currency && t.currency !== baseCurrency && rates && rates[t.currency]) {
+                     // Check if direct conversion from t.currency to baseCurrency exists
+                    if (rates[t.currency][baseCurrency]) {
+                        amountInBase = t.amount * rates[t.currency][baseCurrency];
+                    } else {
+                        // If direct conversion is not available, convert to USD first then to baseCurrency
+                        const usdRates = await getExchangeRates('USD'); // Assuming USD is a common intermediary
+                        if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                            amountInBase = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                        } else {
+                             console.warn(`Gagal mengonversi ${t.currency} ke ${baseCurrency} untuk transaksi ${t.id}. Menggunakan nilai asli.`);
+                        }
+                    }
                 }
-            });
+
+                if (t.type === 'income') {
+                    totalIncome += amountInBase;
+                    expenseCategories[t.category] = (incomeCategories[t.category] || 0) + amountInBase; // Use amountInBase
+                } else {
+                    totalExpense += amountInBase;
+                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + amountInBase; // Use amountInBase
+                }
+            }
+
 
             const currentBalance = totalIncome - totalExpense;
 
@@ -2330,18 +2618,38 @@
             if (latest.length === 0) {
                 latestTransactionsEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi.</p>';
             } else {
-                latest.forEach(t => {
+                for (const t of latest) {
                     const transactionDiv = document.createElement('div');
                     transactionDiv.className = `flex items-center justify-between p-3 rounded-lg ${t.type === 'income' ? 'bg-green-50' : 'bg-red-50'}`;
+
+                    let formattedAmount = formatCurrency(t.amount, t.currency || baseCurrency);
+                    let amountInBaseCurrencyDisplay = '';
+
+                    // Convert to base currency for display if different
+                    if (t.currency && t.currency !== baseCurrency && rates) {
+                        let convertedVal = t.amount;
+                         if (rates[t.currency][baseCurrency]) {
+                            convertedVal = t.amount * rates[t.currency][baseCurrency];
+                        } else {
+                            const usdRates = await getExchangeRates('USD');
+                            if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                                convertedVal = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                            }
+                        }
+                        amountInBaseCurrencyDisplay = `<span class="text-xs text-gray-500 ml-2">(${formatRupiah(convertedVal)})</span>`;
+                    }
+
                     transactionDiv.innerHTML = `
                         <div>
                             <p class="font-medium">${t.description}</p>
                             <p class="text-xs text-gray-500">${t.date} - ${t.category}</p>
                         </div>
-                        <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</p>
+                        <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">
+                            ${formattedAmount} ${amountInBaseCurrencyDisplay}
+                        </p>
                     `;
                     latestTransactionsEl.appendChild(transactionDiv);
-                });
+                }
             }
         }
 
@@ -2390,7 +2698,7 @@
             });
         }
 
-        function renderTransactions() {
+        async function renderTransactions() {
             let transactions = getUserTransactions();
 
             // Apply search filter
@@ -2437,22 +2745,48 @@
             if (transactionsToDisplay.length === 0) {
                 allTransactionsListEl.innerHTML = '<p class="text-gray-500 text-center">Belum ada transaksi.</p>';
             } else {
-                transactionsToDisplay.forEach(t => {
+                // Fetch exchange rates for base currency once
+                const rates = await getExchangeRates(baseCurrency);
+                if (!rates) {
+                    showNotification('Gagal mendapatkan nilai tukar untuk daftar transaksi. Konversi mata uang tidak akan ditampilkan.', 'error', 5000);
+                }
+
+                for (const t of transactionsToDisplay) {
                     const transactionDiv = document.createElement('div');
                     transactionDiv.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border border-gray-200 bg-white`;
+
+                    let formattedAmount = formatCurrency(t.amount, t.currency || baseCurrency);
+                    let amountInBaseCurrencyDisplay = '';
+
+                    // Convert to base currency for display if different
+                    if (t.currency && t.currency !== baseCurrency && rates) {
+                        let convertedVal = t.amount;
+                        if (rates[t.currency][baseCurrency]) {
+                            convertedVal = t.amount * rates[t.currency][baseCurrency];
+                        } else {
+                            const usdRates = await getExchangeRates('USD');
+                            if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                                convertedVal = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                            }
+                        }
+                        amountInBaseCurrencyDisplay = `<span class="text-xs text-gray-500 ml-2">(${formatRupiah(convertedVal)})</span>`;
+                    }
+
                     transactionDiv.innerHTML = `
                         <div class="flex-grow mb-2 sm:mb-0">
                             <p class="font-medium">${t.description}</p>
                             <p class="text-sm text-gray-500">${t.date} - ${t.category}</p>
                         </div>
                         <div class="flex items-center gap-2">
-                            <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">${formatRupiah(t.amount)}</p>
+                            <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">
+                                ${formattedAmount} ${amountInBaseCurrencyDisplay}
+                            </p>
                             <button class="btn-secondary text-xs px-2 py-1" onclick="editTransaction('${t.id}')">Edit</button>
                             <button class="btn-danger text-xs px-2 py-1" onclick="deleteTransaction('${t.id}')">Hapus</button>
                         </div>
                     `;
                     allTransactionsListEl.appendChild(transactionDiv);
-                });
+                }
             }
         }
 
@@ -2497,11 +2831,17 @@
             });
         }
 
-        function renderReports() {
+        async function renderReports() {
             let transactions = getUserTransactions();
 
             const selectedMonth = reportMonthSelect.value;
             const selectedYear = reportYearSelect.value;
+
+            // Fetch exchange rates for base currency
+            const rates = await getExchangeRates(baseCurrency);
+            if (!rates) {
+                showNotification('Gagal mendapatkan nilai tukar untuk laporan. Laporan mungkin tidak akurat.', 'error', 5000);
+            }
 
             // Filter by month and year
             transactions = transactions.filter(t => {
@@ -2521,7 +2861,7 @@
             const incomeCategories = {};
             const monthlyData = {}; // For monthly summary chart
 
-            transactions.forEach(t => {
+            for (const t of transactions) {
                 const date = new Date(t.date);
                 const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 
@@ -2529,16 +2869,29 @@
                     monthlyData[monthYear] = { income: 0, expense: 0 };
                 }
 
-                if (t.type === 'income') {
-                    totalIncome += t.amount;
-                    incomeCategories[t.category] = (incomeCategories[t.category] || 0) + t.amount;
-                    monthlyData[monthYear].income += t.amount;
-                } else {
-                    totalExpense += t.amount;
-                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + t.amount;
-                    monthlyData[monthYear].expense += t.amount;
+                let amountInBase = t.amount;
+                if (t.currency && t.currency !== baseCurrency && rates) {
+                    if (rates[t.currency][baseCurrency]) {
+                        amountInBase = t.amount * rates[t.currency][baseCurrency];
+                    } else {
+                        const usdRates = await getExchangeRates('USD');
+                        if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                            amountInBase = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                        }
+                    }
                 }
-            });
+
+
+                if (t.type === 'income') {
+                    totalIncome += amountInBase;
+                    incomeCategories[t.category] = (incomeCategories[t.category] || 0) + amountInBase;
+                    monthlyData[monthYear].income += amountInBase;
+                } else {
+                    totalExpense += amountInBase;
+                    expenseCategories[t.category] = (expenseCategories[t.category] || 0) + amountInBase;
+                    monthlyData[monthYear].expense += amountInBase;
+                }
+            }
 
             const netBalance = totalIncome - totalExpense;
 
@@ -2579,6 +2932,7 @@
                             <th>Deskripsi</th>
                             <th>Tanggal</th>
                             <th>Jumlah</th>
+                            <th>Mata Uang</th>
                             <th>Tipe</th>
                             <th>Kategori</th>
                         </tr>
@@ -2592,7 +2946,8 @@
                     row.innerHTML = `
                         <td>${t.description}</td>
                         <td>${t.date}</td>
-                        <td class="${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</td>
+                        <td class="${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatCurrency(t.amount, t.currency || baseCurrency)}</td>
+                        <td>${t.currency || baseCurrency}</td>
                         <td>${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
                         <td>${t.category}</td>
                     `;
@@ -2768,7 +3123,7 @@
 
         // --- Analysis Functions ---
 
-        function renderAnalysis() {
+        async function renderAnalysis() {
             const transactions = getUserTransactions();
 
             if (transactions.length === 0) {
@@ -2790,13 +3145,19 @@
                 return;
             }
 
+            // Fetch exchange rates for base currency
+            const rates = await getExchangeRates(baseCurrency);
+            if (!rates) {
+                showNotification('Gagal mendapatkan nilai tukar untuk analisis. Analisis mungkin tidak akurat.', 'error', 5000);
+            }
+
             // 1. Calculate Monthly Financial Trends
-            const monthlyData = calculateMonthlyFinancialData(transactions);
+            const monthlyData = await calculateMonthlyFinancialData(transactions, rates);
             renderFinancialTrendsChart(monthlyData);
 
             // 2. Calculate Top Categories
-            const expenseCategories = calculateCategoryTotals(transactions, 'expense');
-            const incomeCategories = calculateCategoryTotals(transactions, 'income');
+            const expenseCategories = await calculateCategoryTotals(transactions, 'expense', rates);
+            const incomeCategories = await calculateCategoryTotals(transactions, 'income', rates);
 
             renderTopCategoriesChart(topExpenseCategoriesChartCanvas, expenseCategories, 'Pengeluaran', 'expense');
             renderTopCategoriesChart(topIncomeCategoriesChartCanvas, incomeCategories, 'Pemasukan', 'income');
@@ -2805,10 +3166,10 @@
             renderTopCategoriesSummary(topIncomeCategoriesSummary, incomeCategories, 'income');
         }
 
-        function calculateMonthlyFinancialData(transactions) {
+        async function calculateMonthlyFinancialData(transactions, rates) {
             const monthlySummary = {};
 
-            transactions.forEach(t => {
+            for (const t of transactions) {
                 const date = new Date(t.date);
                 const monthYear = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
 
@@ -2816,12 +3177,24 @@
                     monthlySummary[monthYear] = { income: 0, expense: 0, balance: 0 };
                 }
 
-                if (t.type === 'income') {
-                    monthlySummary[monthYear].income += t.amount;
-                } else {
-                    monthlySummary[monthYear].expense += t.amount;
+                let amountInBase = t.amount;
+                 if (t.currency && t.currency !== baseCurrency && rates) {
+                    if (rates[t.currency][baseCurrency]) {
+                        amountInBase = t.amount * rates[t.currency][baseCurrency];
+                    } else {
+                        const usdRates = await getExchangeRates('USD');
+                        if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                            amountInBase = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                        }
+                    }
                 }
-            });
+
+                if (t.type === 'income') {
+                    monthlySummary[monthYear].income += amountInBase;
+                } else {
+                    monthlySummary[monthYear].expense += amountInBase;
+                }
+            }
 
             // Calculate cumulative balance
             const sortedMonths = Object.keys(monthlySummary).sort();
@@ -2934,13 +3307,24 @@
             });
         }
 
-        function calculateCategoryTotals(transactions, type) {
+        async function calculateCategoryTotals(transactions, type, rates) {
             const categoryTotals = {};
-            transactions.forEach(t => {
+            for (const t of transactions) {
                 if (t.type === type) {
-                    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
+                    let amountInBase = t.amount;
+                    if (t.currency && t.currency !== baseCurrency && rates) {
+                        if (rates[t.currency][baseCurrency]) {
+                            amountInBase = t.amount * rates[t.currency][baseCurrency];
+                        } else {
+                            const usdRates = await getExchangeRates('USD');
+                            if (usdRates && usdRates[t.currency] && usdRates[baseCurrency]) {
+                                amountInBase = (t.amount / usdRates[t.currency]['USD']) * usdRates['USD'][baseCurrency];
+                            }
+                        }
+                    }
+                    categoryTotals[t.category] = (categoryTotals[t.category] || 0) + amountInBase;
                 }
-            });
+            }
             return categoryTotals;
         }
 
@@ -2948,10 +3332,10 @@
             let chartInstance;
             if (canvasElement === topExpenseCategoriesChartCanvas) {
                 if (topExpenseCategoriesChartInstance) topExpenseCategoriesChartInstance.destroy();
-                chartInstance = topExpenseCategoriesChartInstance;
+                topExpenseCategoriesChartInstance = chartInstance;
             } else if (canvasElement === topIncomeCategoriesChartCanvas) {
                 if (topIncomeCategoriesChartInstance) topIncomeCategoriesChartInstance.destroy();
-                chartInstance = incomeByCategoryChartInstance;
+                topIncomeCategoriesChartInstance = chartInstance;
             }
 
             const sortedCategories = Object.entries(categoryData)
@@ -3109,9 +3493,10 @@
                 await deleteTransactionsBatch.commit();
                 console.log("All transactions deleted.");
 
-                // 2. Delete metadata (categories, budgets)
+                // 2. Delete metadata (categories, budgets, currencies)
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'));
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
+                await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'currencies')); // Delete currencies as well
                 console.log("Metadata deleted.");
 
                 // 3. Delete the Firebase Authentication user
@@ -3234,7 +3619,7 @@
                 ]
             },
             "Bagaimana cara menambahkan transaksi baru?": {
-                answer: "Untuk menambahkan transaksi baru, pergi ke menu 'Transaksi', lalu pada formulir 'Tambah Transaksi Baru', isi Tanggal, Deskripsi, Jumlah, pilih Tipe (Pemasukan/Pengeluaran), dan pilih Kategori. Setelah lengkap, klik tombol 'Tambah Transaksi'."
+                answer: "Untuk menambahkan transaksi baru, pergi ke menu 'Transaksi', lalu pada formulir 'Tambah Transaksi Baru', isi Tanggal, Deskripsi, Jumlah, pilih Mata Uang, Tipe (Pemasukan/Pengeluaran), dan pilih Kategori. Setelah lengkap, klik tombol 'Tambah Transaksi'."
             },
             "Bagaimana cara melihat daftar semua transaksi?": {
                 answer: "Daftar semua transaksi Anda dapat dilihat di bagian 'Daftar Semua Transaksi' pada menu 'Transaksi'. Transaksi akan ditampilkan dalam format daftar yang bisa Anda kelola."
@@ -3243,7 +3628,7 @@
                 answer: "Di 'Daftar Semua Transaksi', Anda dapat menggunakan kolom 'Cari Deskripsi' untuk mencari berdasarkan teks, 'Filter Tipe' untuk memilih Pemasukan/Pengeluaran/Semua, 'Tanggal Mulai' dan 'Tanggal Akhir' untuk memfilter rentang waktu, serta 'Urutkan Berdasarkan' untuk mengurutkan data (Tanggal Terbaru/Terlama, Jumlah Terbesar/Terkecil)."
             },
             "Bagaimana cara mengedit transaksi yang sudah ada?": {
-                answer: "Untuk mengedit transaksi, temukan transaksi di 'Daftar Semua Transaksi', lalu klik tombol 'Edit' di samping transaksi tersebut. Sebuah modal akan muncul, Anda bisa mengubah detail transaksi dan klik 'Simpan Perubahan'."
+                answer: "Untuk mengedit transaksi, temukan transaksi di 'Daftar Semua Transaksi', lalu klik tombol 'Edit' di samping transaksi tersebut. Sebuah modal akan muncul, Anda bisa mengubah detail transaksi (termasuk mata uang) dan klik 'Simpan Perubahan'."
             },
             "Bagaimana cara menghapus transaksi?": {
                 answer: "Untuk menghapus transaksi, temukan transaksi di 'Daftar Semua Transaksi', lalu klik tombol 'Hapus' di samping transaksi tersebut. Anda akan diminta konfirmasi sebelum transaksi dihapus secara permanen."
@@ -3262,7 +3647,7 @@
                 ]
             },
             "Bagaimana cara menetapkan anggaran baru?": {
-                answer: "Di menu 'Rencana Anggaran', pada formulir 'Tetapkan Anggaran Baru', pilih Kategori, masukkan Jumlah Anggaran, dan tentukan Tanggal Mulai serta Tanggal Akhir periode anggaran. Klik 'Simpan Anggaran' untuk menyimpannya."
+                answer: "Di menu 'Rencana Anggaran', pada formulir 'Tetapkan Anggaran Baru', pilih Kategori, masukkan Jumlah Anggaran (dalam Rupiah), dan tentukan Tanggal Mulai serta Tanggal Akhir periode anggaran. Klik 'Simpan Anggaran' untuk menyimpannya."
             },
             "Bagaimana cara melihat anggaran yang sudah ada?": {
                 answer: "Daftar semua anggaran yang Anda tetapkan akan ditampilkan di bagian 'Daftar Anggaran Anda' pada menu 'Rencana Anggaran'. Anda bisa melihat detail setiap anggaran di sana."
@@ -3271,7 +3656,7 @@
                 answer: "Untuk menghapus anggaran, temukan anggaran di 'Daftar Anggaran Anda', lalu klik tombol 'Hapus' di samping anggaran tersebut. Anda akan diminta konfirmasi sebelum anggaran dihapus."
             },
             "Bagaimana peringatan anggaran bekerja?": {
-                answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jika jumlah transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
+                answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jumlah transaksi akan dikonversi ke Rupiah untuk dibandingkan dengan anggaran Anda. Jika transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
             },
             "Laporan Keuangan": {
                 answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
@@ -3283,13 +3668,13 @@
                 ]
             },
             "Bagaimana cara memfilter laporan?": {
-                answer: "Di menu 'Laporan', Anda bisa memfilter ringkasan laporan dan grafik berdasarkan 'Bulan' dan 'Tahun' tertentu, atau memilih 'Semua Bulan'/'Semua Tahun' untuk melihat data keseluruhan."
+                answer: "Di menu 'Laporan', Anda bisa memfilter ringkasan laporan dan grafik berdasarkan 'Bulan' dan 'Tahun' tertentu, atau memilih 'Semua Bulan'/'Semua Tahun' untuk melihat data keseluruhan. Semua nilai akan dikonversi ke Rupiah untuk laporan."
             },
             "Jenis grafik apa saja yang ada di laporan keuangan?": {
                 answer: "Laporan keuangan menampilkan 'Grafik Pemasukan dan Pengeluaran Bulanan' (grafik batang) serta 'Pengeluaran per Kategori' dan 'Pemasukan per Kategori' (grafik lingkaran) untuk visualisasi data Anda."
             },
             "Bagaimana cara melihat detail transaksi di laporan?": {
-                answer: "Di bagian bawah menu 'Laporan', terdapat 'Detail Transaksi' yang menampilkan daftar lengkap transaksi yang sesuai dengan filter bulan dan tahun yang Anda pilih di atas."
+                answer: "Di bagian bawah menu 'Laporan', terdapat 'Detail Transaksi' yang menampilkan daftar lengkap transaksi yang sesuai dengan filter bulan dan tahun yang Anda pilih di atas. Jumlah transaksi ditampilkan dalam mata uang aslinya."
             },
             "Analisis Keuangan": {
                 answer: "Bagian 'Analisis Keuangan' membantu Anda memahami tren dan pola pengeluaran/pemasukan Anda melalui grafik yang lebih mendalam.",
@@ -3300,13 +3685,13 @@
                 ]
             },
             "Apa itu Tren Keuangan Bulanan?": {
-                answer: "Grafik 'Tren Keuangan Bulanan' menunjukkan bagaimana pemasukan, pengeluaran, dan saldo kumulatif Anda berubah dari waktu ke waktu, memberikan gambaran tentang kesehatan finansial Anda."
+                answer: "Grafik 'Tren Keuangan Bulanan' menunjukkan bagaimana pemasukan, pengeluaran, dan saldo kumulatif Anda berubah dari waktu ke waktu, memberikan gambaran tentang kesehatan finansial Anda. Semua nilai dikonversi ke Rupiah."
             },
             "Apa itu 5 Kategori Pengeluaran/Pemasukan Teratas?": {
-                answer: "Grafik ini menampilkan 5 kategori pengeluaran atau pemasukan terbesar Anda berdasarkan jumlah uang, membantu Anda mengidentifikasi area di mana Anda paling banyak menghabiskan atau menerima uang."
+                answer: "Grafik ini menampilkan 5 kategori pengeluaran atau pemasukan terbesar Anda berdasarkan jumlah uang, membantu Anda mengidentifikasi area di mana Anda paling banyak menghabiskan atau menerima uang. Semua nilai dikonversi ke Rupiah."
             },
             "Pengaturan Akun": {
-                answer: "Menu 'Pengaturan' memungkinkan Anda untuk mengelola profil, kata sandi, kategori, serta melakukan backup dan ekspor data.",
+                answer: "Menu 'Pengaturan' memungkinkan Anda untuk mengelola profil, kata sandi, kategori, penukar mata uang, serta melakukan backup dan ekspor data.",
                 options: [
                     "Bagaimana cara mengubah kata sandi?",
                     "Bagaimana cara mengelola kategori?",
@@ -3314,7 +3699,8 @@
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
                     "Bagaimana cara menghapus akun saya?",
-                    "Mode Gelap" // New option for dark mode
+                    "Mode Gelap",
+                    "Penukar Mata Uang" // New option for currency converter
                 ]
             },
             "Bagaimana cara mengubah kata sandi?": {
@@ -3324,16 +3710,19 @@
                 answer: "Anda dapat membackup data Anda ke file JSON lokal melalui menu 'Pengaturan', pada bagian 'Backup & Pulihkan Data (Lokal)'. Klik 'Ekspor Semua Data' untuk mengunduh file JSON, atau 'Impor Semua Data' untuk mengunggah file JSON dan memulihkan data Anda."
             },
             "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?": {
-                answer: "Di menu 'Pengaturan', pada bagian 'Kirim Semua Transaksi ke WhatsApp', klik tombol 'Kirim Semua Transaksi ke WhatsApp'. Ini akan membuka aplikasi WhatsApp Anda dengan ringkasan keuangan dan detail transaksi yang sudah terisi, siap untuk Anda kirim."
+                answer: "Di menu 'Pengaturan', pada bagian 'Kirim Semua Transaksi ke WhatsApp', klik tombol 'Kirim Semua Transaksi ke WhatsApp'. Ini akan membuka aplikasi WhatsApp Anda dengan ringkasan keuangan dan detail transaksi yang sudah terisi, siap untuk Anda kirim. Ringkasan saldo akan dalam Rupiah."
             },
             "Bagaimana cara mengekspor transaksi ke CSV?": {
-                answer: "Di menu 'Pengaturan', pada bagian 'Ekspor Data Transaksi (CSV)', klik tombol 'Ekspor Transaksi ke CSV'. Semua transaksi Anda akan diunduh sebagai file CSV yang dapat dibuka di program spreadsheet seperti Excel."
+                answer: "Di menu 'Pengaturan', pada bagian 'Ekspor Data Transaksi (CSV)', klik tombol 'Ekspor Transaksi ke CSV'. Semua transaksi Anda akan diunduh sebagai file CSV yang dapat dibuka di program spreadsheet seperti Excel, termasuk informasi mata uang."
             },
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
             },
             "Mode Gelap": { // New chatbot response for dark mode
                 answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
+            },
+            "Penukar Mata Uang": {
+                answer: "Di bagian 'Penukar Mata Uang' pada menu 'Pengaturan', Anda dapat mengkonversi jumlah uang dari satu mata uang ke mata uang lain berdasarkan nilai tukar terkini. Cukup masukkan jumlah, pilih mata uang asal dan tujuan, lalu klik 'Konversi'."
             },
             "Verifikasi Email": { // New section for chatbot
                 answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
@@ -3490,14 +3879,15 @@
             yOffset += 7;
 
             if (reportData.transactions.length > 0) {
-                const tableColumn = ["Tanggal", "Deskripsi", "Jumlah", "Tipe", "Kategori"];
+                const tableColumn = ["Tanggal", "Deskripsi", "Jumlah", "Mata Uang", "Tipe", "Kategori"]; // Add Currency header
                 const tableRows = [];
 
                 reportData.transactions.forEach(t => {
                     const transactionData = [
                         t.date,
                         t.description,
-                        formatRupiah(t.amount),
+                        formatCurrency(t.amount, t.currency || baseCurrency), // Format with its original currency
+                        t.currency || baseCurrency,
                         t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
                         t.category
                     ];
@@ -3513,10 +3903,11 @@
                     styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
                     columnStyles: {
                         0: { cellWidth: 20 }, // Date
-                        1: { cellWidth: 50 }, // Description
-                        2: { cellWidth: 30 }, // Amount
-                        3: { cellWidth: 20 }, // Type
-                        4: { cellWidth: 30 }  // Category
+                        1: { cellWidth: 40 }, // Description
+                        2: { cellWidth: 25 }, // Amount
+                        3: { cellWidth: 20 }, // Currency
+                        4: { cellWidth: 20 }, // Type
+                        5: { cellWidth: 30 }  // Category
                     }
                 });
             } else {
@@ -3641,6 +4032,13 @@
 
         // Add Category Form Submission
         addCategoryForm.addEventListener('submit', addCategory);
+
+        // Currency Converter Form Submission
+        currencyConverterForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await convertCurrency();
+        });
+
 
         // Local Data Import/Export
         exportAllDataBtn.addEventListener('click', exportAllData);
