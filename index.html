@@ -15,109 +15,126 @@
         /* Custom CSS untuk font dan warna */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5; /* Warna latar belakang umum */
+            background-color: #F3F6F9; /* Warna latar belakang umum yang lebih cerah */
             color: #333;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
         .sidebar {
-            background-color: #2c3e50; /* Warna sidebar gelap */
+            background: linear-gradient(135deg, #007bff, #0056b3); /* Gradien biru yang lebih cerah */
             color: #ecf0f1; /* Warna teks sidebar */
-            width: 250px;
+            width: 280px; /* Lebar sidebar sedikit lebih besar */
             transform: translateX(-100%);
             transition: transform 0.3s ease-in-out, background-color 0.3s ease, color 0.3s ease;
             z-index: 20;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1); /* Shadow lebih menonjol */
         }
         .sidebar.open {
             transform: translateX(0);
         }
         .sidebar-item {
-            display: block;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem; /* rounded-md */
-            font-size: 0.875rem; /* text-sm */
+            display: flex; /* Menggunakan flexbox untuk ikon dan teks */
+            align-items: center;
+            padding: 0.85rem 1.25rem; /* Padding sedikit lebih besar */
+            border-radius: 0.75rem; /* rounded-lg */
+            font-size: 0.95rem; /* text-base */
             font-weight: 500; /* font-medium */
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s ease-in-out;
         }
         .sidebar-item:hover {
-            background-color: #34495e; /* Warna hover untuk item sidebar */
+            background-color: rgba(255, 255, 255, 0.15); /* Warna hover transparan */
+            transform: translateX(5px); /* Efek slide saat hover */
         }
         .sidebar-item.active {
-            background-color: #3b82f6; /* blue-500 */
+            background-color: rgba(255, 255, 255, 0.25); /* Latar belakang aktif lebih kontras */
             color: white;
             font-weight: 600; /* font-semibold */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* Shadow untuk item aktif */
+            transform: translateX(0); /* Pastikan tidak bergeser */
         }
         .header {
             background-color: #ffffff; /* Warna header putih */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05); /* Shadow lebih halus */
             z-index: 10;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            border-bottom-left-radius: 1.5rem; /* Rounded bottom corners */
+            border-bottom-right-radius: 1.5rem;
         }
         .main-content {
-            background-color: #f9f9f9; /* Warna latar belakang konten utama */
+            background-color: #F3F6F9; /* Warna latar belakang konten utama */
             transition: background-color 0.3s ease;
         }
         .card {
             background-color: #ffffff;
-            border-radius: 0.75rem; /* rounded-xl */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 1.25rem; /* rounded-2xl */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08); /* Shadow yang lebih dalam */
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e0e0e0; /* Border halus */
         }
         input[type="text"],
         input[type="password"],
         input[type="number"],
         input[type="date"],
         select {
-            border-color: #d1d5db; /* gray-300 */
+            border-color: #D1D8DF; /* Warna border yang lebih soft */
             border-width: 1px;
-            border-radius: 0.5rem; /* rounded-lg */
-            padding: 0.75rem 1rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 0.85rem 1.15rem;
             width: 100%;
             outline: none;
-            transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease, color 0.3s ease;
         }
         input[type="text"]:focus,
         input[type="password"]:focus,
         input[type="number"]:focus,
         input[type="date"]:focus,
         select:focus {
-            border-color: #3b82f6; /* blue-500 */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* blue-500 with opacity */
+            border-color: #007bff; /* Warna border fokus biru cerah */
+            box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.2); /* Shadow fokus yang lebih menyebar */
+            background-color: #f9f9f9;
         }
         .btn-primary {
-            background-color: #3b82f6; /* blue-500 */
+            background: linear-gradient(90deg, #007bff, #0056b3); /* Gradien biru untuk tombol utama */
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem; /* rounded-lg */
-            transition: background-color 0.2s;
+            padding: 0.85rem 1.75rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+            font-weight: 600;
         }
         .btn-primary:hover {
-            background-color: #2563eb; /* blue-600 */
+            background: linear-gradient(90deg, #0056b3, #003d80);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+            transform: translateY(-2px);
         }
         .btn-danger {
-            background-color: #ef4444; /* red-500 */
+            background-color: #EF4444; /* red-500 */
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.625rem; /* rounded-xl */
             transition: background-color 0.2s;
+            box-shadow: 0 2px 5px rgba(239, 68, 68, 0.2);
         }
         .btn-danger:hover {
-            background-color: #dc2626; /* red-600 */
+            background-color: #DC2626; /* red-600 */
+            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
         }
         .btn-secondary {
-            background-color: #6b7280; /* gray-500 */
+            background-color: #6B7280; /* gray-500 */
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.625rem; /* rounded-xl */
             transition: background-color 0.2s;
+            box-shadow: 0 2px 5px rgba(107, 114, 128, 0.2);
         }
         .btn-secondary:hover {
-            background-color: #4b5563; /* gray-600 */
+            background-color: #4B5563; /* gray-600 */
+            box-shadow: 0 4px 8px rgba(107, 114, 128, 0.3);
         }
         .text-income {
-            color: #22c55e; /* green-500 */
+            color: #22C55E; /* green-500 */
         }
         .text-expense {
-            color: #ef4444; /* red-500 */
+            color: #EF4444; /* red-500 */
         }
 
         /* Modal Styles */
@@ -127,7 +144,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6); /* Lebih gelap */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -135,9 +152,9 @@
         }
         .modal-content {
             background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem; /* Padding lebih besar */
+            border-radius: 1.25rem; /* rounded-2xl */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Shadow lebih dramatis */
             max-width: 90%;
             width: 500px;
             position: relative;
@@ -145,16 +162,20 @@
         }
         .modal-close-btn {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
+            top: 1.25rem;
+            right: 1.25rem;
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.8rem; /* Ukuran ikon close lebih besar */
             cursor: pointer;
-            color: #6b7280;
+            color: #6B7280;
+            transition: color 0.2s;
+        }
+        .modal-close-btn:hover {
+            color: #333;
         }
 
-        /* Chart Styles */
+        /* Chart Styles (Keep original Chart.js styling as it's functional) */
         .chart-bar-container {
             display: flex;
             align-items: flex-end;
@@ -164,6 +185,7 @@
             overflow: hidden;
             position: relative;
             transition: background-color 0.3s ease;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.05); /* Inner shadow for depth */
         }
         .chart-bar {
             width: 50%;
@@ -185,12 +207,12 @@
             font-size: 0.75rem; /* text-xs */
         }
         .chart-bar-income {
-            background-color: #22c55e; /* green-500 */
+            background-color: #22C55E; /* green-500 */
             border-top-left-radius: 0.5rem;
             border-top-right-radius: 0.5rem;
         }
         .chart-bar-expense {
-            background-color: #ef4444; /* red-500 */
+            background-color: #EF4444; /* red-500 */
             border-top-left-radius: 0.5rem;
             border-top-right-radius: 0.5rem;
         }
@@ -198,20 +220,38 @@
         /* Responsive table for reports */
         .responsive-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate; /* Use separate to allow border-radius on cells */
+            border-spacing: 0 8px; /* Space between rows */
         }
         .responsive-table th, .responsive-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+            padding: 1rem;
             text-align: left;
-            transition: border-color 0.3s ease;
-        }
-        .responsive-table th {
-            background-color: #f3f4f6; /* gray-100 */
-            font-weight: 600;
-            color: #4b5563;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+        .responsive-table th {
+            background-color: #E2E8F0; /* gray-200 for header */
+            font-weight: 600;
+            color: #4B5563;
+            border-bottom: none; /* No bottom border for th */
+        }
+        .responsive-table th:first-child { border-top-left-radius: 0.75rem; }
+        .responsive-table th:last-child { border-top-right-radius: 0.75rem; }
+
+        .responsive-table td {
+            background-color: #ffffff; /* White background for table cells */
+            border-bottom: 1px solid #F3F6F9; /* Lighter border between rows */
+        }
+        .responsive-table tr {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03); /* Subtle shadow for each row */
+            border-radius: 0.75rem; /* Rounded corners for rows */
+            overflow: hidden; /* Ensure rounded corners are applied */
+        }
+        .responsive-table tbody tr:last-child td {
+            border-bottom: none; /* No border for the last row's cells */
+        }
+        .responsive-table td:first-child { border-bottom-left-radius: 0.75rem; border-top-left-radius: 0.75rem;}
+        .responsive-table td:last-child { border-bottom-right-radius: 0.75rem; border-top-right-radius: 0.75rem;}
+
         @media (max-width: 767px) {
             .responsive-table, .responsive-table thead, .responsive-table tbody, .responsive-table th, .responsive-table td, .responsive-table tr {
                 display: block;
@@ -223,8 +263,8 @@
             }
             .responsive-table tr {
                 margin-bottom: 1rem;
-                border: 1px solid #e5e7eb;
-                border-radius: 0.5rem;
+                border: 1px solid #E2E8F0; /* Border for mobile rows */
+                border-radius: 0.75rem;
                 overflow: hidden;
             }
             .responsive-table td {
@@ -243,7 +283,7 @@
                 white-space: nowrap;
                 text-align: left;
                 font-weight: 600;
-                color: #4b5563;
+                color: #4B5563;
             }
             /* Label the data */
             .responsive-table td:nth-of-type(1):before { content: "Deskripsi"; }
@@ -259,7 +299,7 @@
                 transform: translateX(0); /* Sidebar always visible on desktop */
             }
             .content-wrapper {
-                margin-left: 250px; /* Make space for sidebar */
+                margin-left: 280px; /* Make space for sidebar */
             }
             .menu-button {
                 display: none; /* Hide menu button on desktop */
@@ -269,35 +309,36 @@
         /* Notification Styles */
         #notificationContainer {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.75rem; /* Jarak antar notifikasi */
             pointer-events: none; /* Allow clicks to pass through */
         }
         .notification {
             background-color: #333;
             color: white;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
             opacity: 0;
             transform: translateY(-20px);
             animation: fadeInOut 3s forwards;
-            min-width: 200px;
+            min-width: 250px;
             text-align: center;
             pointer-events: all; /* Re-enable pointer events for the notification itself */
+            font-weight: 500;
         }
         .notification.success {
-            background-color: #22c55e; /* green-500 */
+            background-color: #22C55E; /* green-500 */
         }
         .notification.error {
-            background-color: #ef4444; /* red-500 */
+            background-color: #EF4444; /* red-500 */
         }
         .notification.info {
-            background-color: #3b82f6; /* blue-500 */
+            background-color: #007bff; /* blue-500 */
         }
         @keyframes fadeInOut {
             0% { opacity: 0; transform: translateY(-20px); }
@@ -314,19 +355,19 @@
         #jsonOutput {
             width: 100%;
             height: 300px;
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border: 1px solid #E2E8F0;
             padding: 1rem;
             font-family: monospace;
             white-space: pre-wrap; /* Preserve whitespace and wrap text */
             word-wrap: break-word; /* Break long words */
             overflow-y: scroll;
             resize: vertical; /* Allow vertical resizing */
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         #copyJsonBtn {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             width: 100%;
         }
 
@@ -340,258 +381,309 @@
         }
         #chatDisplay {
             flex-grow: 1;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            padding: 1rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
             overflow-y: auto;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             background-color: #f9fafb;
             transition: background-color 0.3s ease, border-color 0.3s ease;
         }
         .chat-message {
             margin-bottom: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            max-width: 80%;
+            padding: 0.65rem 1rem;
+            border-radius: 0.75rem;
+            max-width: 85%;
+            line-height: 1.5;
         }
         .chat-message.user {
-            background-color: #dbeafe; /* blue-100 */
+            background-color: #e0efff; /* Light blue for user message */
             align-self: flex-end;
             margin-left: auto;
             text-align: right;
+            color: #0047b3;
         }
         .chat-message.bot {
-            background-color: #e2e8f0; /* gray-200 */
+            background-color: #EBF2F7; /* Light gray-blue for bot message */
             align-self: flex-start;
             margin-right: auto;
             text-align: left;
+            color: #333;
         }
         .chat-options button {
-            background-color: #e0f2fe; /* light blue */
-            color: #0369a1; /* dark blue */
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            margin: 0.25rem;
+            background-color: #007bff; /* Blue for chat options */
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            margin: 0.4rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
         }
         .chat-options button:hover {
-            background-color: #bae6fd; /* lighter blue */
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-1px);
         }
 
         /* Dark Mode Styles */
         body.dark-mode {
-            background-color: #1a202c; /* dark gray */
-            color: #e2e8f0; /* light gray */
+            background-color: #1A202C; /* dark gray */
+            color: #E2E8F0; /* light gray */
         }
         body.dark-mode .sidebar {
-            background-color: #2d3748; /* darker sidebar */
-            color: #edf2f7; /* lighter text */
+            background: linear-gradient(135deg, #1A202C, #2D3748); /* darker gradient */
+            color: #EDF2F7; /* lighter text */
         }
         body.dark-mode .sidebar-item:hover {
-            background-color: #4a5568; /* darker hover */
+            background-color: rgba(255, 255, 255, 0.1); /* darker hover */
         }
         body.dark-mode .sidebar-item.active {
-            background-color: #63b3ed; /* lighter blue for active */
-            color: #1a202c;
+            background-color: rgba(255, 255, 255, 0.18); /* lighter blue for active */
+            color: white;
         }
         body.dark-mode .header {
-            background-color: #2d3748;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            background-color: #2D3748;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
         body.dark-mode .main-content {
-            background-color: #1a202c;
+            background-color: #1A202C;
         }
         body.dark-mode .card {
-            background-color: #2d3748;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            background-color: #2D3748;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: #4A5568;
         }
         body.dark-mode input[type="text"],
         body.dark-mode input[type="password"],
         body.dark-mode input[type="number"],
         body.dark-mode input[type="date"],
         body.dark-mode select {
-            background-color: #4a5568;
-            border-color: #4a5568;
-            color: #e2e8f0;
+            background-color: #4A5568;
+            border-color: #4A5568;
+            color: #E2E8F0;
         }
         body.dark-mode input::placeholder {
-            color: #cbd5e0;
+            color: #CBD5E0;
         }
         body.dark-mode .btn-secondary {
-            background-color: #a0aec0;
-            color: #2d3748;
+            background-color: #A0AEC0;
+            color: #2D3748;
         }
         body.dark-mode .btn-secondary:hover {
-            background-color: #cbd5e0;
+            background-color: #CBD5E0;
         }
         body.dark-mode .text-gray-700 {
-            color: #cbd5e0;
+            color: #CBD5E0;
         }
         body.dark-mode .text-gray-600 {
-            color: #a0aec0;
+            color: #A0AEC0;
         }
         body.dark-mode .text-gray-500 {
             color: #718096;
         }
         body.dark-mode .text-blue-500 {
-            color: #63b3ed;
+            color: #63B3ED;
         }
         body.dark-mode .text-blue-600 {
-            color: #4299e1;
+            color: #4299E1;
         }
         body.dark-mode .text-red-600 {
-            color: #fc8181;
+            color: #FC8181;
         }
         body.dark-mode .modal-content {
-            background-color: #2d3748;
-            color: #e2e8f0;
+            background-color: #2D3748;
+            color: #E2E8F0;
             box-shadow: 0 10px 15px rgba(0,0,0,0.4);
         }
         body.dark-mode .modal-close-btn {
-            color: #a0aec0;
+            color: #A0AEC0;
         }
         body.dark-mode .chart-bar-container {
-            background-color: #4a5568;
+            background-color: #4A5568;
         }
         body.dark-mode .chart-bar span {
-            color: #e2e8f0;
+            color: #E2E8F0;
         }
         body.dark-mode .responsive-table th {
-            background-color: #4a5568;
-            color: #e2e8f0;
-            border-bottom-color: #2d3748;
+            background-color: #4A5568;
+            color: #E2E8F0;
+            border-bottom-color: #2D3748;
         }
         body.dark-mode .responsive-table td {
-            border-bottom-color: #2d3748;
+            background-color: #2D3748; /* Darker cell background */
+            border-bottom-color: #4A5568;
         }
         body.dark-mode .responsive-table tr {
-            border-color: #2d3748;
+            border-color: #4A5568;
         }
         body.dark-mode .responsive-table td:before {
-            color: #a0aec0;
+            color: #A0AEC0;
         }
         body.dark-mode .jsonDisplayModal #jsonOutput {
-            background-color: #4a5568;
-            border-color: #4a5568;
-            color: #e2e8f0;
+            background-color: #4A5568;
+            border-color: #4A5568;
+            color: #E2E8F0;
         }
         body.dark-mode #chatDisplay {
-            background-color: #4a5568;
-            border-color: #63b3ed;
-            color: #e2e8f0;
+            background-color: #4A5568;
+            border-color: #63B3ED;
+            color: #E2E8F0;
         }
         body.dark-mode .chat-message.user {
-            background-color: #4299e1;
+            background-color: #4299E1;
             color: white;
         }
         body.dark-mode .chat-message.bot {
-            background-color: #a0aec0;
-            color: #2d3748;
+            background-color: #A0AEC0;
+            color: #2D3748;
         }
         body.dark-mode .chat-options button {
-            background-color: #63b3ed;
-            color: #1a202c;
+            background-color: #63B3ED;
+            color: #1A202C;
         }
         body.dark-mode .chat-options button:hover {
-            background-color: #4299e1;
+            background-color: #4299E1;
         }
         body.dark-mode .text-income {
-            color: #68d391; /* lighter green for dark mode */
+            color: #68D391; /* lighter green for dark mode */
         }
         body.dark-mode .text-expense {
-            color: #fc8181; /* lighter red for dark mode */
+            color: #FC8181; /* lighter red for dark mode */
         }
         body.dark-mode .bg-green-50 {
-            background-color: #2d3748;
+            background-color: #2D3748; /* Adjust for dark mode background */
+            border-color: #4A5568;
         }
         body.dark-mode .bg-red-50 {
-            background-color: #2d3748;
+            background-color: #2D3748; /* Adjust for dark mode background */
+            border-color: #4A5568;
         }
         body.dark-mode .border-gray-200 {
-            border-color: #4a5568;
+            border-color: #4A5568;
         }
         body.dark-mode .bg-white {
-            background-color: #2d3748;
+            background-color: #2D3748;
+        }
+        body.dark-mode .toggle:checked {
+            background-color: #63B3ED; /* primary color for dark mode toggle */
+        }
+        body.dark-mode .toggle:checked:before {
+            background-color: #1A202C; /* thumb color for dark mode toggle */
+        }
+
+        /* Toggle switch styling */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+            background-color: #ccc;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        .toggle:before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .toggle:checked {
+            background-color: #007bff; /* Warna tombol aktif (biru) */
+        }
+
+        .toggle:checked:before {
+            transform: translateX(20px);
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
-    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-4 flex flex-col md:relative md:flex-shrink-0">
-       <div class="mb-4 text-center">
-  <img src="logo.jpeg" alt="Logo Aplikasi" class="mx-auto w-16 h-16 mb-2 rounded-full">
-  <div class="text-2xl font-bold">AdiWallet</div>
-</div>
-
-        <div class="flex flex-col items-center mb-8">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-gray-400 mb-2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
-            <p id="sidebarUsername" class="text-lg font-semibold text-white mt-2"></p>
+    <!-- Sidebar / Navigation -->
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-6 flex flex-col md:relative md:flex-shrink-0">
+       <div class="mb-8 text-center">
+            <img src="https://placehold.co/80x80/007bff/ffffff?text=AW" alt="Logo Aplikasi" class="mx-auto w-20 h-20 mb-3 rounded-full border-4 border-white shadow-lg">
+            <div class="text-3xl font-extrabold text-white">AdiWallet</div>
+            <p id="sidebarUsername" class="text-base font-semibold text-white opacity-80 mt-2">Pengguna</p>
         </div>
+
         <nav class="flex-grow">
-            <ul class="space-y-2">
-              <li id="dashboardSidebarItem"><a href="#" class="sidebar-item" data-section="dashboard"><i data-feather="home" class="inline-block w-4 h-4 mr-2"></i> Dashboard </a></li>
-              <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="inline-block w-4 h-4 mr-2"></i> Transaksi </a></li>
-              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-4 h-4 mr-2"></i> Rencana Anggaran </a></li> <!-- New Budgeting Item -->
-              <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-4 h-4 mr-2"></i> Laporan </a></li>
-              <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-4 h-4 mr-2"></i> Analisis Keuangan </a></li>
-              <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-4 h-4 mr-2"></i> Pengaturan </a></li>
-              <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-4 h-4 mr-2"></i> Bantuan </a></li>
+            <ul class="space-y-3">
+              <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard"><i data-feather="home" class="inline-block w-5 h-5 mr-3"></i> Dashboard </a></li>
+              <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="inline-block w-5 h-5 mr-3"></i> Transaksi </a></li>
+              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="credit-card" class="inline-block w-5 h-5 mr-3"></i> Rencana Anggaran </a></li>
+              <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="inline-block w-5 h-5 mr-3"></i> Laporan </a></li>
+              <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="inline-block w-5 h-5 mr-3"></i> Analisis Keuangan </a></li>
+              <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="inline-block w-5 h-5 mr-3"></i> Pengaturan </a></li>
+              <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="inline-block w-5 h-5 mr-3"></i> Bantuan </a></li>
             </ul>
         </nav>
-        <div class="mt-auto">
-            <button id="logoutBtn" class="w-full btn-primary text-sm font-medium py-2 px-4 rounded-md">Logout</button>
+        <div class="mt-auto pt-6">
+            <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg">Logout</button>
         </div>
     </aside>
 
+    <!-- Main Content Area -->
     <div class="flex-grow flex flex-col content-wrapper md:ml-0">
-        <header class="header p-4 flex items-center justify-between sticky top-0 md:hidden">
-            <button id="menuBtn" class="menu-button text-gray-600 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <!-- Header for Mobile -->
+        <header class="header p-5 flex items-center justify-between sticky top-0 md:hidden">
+            <button id="menuBtn" class="menu-button text-gray-600 focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition duration-200">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
-            <h1 class="text-xl font-semibold">Keuangan Pribadi</h1>
-            <div class="w-6 h-6"></div> </header>
+            <h1 class="text-2xl font-bold text-gray-800">Keuangan Pribadi</h1>
+            <div class="w-7 h-7"></div>
+        </header>
 
+        <!-- Main Content Area -->
         <main class="flex-grow p-4 md:p-8 overflow-y-auto">
+            <!-- Authentication Section -->
             <section id="authSection" class="flex items-center justify-center min-h-screen-minus-header">
                 <div class="card p-8 w-full max-w-md">
-                   <div class="flex flex-col items-center mb-6">
-  <img src="logo.jpeg" alt="Logo Aplikasi" class="w-20 h-20 mb-2 rounded-full">
-  <h2 class="text-2xl font-bold text-center" id="authTitle">Login</h2>
-</div>
-                    <form id="authForm" class="space-y-4">
+                   <div class="flex flex-col items-center mb-8">
+                        <img src="https://placehold.co/100x100/007bff/ffffff?text=AW" alt="Logo Aplikasi" class="w-24 h-24 mb-4 rounded-full border-4 border-blue-100 shadow-md">
+                        <h2 class="text-3xl font-extrabold text-gray-800 text-center" id="authTitle">Login</h2>
+                        <p class="text-gray-500 text-center mt-2">Kelola keuangan Anda dengan mudah.</p>
+                    </div>
+                    <form id="authForm" class="space-y-6">
                         <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" id="username" name="username" required class="block">
+                            <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="username" name="username" required class="block w-full" placeholder="Masukkan email Anda">
                         </div>
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                            <input type="password" id="password" name="password" required class="block">
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi</label>
+                            <input type="password" id="password" name="password" required class="block w-full" placeholder="Masukkan kata sandi Anda">
                         </div>
-                        <p id="authMessage" class="text-red-500 text-sm hidden"></p>
-                        <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold">Login</button>
+                        <p id="authMessage" class="text-red-500 text-sm hidden font-medium"></p>
+                        <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold text-lg py-3">Login</button>
                     </form>
-                    <p class="text-center text-sm mt-4">
-                        <a href="#" id="forgotPasswordLink" class="text-blue-500 hover:underline">Lupa Kata Sandi?</a> |
-                        Belum punya akun? <a href="#" id="toggleAuthMode" class="text-blue-500 hover:underline">Daftar di sini</a>
+                    <p class="text-center text-sm mt-6 text-gray-600">
+                        <a href="#" id="forgotPasswordLink" class="text-blue-600 hover:underline font-medium">Lupa Kata Sandi?</a>
+                        <span class="mx-2">|</span>
+                        Belum punya akun? <a href="#" id="toggleAuthMode" class="text-blue-600 hover:underline font-medium">Daftar di sini</a>
                     </p>
                 </div>
             </section>
 
+            <!-- Dashboard Section -->
             <section id="dashboardSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Dashboard</h2>
-                <div class="flex items-center gap-4 mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-gray-400">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Dashboard</h2>
+                <div class="flex items-center gap-4 mb-6 p-4 bg-white rounded-xl shadow-sm">
+                    <img src="https://placehold.co/48x48/6366f1/ffffff?text=JP" alt="User Avatar" class="w-12 h-12 rounded-full border-2 border-blue-300">
                     <p class="text-xl text-gray-700">Selamat datang, <span id="dashboardUsername" class="font-semibold text-blue-600"></span>!</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-6 text-center flex flex-col items-center">
                         <i data-feather="credit-card" class="w-10 h-10 text-blue-500 mb-2"></i>
                         <h3 class="text-lg font-medium text-gray-600">Saldo Saat Ini</h3>
-                        <p id="currentBalance" class="text-4xl font-bold mt-2">Rp 0</p>
+                        <p id="currentBalance" class="text-4xl font-bold mt-2 text-gray-800">Rp 0</p>
                     </div>
                     <div class="card p-6 text-center flex flex-col items-center">
                         <i data-feather="arrow-down-left" class="w-10 h-10 text-green-500 mb-2"></i>
@@ -607,12 +699,12 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="card p-6">
-                        <h3 class="text-2xl font-bold mb-4">Ringkasan Pemasukan & Pengeluaran</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Ringkasan Pemasukan & Pengeluaran</h3>
                         <div id="incomeExpenseChart" class="chart-bar-container">
                             </div>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-2xl font-bold mb-4">Pengeluaran Berdasarkan Kategori</h3>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">Pengeluaran Berdasarkan Kategori</h3>
                         <div id="expenseByCategorySummary" class="space-y-3">
                             <p class="text-gray-500 text-center">Belum ada pengeluaran berdasarkan kategori.</p>
                         </div>
@@ -620,55 +712,56 @@
                 </div>
 
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Transaksi Terbaru</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Transaksi Terbaru</h3>
                     <div id="latestTransactions" class="space-y-4">
                         <p class="text-gray-500 text-center">Belum ada transaksi.</p>
                     </div>
                 </div>
             </section>
 
+            <!-- Transactions Section -->
             <section id="transactionsSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Transaksi</h2>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Transaksi</h2>
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Tambah Transaksi Baru</h3>
-                    <form id="transactionForm" class="space-y-4">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Tambah Transaksi Baru</h3>
+                    <form id="transactionForm" class="space-y-5">
                         <div>
-                            <label for="transactionDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
+                            <label for="transactionDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
                             <input type="date" id="transactionDate" required class="block">
                         </div>
                         <div>
-                            <label for="transactionDescription" class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <label for="transactionDescription" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                             <input type="text" id="transactionDescription" placeholder="Contoh: Beli Kopi" required class="block">
                         </div>
                         <div>
-                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah (Rp)</label>
+                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
                             <input type="number" id="transactionAmount" placeholder="Contoh: 25000" required min="1" class="block">
                         </div>
                         <div>
-                            <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
+                            <label for="transactionType" class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
                             <select id="transactionType" required class="block">
                                 <option value="income">Pemasukan</option>
                                 <option value="expense">Pengeluaran</option>
                             </select>
                         </div>
                         <div>
-                            <label for="transactionCategory" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <label for="transactionCategory" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                             <select id="transactionCategory" required class="block">
                                 </select>
                         </div>
-                        <button type="submit" class="w-full btn-primary font-semibold">Tambah Transaksi</button>
+                        <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Tambah Transaksi</button>
                     </form>
                 </div>
 
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Daftar Semua Transaksi</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Daftar Semua Transaksi</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
                         <div class="col-span-full lg:col-span-1">
-                            <label for="transactionSearchInput" class="block text-sm font-medium text-gray-700 mb-1">Cari Deskripsi</label>
+                            <label for="transactionSearchInput" class="block text-sm font-medium text-gray-700 mb-2">Cari Deskripsi</label>
                             <input type="text" id="transactionSearchInput" placeholder="Cari transaksi..." class="block">
                         </div>
                         <div>
-                            <label for="filterType" class="block text-sm font-medium text-gray-700 mb-1">Filter Tipe</label>
+                            <label for="filterType" class="block text-sm font-medium text-gray-700 mb-2">Filter Tipe</label>
                             <select id="filterType" class="block">
                                 <option value="all">Semua</option>
                                 <option value="income">Pemasukan</option>
@@ -676,15 +769,15 @@
                             </select>
                         </div>
                         <div>
-                            <label for="filterStartDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                            <label for="filterStartDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
                             <input type="date" id="filterStartDate" class="block">
                         </div>
                         <div>
-                            <label for="filterEndDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
+                            <label for="filterEndDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
                             <input type="date" id="filterEndDate" class="block">
                         </div>
                         <div class="col-span-full sm:col-span-2 lg:col-span-1">
-                            <label for="sortBy" class="block text-sm font-medium text-gray-700 mb-1">Urutkan Berdasarkan</label>
+                            <label for="sortBy" class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
                             <select id="sortBy" class="block">
                                 <option value="dateDesc">Tanggal (Terbaru)</option>
                                 <option value="dateAsc">Tanggal (Terlama)</option>
@@ -697,57 +790,58 @@
                         <p class="text-gray-500 text-center">Belum ada transaksi.</p>
                     </div>
                     <div id="paginationControls" class="flex justify-center items-center gap-4 mt-6">
-                        <button id="prevPageBtn" class="btn-secondary px-4 py-2 rounded-md" disabled>Sebelumnya</button>
-                        <span id="pageInfo" class="text-gray-700">Halaman 1 dari 1</span>
-                        <button id="nextPageBtn" class="btn-secondary px-4 py-2 rounded-md" disabled>Berikutnya</button>
+                        <button id="prevPageBtn" class="btn-secondary px-5 py-2 rounded-xl" disabled>Sebelumnya</button>
+                        <span id="pageInfo" class="text-gray-700 font-medium">Halaman 1 dari 1</span>
+                        <button id="nextPageBtn" class="btn-secondary px-5 py-2 rounded-xl" disabled>Berikutnya</button>
                     </div>
                 </div>
             </section>
 
             <!-- New Budgeting Section -->
             <section id="budgetingSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Rencana Anggaran</h2>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Rencana Anggaran</h2>
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Tetapkan Anggaran Baru</h3>
-                    <form id="budgetForm" class="space-y-4">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Tetapkan Anggaran Baru</h3>
+                    <form id="budgetForm" class="space-y-5">
                         <div>
-                            <label for="budgetItemCategory" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                            <label for="budgetItemCategory" class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
                             <select id="budgetItemCategory" required class="block">
                                 <!-- Categories will be loaded here -->
                             </select>
                         </div>
                         <div>
-                            <label for="budgetAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggaran (Rp)</label>
+                            <label for="budgetAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Anggaran (Rp)</label>
                             <input type="number" id="budgetAmount" placeholder="Contoh: 500000" required min="1" class="block">
                         </div>
                         <div>
-                            <label for="budgetStartDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                            <label for="budgetStartDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
                             <input type="date" id="budgetStartDate" required class="block">
                         </div>
                         <div>
-                            <label for="budgetEndDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
+                            <label for="budgetEndDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Akhir</label>
                             <input type="date" id="budgetEndDate" required class="block">
                         </div>
-                        <button type="submit" class="w-full btn-primary font-semibold">Simpan Anggaran</button>
+                        <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Simpan Anggaran</button>
                     </form>
-                    <p id="budgetMessage" class="text-red-500 text-sm hidden mt-4"></p>
+                    <p id="budgetMessage" class="text-red-500 text-sm hidden mt-4 font-medium"></p>
                 </div>
 
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Daftar Anggaran Anda</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Daftar Anggaran Anda</h3>
                     <div id="budgetList" class="space-y-4">
                         <p class="text-gray-500 text-center">Belum ada anggaran yang ditetapkan.</p>
                     </div>
                 </div>
             </section>
 
+            <!-- Reports Section -->
             <section id="reportsSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Laporan Keuangan</h2>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Laporan Keuangan</h2>
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Ringkasan Laporan</h3>
-                    <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Ringkasan Laporan</h3>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-5">
                         <div class="flex-1">
-                            <label for="reportMonthSelect" class="block text-sm font-medium text-gray-700 mb-1">Bulan</label>
+                            <label for="reportMonthSelect" class="block text-sm font-medium text-gray-700 mb-2">Bulan</label>
                             <select id="reportMonthSelect" class="block">
                                 <option value="all">Semua Bulan</option>
                                 <option value="01">Januari</option>
@@ -765,62 +859,63 @@
                             </select>
                         </div>
                         <div class="flex-1">
-                            <label for="reportYearSelect" class="block text-sm font-medium text-gray-700 mb-1">Tahun</label>
+                            <label for="reportYearSelect" class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
                             <select id="reportYearSelect" class="block">
                                 </select>
                         </div>
                     </div>
-                    <div class="space-y-4">
-                        <p class="text-lg">Total Pemasukan: <span id="reportTotalIncome" class="font-semibold text-income">Rp 0</span></p>
-                        <p class="text-lg">Total Pengeluaran: <span id="reportTotalExpense" class="font-semibold text-expense">Rp 0</span></p>
-                        <p class="text-lg">Saldo Bersih: <span id="reportNetBalance" class="font-semibold">Rp 0</span></p>
+                    <div class="space-y-4 mb-6">
+                        <p class="text-lg text-gray-700">Total Pemasukan: <span id="reportTotalIncome" class="font-semibold text-income">Rp 0</span></p>
+                        <p class="text-lg text-gray-700">Total Pengeluaran: <span id="reportTotalExpense" class="font-semibold text-expense">Rp 0</span></p>
+                        <p class="text-lg text-gray-800">Saldo Bersih: <span id="reportNetBalance" class="font-bold">Rp 0</span></p>
                     </div>
 
-                    <h4 class="text-xl font-bold mt-8 mb-4">Grafik Pemasukan dan Pengeluaran Bulanan</h4>
-                    <div class="relative h-64">
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Grafik Pemasukan dan Pengeluaran Bulanan</h4>
+                    <div class="relative h-64 bg-gray-50 p-4 rounded-xl shadow-inner">
                         <canvas id="monthlySummaryChart"></canvas>
                     </div>
 
-                    <h4 class="text-xl font-bold mt-8 mb-4">Pengeluaran per Kategori (Grafik Lingkaran)</h4>
-                    <div class="relative h-64">
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Pengeluaran per Kategori (Grafik Lingkaran)</h4>
+                    <div class="relative h-64 bg-gray-50 p-4 rounded-xl shadow-inner">
                         <canvas id="expenseByCategoryChart"></canvas>
                     </div>
 
-                    <h4 class="text-xl font-bold mt-8 mb-4">Pemasukan per Kategori (Grafik Lingkaran)</h4>
-                    <div class="relative h-64">
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Pemasukan per Kategori (Grafik Lingkaran)</h4>
+                    <div class="relative h-64 bg-gray-50 p-4 rounded-xl shadow-inner">
                         <canvas id="incomeByCategoryChart"></canvas>
                     </div>
 
-                    <h4 class="text-xl font-bold mt-8 mb-4">Pengeluaran per Kategori</h4>
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Pengeluaran per Kategori</h4>
                     <div id="reportExpenseByCategory" class="space-y-3">
                         <p class="text-gray-500 text-center">Belum ada data pengeluaran per kategori.</p>
                     </div>
-                    <h4 class="text-xl font-bold mt-8 mb-4">Pemasukan per Kategori</h4>
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Pemasukan per Kategori</h4>
                     <div id="reportIncomeByCategory" class="space-y-3">
                         <p class="text-gray-500 text-center">Belum ada data pemasukan per kategori.</p>
                     </div>
-                    <h4 class="text-xl font-bold mt-8 mb-4">Detail Transaksi</h4>
+                    <h4 class="text-xl font-bold mt-8 mb-4 text-gray-800">Detail Transaksi</h4>
                     <div id="reportTransactionsList" class="overflow-x-auto">
                         <p class="text-gray-500 text-center">Belum ada transaksi untuk laporan.</p>
                     </div>
-                    <button id="generatePdfReportBtn" class="w-full btn-primary font-semibold mt-6">Generate Laporan PDF</button>
+                    <button id="generatePdfReportBtn" class="w-full btn-primary font-semibold mt-6 text-lg py-3">Generate Laporan PDF</button>
                 </div>
             </section>
 
+            <!-- Analysis Section -->
             <section id="analysisSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Analisis Keuangan</h2>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Analisis Keuangan</h2>
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Tren Keuangan Bulanan</h3>
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Tren Keuangan Bulanan</h3>
                     <p class="text-gray-700 mb-4">Lihat bagaimana pemasukan, pengeluaran, dan saldo Anda berkembang dari waktu ke waktu.</p>
-                    <div class="relative h-80">
+                    <div class="relative h-80 bg-gray-50 p-4 rounded-xl shadow-inner">
                         <canvas id="financialTrendsChart"></canvas>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="card p-6">
-                        <h3 class="text-2xl font-bold mb-4">5 Kategori Pengeluaran Teratas</h3>
-                        <div class="relative h-64">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">5 Kategori Pengeluaran Teratas</h3>
+                        <div class="relative h-64 bg-gray-50 p-4 rounded-xl shadow-inner">
                             <canvas id="topExpenseCategoriesChart"></canvas>
                         </div>
                         <div id="topExpenseCategoriesSummary" class="space-y-2 mt-4">
@@ -828,8 +923,8 @@
                         </div>
                     </div>
                     <div class="card p-6">
-                        <h3 class="text-2xl font-bold mb-4">5 Kategori Pemasukan Teratas</h3>
-                        <div class="relative h-64">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">5 Kategori Pemasukan Teratas</h3>
+                        <div class="relative h-64 bg-gray-50 p-4 rounded-xl shadow-inner">
                             <canvas id="topIncomeCategoriesChart"></canvas>
                         </div>
                         <div id="topIncomeCategoriesSummary" class="space-y-2 mt-4">
@@ -839,143 +934,144 @@
                 </div>
             </section>
 
+            <!-- Settings Section -->
             <section id="settingsSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Pengaturan</h2>
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Pengaturan</h2>
 
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Mode Tampilan</h3>
-                    <div class="flex items-center space-x-2">
-                        <label for="darkModeToggle" class="block text-sm font-medium text-gray-700">Mode Gelap</label>
-                        <input type="checkbox" id="darkModeToggle" class="toggle toggle-primary">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Mode Tampilan</h3>
+                    <div class="flex items-center space-x-3">
+                        <label for="darkModeToggle" class="block text-base font-medium text-gray-700">Mode Gelap</label>
+                        <input type="checkbox" id="darkModeToggle" class="toggle">
                     </div>
                 </div>
 
-
-<div class="card p-6 mt-8 mb-8">
-  <h3 class="text-2xl font-bold mb-4">Kalkulator Tabungan</h3>
-  <form id="savingsCalculatorForm" class="space-y-4">
-    <div>
-      <label for="targetAmount" class="block text-sm font-medium text-gray-700 mb-1">Target Tabungan (Rp)</label>
-      <input type="number" id="targetAmount" required placeholder="Contoh: 1000000">
-    </div>
-    <div>
-      <label for="savingAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Sekali Nabung (Rp)</label>
-      <input type="number" id="savingAmount" required placeholder="Contoh: 10000">
-    </div>
-    <div>
-      <label for="savingFrequency" class="block text-sm font-medium text-gray-700 mb-1">Frekuensi Menabung</label>
-      <select id="savingFrequency" required class="block">
-        <option value="daily">Harian</option>
-        <option value="monthly">Bulanan</option>
-        <option value="yearly">Tahunan</option>
-      </select>
-    </div>
-    <div class="flex gap-4">
-      <button type="submit" class="w-full btn-primary font-semibold">Hitung</button>
-      <button type="reset" class="w-full btn-secondary font-semibold">Reset</button>
-    </div>
-  </form>
-  <p id="savingsResult" class="text-center mt-4 text-lg font-semibold text-blue-600 hidden"></p>
-</div>
-
-                
+                <div class="card p-6 mt-8 mb-8">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Kalkulator Tabungan</h3>
+                    <form id="savingsCalculatorForm" class="space-y-5">
+                        <div>
+                            <label for="targetAmount" class="block text-sm font-medium text-gray-700 mb-2">Target Tabungan (Rp)</label>
+                            <input type="number" id="targetAmount" required placeholder="Contoh: 1000000">
+                        </div>
+                        <div>
+                            <label for="savingAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Sekali Nabung (Rp)</label>
+                            <input type="number" id="savingAmount" required placeholder="Contoh: 10000">
+                        </div>
+                        <div>
+                            <label for="savingFrequency" class="block text-sm font-medium text-gray-700 mb-2">Frekuensi Menabung</label>
+                            <select id="savingFrequency" required class="block">
+                                <option value="daily">Harian</option>
+                                <option value="monthly">Bulanan</option>
+                                <option value="yearly">Tahunan</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Hitung</button>
+                            <button type="reset" class="w-full btn-secondary font-semibold text-lg py-3">Reset</button>
+                        </div>
+                    </form>
+                    <p id="savingsResult" class="text-center mt-5 text-lg font-semibold text-blue-600 hidden"></p>
+                </div>
 
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
-                    <form id="changePasswordForm" class="space-y-4">
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Ubah Kata Sandi</h3>
+                    <form id="changePasswordForm" class="space-y-5">
                         <div>
-                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Saat Ini</label>
+                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi Saat Ini</label>
                             <input type="password" id="currentPassword" required class="block">
                         </div>
                         <div>
-                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Baru</label>
+                            <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi Baru</label>
                             <input type="password" id="newPassword" required class="block">
                         </div>
                         <div>
-                            <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi Baru</label>
+                            <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700 mb-2">Konfirmasi Kata Sandi Baru</label>
                             <input type="password" id="confirmNewPassword" required class="block">
                         </div>
-                        <p id="passwordMessage" class="text-red-500 text-sm hidden"></p>
-                        <button type="submit" class="w-full btn-primary font-semibold">Ubah Kata Sandi</button>
+                        <p id="passwordMessage" class="text-red-500 text-sm hidden font-medium"></p>
+                        <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Ubah Kata Sandi</button>
                     </form>
                 </div>
 
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Kelola Kategori</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Kelola Kategori</h3>
                     <form id="addCategoryForm" class="flex flex-col sm:flex-row gap-4 mb-4">
                         <input type="text" id="newCategoryName" placeholder="Nama Kategori Baru" required class="flex-grow">
-                        <button type="submit" class="btn-primary font-semibold">Tambah Kategori</button>
+                        <button type="submit" class="btn-primary font-semibold px-5 py-2.5">Tambah Kategori</button>
                     </form>
-                    <div id="categoryList" class="space-y-2">
+                    <div id="categoryList" class="space-y-3">
                         <p class="text-gray-500 text-center">Belum ada kategori.</p>
                     </div>
                 </div>
 
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Backup & Pulihkan Data (Lokal)</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Backup & Pulihkan Data (Lokal)</h3>
                     <p class="text-gray-700 mb-4">Ekspor semua data Anda ke file atau impor dari file yang sudah ada.</p>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <button id="exportAllDataBtn" class="w-full sm:w-1/2 btn-primary font-semibold">Ekspor Semua Data</button>
+                        <button id="exportAllDataBtn" class="w-full sm:w-1/2 btn-primary font-semibold text-lg py-3">Ekspor Semua Data</button>
                         <input type="file" id="importAllDataInput" accept=".json" class="hidden">
-                        <label for="importAllDataInput" class="w-full sm:w-1/2 btn-secondary cursor-pointer text-center font-semibold">Impor Semua Data</label>
+                        <label for="importAllDataInput" class="w-full sm:w-1/2 btn-secondary cursor-pointer text-center font-semibold text-lg py-3">Impor Semua Data</label>
                     </div>
                 </div>
 
                 <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4">Kirim Semua Transaksi ke WhatsApp</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Kirim Semua Transaksi ke WhatsApp</h3>
                     <p class="text-gray-700 mb-4">Klik tombol di bawah untuk mengirim semua detail transaksi Anda ke nomor WhatsApp yang ditentukan.</p>
-                    <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold">Kirim Semua Transaksi ke WhatsApp</button>
+                    <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold text-lg py-3">Kirim Semua Transaksi ke WhatsApp</button>
                 </div>
 
                 <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Ekspor Data Transaksi (CSV)</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-gray-800">Ekspor Data Transaksi (CSV)</h3>
                     <p class="text-gray-700 mb-4">Unduh semua transaksi Anda dalam format CSV.</p>
-                    <button id="exportDataBtn" class="btn-primary font-semibold">Ekspor Transaksi ke CSV</button>
+                    <button id="exportDataBtn" class="btn-primary font-semibold text-lg py-3">Ekspor Transaksi ke CSV</button>
                 </div>
 
                 <div class="card p-6 mt-8">
-                    <h3 class="text-2xl font-bold mb-4 text-red-600">Hapus Akun</h3>
+                    <h3 class="text-2xl font-bold mb-5 text-red-600">Hapus Akun</h3>
                     <p class="text-gray-700 mb-4">Menghapus akun Anda akan menghapus semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
-                    <button id="deleteAccountBtn" class="w-full btn-danger font-semibold">Hapus Akun Saya</button>
+                    <button id="deleteAccountBtn" class="w-full btn-danger font-semibold text-lg py-3">Hapus Akun Saya</button>
                 </div>
             </section>
 
+            <!-- Help Section (Chatbot) -->
             <section id="helpSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-6">Bantuan</h2>
-                <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4">Asisten Bantuan</h3>
-                    <div id="chatDisplay" class="flex flex-col">
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Bantuan</h2>
+                <div class="card p-6 h-[70vh] flex flex-col">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Asisten Bantuan</h3>
+                    <div id="chatDisplay" class="flex flex-col flex-grow mb-4">
                         <!-- Chat messages will be displayed here -->
-                        <div class="chat-message bot">Halo! Saya asisten bantuan Anda. Bagaimana saya bisa membantu?</div>
                     </div>
-                    <div id="chatOptions" class="flex flex-wrap justify-center gap-2">
+                    <div id="chatOptions" class="flex flex-wrap justify-center gap-3 mt-auto">
                         <!-- Chat options will be dynamically generated here -->
                     </div>
                 </div>
             </section>
             </main>
 
-        <footer class="bg-gray-800 text-white text-center p-4 text-sm mt-auto">
+        <!-- Footer -->
+        <footer class="bg-gray-900 text-white text-center p-4 text-sm mt-auto shadow-inner-up">
             &copy; 2025 by Adi Sudrajat. All rights reserved.
         </footer>
     </div>
 
+    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="hideConfirmationModal()">&times;</button>
-            <h3 class="text-xl font-bold mb-4" id="confirmationModalTitle">Konfirmasi</h3>
-            <p id="confirmationModalMessage" class="mb-6">Apakah Anda yakin?</p>
+            <h3 class="text-xl font-bold mb-4 text-gray-800" id="confirmationModalTitle">Konfirmasi</h3>
+            <p id="confirmationModalMessage" class="mb-6 text-gray-700">Apakah Anda yakin?</p>
             <div class="flex justify-end gap-4">
-                <button id="confirmNoBtn" class="btn-secondary">Tidak</button>
-                <button id="confirmYesBtn" class="btn-danger">Ya</button>
+                <button id="confirmNoBtn" class="btn-secondary px-5 py-2.5">Tidak</button>
+                <button id="confirmYesBtn" class="btn-danger px-5 py-2.5">Ya</button>
             </div>
         </div>
     </div>
 
+    <!-- Edit Transaction Modal -->
     <div id="editTransactionModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="hideEditTransactionModal()">&times;</button>
-            <h3 class="text-xl font-bold mb-4">Edit Transaksi</h3>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Edit Transaksi</h3>
             <form id="editTransactionForm" class="space-y-4">
                 <input type="hidden" id="editTransactionId">
                 <div>
@@ -1002,37 +1098,39 @@
                     <select id="editTransactionCategory" required class="block">
                         </select>
                 </div>
-                <button type="submit" class="w-full btn-primary font-semibold">Simpan Perubahan</button>
+                <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Simpan Perubahan</button>
             </form>
         </div>
     </div>
 
+    <!-- JSON Display Modal -->
     <div id="jsonDisplayModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="hideJsonDisplayModal()">&times;</button>
-            <h3 class="text-xl font-bold mb-4">Ekspor Data JSON</h3>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Ekspor Data JSON</h3>
             <p class="text-gray-700 mb-4">Salin teks di bawah ini dan tempelkan ke editor teks di perangkat Anda, lalu simpan sebagai file `.json`.</p>
             <textarea id="jsonOutput" readonly></textarea>
-            <button id="copyJsonBtn" class="btn-primary font-semibold">Salin ke Clipboard</button>
+            <button id="copyJsonBtn" class="btn-primary font-semibold text-lg py-3">Salin ke Clipboard</button>
         </div>
     </div>
 
-    <!-- New Forgot Password Modal -->
+    <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal-overlay hidden">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="hideForgotPasswordModal()">&times;</button>
-            <h3 class="text-xl font-bold mb-4">Lupa Kata Sandi</h3>
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Lupa Kata Sandi</h3>
             <form id="forgotPasswordForm" class="space-y-4">
                 <div>
                     <label for="forgotPasswordEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input type="email" id="forgotPasswordEmail" placeholder="Masukkan email Anda" required class="block">
                 </div>
-                <p id="forgotPasswordMessage" class="text-red-500 text-sm hidden"></p>
-                <button type="submit" class="w-full btn-primary font-semibold">Kirim Link Reset Kata Sandi</button>
+                <p id="forgotPasswordMessage" class="text-red-500 text-sm hidden font-medium"></p>
+                <button type="submit" class="w-full btn-primary font-semibold text-lg py-3">Kirim Link Reset Kata Sandi</button>
             </form>
         </div>
     </div>
 
+    <!-- Notification Container -->
     <div id="notificationContainer"></div>
 
     <script type="module">
@@ -1864,10 +1962,10 @@
             } else {
                 categories.forEach(cat => {
                     const categoryDiv = document.createElement('div');
-                    categoryDiv.className = 'flex items-center justify-between p-2 rounded-md bg-gray-50 border border-gray-200';
+                    categoryDiv.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-200 shadow-sm';
                     categoryDiv.innerHTML = `
-                        <span class="font-medium">${cat}</span>
-                        <button class="btn-danger text-xs px-2 py-1" onclick="deleteCategory('${cat}')">Hapus</button>
+                        <span class="font-medium text-gray-700">${cat}</span>
+                        <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteCategory('${cat}')">Hapus</button>
                     `;
                     categoryListEl.appendChild(categoryDiv);
                 });
@@ -1992,19 +2090,19 @@
                 }
 
                 const budgetDiv = document.createElement('div');
-                budgetDiv.className = 'card p-4 mb-4';
+                budgetDiv.className = 'card p-5 mb-4';
                 budgetDiv.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
-                        <h4 class="text-xl font-semibold">${budget.category}</h4>
-                        <button class="btn-danger text-xs px-2 py-1" onclick="deleteBudget(${budget.id})">Hapus</button>
+                        <h4 class="text-xl font-semibold text-gray-800">${budget.category}</h4>
+                        <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteBudget(${budget.id})">Hapus</button>
                     </div>
-                    <p class="text-gray-700">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
-                    <p class="text-lg font-medium">Anggaran: ${formatRupiah(budget.amount)}</p>
+                    <p class="text-gray-700 text-sm mb-1">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
+                    <p class="text-lg font-medium text-gray-800">Anggaran: ${formatRupiah(budget.amount)}</p>
                     <p class="text-lg font-medium">Terpakai: <span class="text-expense">${formatRupiah(expensesForBudget)}</span></p>
                     <p class="text-lg font-medium">Sisa: <span class="${remainingAmount <= 0 ? 'text-red-500' : 'text-green-500'}">${formatRupiah(remainingAmount)}</span></p>
-                    <p class="text-sm mt-1 ${statusColor}">Status: ${statusText}</p>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                        <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${Math.min(100, percentageUsed)}%;"></div>
+                    <p class="text-sm mt-2 ${statusColor}">Status: ${statusText}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
+                        <div class="${progressBarColor} h-3 rounded-full" style="width: ${Math.min(100, percentageUsed)}%;"></div>
                     </div>
                     <p class="text-xs text-gray-500 text-right mt-1">${percentageUsed.toFixed(2)}% Terpakai</p>
                 `;
@@ -2332,13 +2430,13 @@
             } else {
                 latest.forEach(t => {
                     const transactionDiv = document.createElement('div');
-                    transactionDiv.className = `flex items-center justify-between p-3 rounded-lg ${t.type === 'income' ? 'bg-green-50' : 'bg-red-50'}`;
+                    transactionDiv.className = `flex items-center justify-between p-4 rounded-xl ${t.type === 'income' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'} shadow-sm`;
                     transactionDiv.innerHTML = `
                         <div>
-                            <p class="font-medium">${t.description}</p>
+                            <p class="font-medium text-gray-800">${t.description}</p>
                             <p class="text-xs text-gray-500">${t.date} - ${t.category}</p>
                         </div>
-                        <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</p>
+                        <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} text-lg">${formatRupiah(t.amount)}</p>
                     `;
                     latestTransactionsEl.appendChild(transactionDiv);
                 });
@@ -2381,9 +2479,9 @@
 
             sortedCategories.forEach(([category, amount]) => {
                 const div = document.createElement('div');
-                div.className = 'flex justify-between items-center text-sm';
+                div.className = 'flex justify-between items-center text-sm p-2 rounded-lg bg-gray-50 border border-gray-200 shadow-sm';
                 div.innerHTML = `
-                    <span>${category}</span>
+                    <span class="text-gray-700">${category}</span>
                     <span class="font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(amount)}</span>
                 `;
                 element.appendChild(div);
@@ -2439,16 +2537,16 @@
             } else {
                 transactionsToDisplay.forEach(t => {
                     const transactionDiv = document.createElement('div');
-                    transactionDiv.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg border border-gray-200 bg-white`;
+                    transactionDiv.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-gray-200 bg-white shadow-sm`;
                     transactionDiv.innerHTML = `
                         <div class="flex-grow mb-2 sm:mb-0">
-                            <p class="font-medium">${t.description}</p>
+                            <p class="font-medium text-gray-800">${t.description}</p>
                             <p class="text-sm text-gray-500">${t.date} - ${t.category}</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} mr-2">${formatRupiah(t.amount)}</p>
-                            <button class="btn-secondary text-xs px-2 py-1" onclick="editTransaction('${t.id}')">Edit</button>
-                            <button class="btn-danger text-xs px-2 py-1" onclick="deleteTransaction('${t.id}')">Hapus</button>
+                        <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                            <p class="font-semibold ${t.type === 'income' ? 'text-income' : 'text-expense'} text-lg mr-2">${formatRupiah(t.amount)}</p>
+                            <button class="btn-secondary text-xs px-3 py-1.5" onclick="editTransaction('${t.id}')">Edit</button>
+                            <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteTransaction('${t.id}')">Hapus</button>
                         </div>
                     `;
                     allTransactionsListEl.appendChild(transactionDiv);
@@ -2592,7 +2690,7 @@
                     row.innerHTML = `
                         <td>${t.description}</td>
                         <td>${t.date}</td>
-                        <td class="${t.type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(t.amount)}</td>
+                        <td class="${t.type === 'income' ? 'text-income' : 'text-expense'} font-medium">${formatRupiah(t.amount)}</td>
                         <td>${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
                         <td>${t.category}</td>
                     `;
@@ -2620,16 +2718,18 @@
                         {
                             label: 'Pemasukan Bulanan',
                             data: incomeData,
-                            backgroundColor: 'rgba(34, 197, 94, 0.6)', // green-500
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)', /* green-500 */
                             borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 6 /* Rounded bars */
                         },
                         {
                             label: 'Pengeluaran Bulanan',
                             data: expenseData,
-                            backgroundColor: 'rgba(239, 68, 68, 0.6)', // red-500
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)', /* red-500 */
                             borderColor: 'rgba(239, 68, 68, 1)',
-                            borderWidth: 1
+                            borderWidth: 1,
+                            borderRadius: 6 /* Rounded bars */
                         }
                     ]
                 },
@@ -2646,6 +2746,9 @@
                             },
                             ticks: {
                                 color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
+                            },
+                            grid: {
+                                display: false /* Hide x-axis grid lines */
                             }
                         },
                         y: {
@@ -2854,26 +2957,26 @@
                         {
                             label: 'Pemasukan Bulanan',
                             data: incomeData,
-                            borderColor: 'rgba(34, 197, 94, 1)', // green-500
+                            borderColor: 'rgba(34, 197, 94, 1)', /* green-500 */
                             backgroundColor: 'rgba(34, 197, 94, 0.2)',
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4 /* Smooth lines */
                         },
                         {
                             label: 'Pengeluaran Bulanan',
                             data: expenseData,
-                            borderColor: 'rgba(239, 68, 68, 1)', // red-500
+                            borderColor: 'rgba(239, 68, 68, 1)', /* red-500 */
                             backgroundColor: 'rgba(239, 68, 68, 0.2)',
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4 /* Smooth lines */
                         },
                         {
                             label: 'Saldo Kumulatif',
                             data: balanceData,
-                            borderColor: 'rgba(59, 130, 246, 1)', // blue-500
-                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: 'rgba(0, 123, 255, 1)', /* blue-500 */
+                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4 /* Smooth lines */
                         }
                     ]
                 },
@@ -2889,6 +2992,9 @@
                             },
                             ticks: {
                                 color: document.body.classList.contains('dark-mode') ? '#a0aec0' : '#333'
+                            },
+                            grid: {
+                                display: false /* Hide x-axis grid lines */
                             }
                         },
                         y: {
@@ -2980,7 +3086,8 @@
                         data: data,
                         backgroundColor: backgroundColors,
                         borderColor: borderColors,
-                        borderWidth: 1
+                        borderWidth: 1,
+                        borderRadius: 6 /* Rounded bars */
                     }]
                 },
                 options: {
@@ -3060,9 +3167,9 @@
 
             sortedCategories.forEach(([category, amount]) => {
                 const div = document.createElement('div');
-                div.className = 'flex justify-between items-center text-sm';
+                div.className = 'flex justify-between items-center text-sm p-2 rounded-lg bg-gray-50 border border-gray-200 shadow-sm';
                 div.innerHTML = `
-                    <span>${category}</span>
+                    <span class="text-gray-700">${category}</span>
                     <span class="font-semibold ${type === 'income' ? 'text-income' : 'text-expense'}">${formatRupiah(amount)}</span>
                 `;
                 element.appendChild(div);
@@ -3509,8 +3616,10 @@
                     body: tableRows,
                     startY: yOffset,
                     theme: 'striped',
-                    headStyles: { fillColor: [44, 62, 80] }, // Dark sidebar color for header
-                    styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
+                    headStyles: { fillColor: [0, 123, 255] }, /* Blue header */
+                    styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak', textColor: [51, 51, 51] }, /* Darker text */
+                    bodyStyles: { fillColor: [255, 255, 255] }, /* White body */
+                    alternateRowStyles: { fillColor: [248, 248, 248] }, /* Light gray alternate rows */
                     columnStyles: {
                         0: { cellWidth: 20 }, // Date
                         1: { cellWidth: 50 }, // Description
@@ -3708,7 +3817,7 @@
         window.deleteBudget = deleteBudget; // Expose for budget deletion
         window.hideForgotPasswordModal = hideForgotPasswordModal; // Expose for modal close button
 
-        // Cegah pinch zoom
+        // Prevent pinch zoom
         document.addEventListener('gesturestart', function (e) {
             e.preventDefault();
         });
@@ -3721,7 +3830,7 @@
             e.preventDefault();
         });
 
-        // Cegah double-tap zoom
+        // Prevent double-tap zoom
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function (event) {
             const now = (new Date()).getTime();
