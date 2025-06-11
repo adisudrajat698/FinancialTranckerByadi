@@ -363,6 +363,13 @@
             .responsive-table td:nth-of-type(3):before { content: "Jumlah"; }
             .responsive-table td:nth-of-type(4):before { content: "Tipe"; }
             .responsive-table td:nth-of-type(5):before { content: "Kategori"; }
+             /* Labels for Debt Table */
+            .responsive-table.debt-table td:nth-of-type(1):before { content: "Tipe"; }
+            .responsive-table.debt-table td:nth-of-type(2):before { content: "Pihak"; }
+            .responsive-table.debt-table td:nth-of-type(3):before { content: "Jumlah"; }
+            .responsive-table.debt-table td:nth-of-type(4):before { content: "Jatuh Tempo"; }
+            .responsive-table.debt-table td:nth-of-type(5):before { content: "Status"; }
+            .responsive-table.debt-table td:nth-of-type(6):before { content: "Deskripsi"; }
         }
 
         /* Responsiveness */
@@ -748,6 +755,7 @@
               <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard"><i data-feather="home" class="feather-icon"></i> Dashboard </a></li>
               <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
               <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="dollar-sign" class="feather-icon"></i> Rencana Anggaran </a></li>
+              <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Manajemen Utang Piutang </a></li>
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="feather-icon"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="feather-icon"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="feather-icon"></i> Pengaturan </a></li>
@@ -961,6 +969,83 @@
                     <h3 class="text-2xl font-bold mb-6 text-gray-800">Daftar Anggaran Anda</h3>
                     <div id="budgetList" class="space-y-5">
                         <p class="text-gray-500 text-center text-base">Belum ada anggaran yang ditetapkan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Debt Management Section (NEW) -->
+            <section id="debtManagementSection" class="hidden">
+                <h2 class="text-3xl font-bold mb-8 text-gray-800">Manajemen Utang Piutang</h2>
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800">Tambah Utang/Piutang Baru</h3>
+                    <form id="debtForm" class="space-y-6">
+                        <div>
+                            <label for="debtType" class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
+                            <select id="debtType" required class="block">
+                                <option value="utang">Utang (Saya berutang)</option>
+                                <option value="piutang">Piutang (Orang berutang kepada saya)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="debtPerson" class="block text-sm font-medium text-gray-700 mb-2">Nama Pihak (Orang/Perusahaan)</label>
+                            <input type="text" id="debtPerson" placeholder="Contoh: Budi, Bank ABC" required class="block">
+                        </div>
+                        <div>
+                            <label for="debtDescription" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                            <input type="text" id="debtDescription" placeholder="Contoh: Pinjam uang makan siang" required class="block">
+                        </div>
+                        <div>
+                            <label for="debtAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
+                            <input type="number" id="debtAmount" placeholder="Contoh: 50000" required min="1" class="block">
+                        </div>
+                        <div>
+                            <label for="debtDueDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Jatuh Tempo</label>
+                            <input type="date" id="debtDueDate" required class="block">
+                        </div>
+                        <div>
+                            <label for="debtStatus" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="debtStatus" required class="block">
+                                <option value="pending">Tertunda</option>
+                                <option value="paid">Lunas</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="plus-circle" class="feather-icon"></i> Tambah Utang/Piutang</button>
+                    </form>
+                    <p id="debtMessage" class="text-red-500 text-sm hidden mt-4 font-medium text-center"></p>
+                </div>
+
+                <div class="card p-6">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800">Daftar Utang & Piutang</h3>
+                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+                        <div>
+                            <label for="filterDebtType" class="block text-sm font-medium text-gray-700 mb-2">Filter Tipe</label>
+                            <select id="filterDebtType" class="block">
+                                <option value="all">Semua</option>
+                                <option value="utang">Utang</option>
+                                <option value="piutang">Piutang</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="filterDebtStatus" class="block text-sm font-medium text-gray-700 mb-2">Filter Status</label>
+                            <select id="filterDebtStatus" class="block">
+                                <option value="all">Semua</option>
+                                <option value="pending">Tertunda</option>
+                                <option value="paid">Lunas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="sortDebtBy" class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
+                            <select id="sortDebtBy" class="block">
+                                <option value="dueDateAsc">Jatuh Tempo (Terdekat)</option>
+                                <option value="dueDateDesc">Jatuh Tempo (Terjauh)</option>
+                                <option value="amountDesc">Jumlah (Terbesar)</option>
+                                <option value="amountAsc">Jumlah (Terkecil)</option>
+                                <option value="personAsc">Nama Pihak (A-Z)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="debtList" class="overflow-x-auto">
+                        <p class="text-gray-500 text-center text-base">Belum ada catatan utang atau piutang.</p>
                     </div>
                 </div>
             </section>
@@ -1234,6 +1319,49 @@
         </div>
     </div>
 
+    <!-- Edit Debt Modal (NEW) -->
+    <div id="editDebtModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="hideEditDebtModal()">&times;</button>
+            <h3 class="text-2xl font-bold mb-4 text-gray-800">Edit Utang/Piutang</h3>
+            <form id="editDebtForm" class="space-y-5">
+                <input type="hidden" id="editDebtId">
+                <div>
+                    <label for="editDebtType" class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
+                    <select id="editDebtType" required class="block">
+                        <option value="utang">Utang (Saya berutang)</option>
+                        <option value="piutang">Piutang (Orang berutang kepada saya)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="editDebtPerson" class="block text-sm font-medium text-gray-700 mb-2">Nama Pihak</label>
+                    <input type="text" id="editDebtPerson" required class="block">
+                </div>
+                <div>
+                    <label for="editDebtDescription" class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <input type="text" id="editDebtDescription" required class="block">
+                </div>
+                <div>
+                    <label for="editDebtAmount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
+                    <input type="number" id="editDebtAmount" required min="1" class="block">
+                </div>
+                <div>
+                    <label for="editDebtDueDate" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Jatuh Tempo</label>
+                    <input type="date" id="editDebtDueDate" required class="block">
+                </div>
+                <div>
+                    <label for="editDebtStatus" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="editDebtStatus" required class="block">
+                        <option value="pending">Tertunda</option>
+                        <option value="paid">Lunas</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="save" class="feather-icon"></i> Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+
     <!-- JSON Display Modal -->
     <div id="jsonDisplayModal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -1368,6 +1496,22 @@
         const budgetListEl = document.getElementById('budgetList');
         const budgetMessageEl = document.getElementById('budgetMessage');
 
+        // New Debt Management Section Elements (NEW)
+        const debtManagementSidebarItem = document.getElementById('debtManagementSidebarItem');
+        const debtManagementSection = document.getElementById('debtManagementSection');
+        const debtForm = document.getElementById('debtForm');
+        const debtTypeInput = document.getElementById('debtType');
+        const debtPersonInput = document.getElementById('debtPerson');
+        const debtDescriptionInput = document.getElementById('debtDescription');
+        const debtAmountInput = document.getElementById('debtAmount');
+        const debtDueDateInput = document.getElementById('debtDueDate');
+        const debtStatusInput = document.getElementById('debtStatus');
+        const debtListEl = document.getElementById('debtList');
+        const debtMessageEl = document.getElementById('debtMessage');
+        const filterDebtTypeSelect = document.getElementById('filterDebtType'); // New: Filter for debt type
+        const filterDebtStatusSelect = document.getElementById('filterDebtStatus'); // New: Filter for debt status
+        const sortDebtBySelect = document.getElementById('sortDebtBy'); // New: Sort for debt list
+
         const reportsSection = document.getElementById('reportsSection');
         const reportMonthSelect = document.getElementById('reportMonthSelect');
         const reportYearSelect = document.getElementById('reportYearSelect');
@@ -1442,6 +1586,18 @@
         const editTransactionTypeInput = document.getElementById('editTransactionType');
         const editTransactionCategoryInput = document.getElementById('editTransactionCategory');
 
+        // New Edit Debt Modal Elements (NEW)
+        const editDebtModal = document.getElementById('editDebtModal');
+        const editDebtForm = document.getElementById('editDebtForm');
+        const editDebtIdInput = document.getElementById('editDebtId');
+        const editDebtTypeInput = document.getElementById('editDebtType');
+        const editDebtPersonInput = document.getElementById('editDebtPerson');
+        const editDebtDescriptionInput = document.getElementById('editDebtDescription');
+        const editDebtAmountInput = document.getElementById('editDebtAmount');
+        const editDebtDueDateInput = document.getElementById('editDebtDueDate');
+        const editDebtStatusInput = document.getElementById('editDebtStatus');
+
+
         // New JSON Display Modal Elements
         const jsonDisplayModal = document.getElementById('jsonDisplayModal');
         const jsonOutput = document.getElementById('jsonOutput');
@@ -1479,6 +1635,7 @@
         let unsubscribeTransactions = null;
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
+        let unsubscribeDebts = null; // NEW: Listener for debts
 
         // --- Utility Functions ---
 
@@ -1597,7 +1754,7 @@
                         list: []
                     });
 
-                    showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', false);
+                    showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan cek kotak masuk Anda untuk tautan verifikasi.', false);
                     showNotification('Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', 'success', 5000);
                     // Switch to login mode after successful registration
                     authMode = 'login';
@@ -1666,6 +1823,7 @@
                 dashboardSidebarItem.classList.remove('hidden');
                 transactionsSidebarItem.classList.remove('hidden');
                 budgetingSidebarItem.classList.remove('hidden');
+                debtManagementSidebarItem.classList.remove('hidden'); // NEW: Show debt management sidebar item
                 reportsSidebarItem.classList.remove('hidden');
                 analysisSidebarItem.classList.remove('hidden');
                 settingsSidebarItem.classList.remove('hidden');
@@ -1678,6 +1836,7 @@
                 dashboardSidebarItem.classList.add('hidden');
                 transactionsSidebarItem.classList.add('hidden');
                 budgetingSidebarItem.classList.add('hidden');
+                debtManagementSidebarItem.classList.add('hidden'); // NEW: Hide debt management sidebar item
                 reportsSidebarItem.classList.add('hidden');
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
@@ -1741,6 +1900,18 @@
                 console.error("Error fetching budgets:", error);
                 showNotification('Gagal memuat anggaran. Silakan coba lagi.', 'error');
             });
+
+            // Debts listener (NEW)
+            const debtsRef = collection(db, `artifacts/${appId}/users/${uid}/debts`);
+            unsubscribeDebts = onSnapshot(debtsRef, (snapshot) => {
+                const debts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Firestore Debts updated:", debts); // Log fetched debts
+                window._userDebts = debts; // Make it accessible globally
+                renderDebtManagement(); // Render debt management section when data changes
+            }, (error) => {
+                console.error("Error fetching debts:", error);
+                showNotification('Gagal memuat utang/piutang. Silakan coba lagi.', 'error');
+            });
         }
 
         // Unsubscribe all listeners (on logout)
@@ -1748,9 +1919,11 @@
             if (unsubscribeTransactions) unsubscribeTransactions();
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
+            if (unsubscribeDebts) unsubscribeDebts(); // NEW: Unsubscribe debts
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
+            window._userDebts = []; // NEW: Clear debts
             console.log("All Firestore listeners unsubscribed.");
         }
 
@@ -1847,6 +2020,57 @@
             }
         }
 
+        // NEW: Functions for Debts/Receivables
+        function getUserDebts() {
+            return window._userDebts || [];
+        }
+
+        async function addDebtToFirestore(debt) {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                showNotification('Anda harus login untuk menambahkan utang/piutang.', 'error');
+                return;
+            }
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/debts`), debt);
+                console.log("Debt added to Firestore:", debt);
+            } catch (error) {
+                console.error("Error adding debt:", error);
+                showNotification('Gagal menambahkan utang/piutang. Silakan coba lagi.', 'error');
+            }
+        }
+
+        async function updateDebtInFirestore(id, updatedDebt) {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                showNotification('Anda harus login untuk memperbarui utang/piutang.', 'error');
+                return;
+            }
+            try {
+                await setDoc(doc(db, `artifacts/${appId}/users/${userId}/debts`, id), updatedDebt);
+                console.log("Debt updated in Firestore:", id, updatedDebt);
+            } catch (error) {
+                console.error("Error updating debt:", error);
+                showNotification('Gagal memperbarui utang/piutang. Silakan coba lagi.', 'error');
+            }
+        }
+
+        async function deleteDebtFromFirestore(id) {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                showNotification('Anda harus login untuk menghapus utang/piutang.', 'error');
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/debts`, id));
+                console.log("Debt deleted from Firestore:", id);
+            } catch (error) {
+                console.error("Error deleting debt:", error);
+                showNotification('Gagal menghapus utang/piutang. Silakan coba lagi.', 'error');
+            }
+        }
+
+
         // --- Section Management ---
 
         function showSection(sectionId) {
@@ -1878,6 +2102,8 @@
             } else if (sectionId === 'budgetingSection') {
                 renderCategoryOptions(budgetItemCategorySelect);
                 renderBudgets();
+            } else if (sectionId === 'debtManagementSection') { // NEW: Render debt management
+                renderDebtManagement();
             }
             else if (sectionId === 'reportsSection') {
                 populateReportYears();
@@ -2243,6 +2469,169 @@
             feather.replace(); // Re-render icons
         }
 
+        // NEW: Debt Management Functions
+        async function addDebt(event) {
+            event.preventDefault();
+            const type = debtTypeInput.value;
+            const person = debtPersonInput.value.trim();
+            const description = debtDescriptionInput.value.trim();
+            const amount = parseFloat(debtAmountInput.value);
+            const dueDate = debtDueDateInput.value;
+            const status = debtStatusInput.value;
+
+            if (!type || !person || !description || isNaN(amount) || amount <= 0 || !dueDate || !status) {
+                showMessage(debtMessageEl, 'Semua field harus diisi dengan benar.', true);
+                showNotification('Semua field harus diisi dengan benar.', 'error');
+                return;
+            }
+
+            const newDebt = {
+                type,
+                person,
+                description,
+                amount,
+                dueDate,
+                status,
+                createdAt: new Date().toISOString()
+            };
+
+            await addDebtToFirestore(newDebt);
+            showMessage(debtMessageEl, 'Catatan utang/piutang berhasil ditambahkan!', false);
+            showNotification('Catatan utang/piutang berhasil ditambahkan!', 'success');
+            debtForm.reset();
+            const today = new Date().toISOString().split('T')[0];
+            debtDueDateInput.value = today; // Reset due date to today
+        }
+
+        async function editDebt(id) {
+            const debts = getUserDebts();
+            const debtToEdit = debts.find(d => d.id === id);
+
+            if (debtToEdit) {
+                editDebtIdInput.value = debtToEdit.id;
+                editDebtTypeInput.value = debtToEdit.type;
+                editDebtPersonInput.value = debtToEdit.person;
+                editDebtDescriptionInput.value = debtToEdit.description;
+                editDebtAmountInput.value = debtToEdit.amount;
+                editDebtDueDateInput.value = debtToEdit.dueDate;
+                editDebtStatusInput.value = debtToEdit.status;
+                showEditDebtModal();
+            }
+        }
+
+        async function updateDebt(event) {
+            event.preventDefault();
+            const id = editDebtIdInput.value;
+            const type = editDebtTypeInput.value;
+            const person = editDebtPersonInput.value.trim();
+            const description = editDebtDescriptionInput.value.trim();
+            const amount = parseFloat(editDebtAmountInput.value);
+            const dueDate = editDebtDueDateInput.value;
+            const status = editDebtStatusInput.value;
+
+            if (!type || !person || !description || isNaN(amount) || amount <= 0 || !dueDate || !status) {
+                showMessage(debtMessageEl, 'Semua field harus diisi dengan benar.', true);
+                showNotification('Semua field harus diisi dengan benar.', 'error');
+                return;
+            }
+
+            const updatedDebt = {
+                type,
+                person,
+                description,
+                amount,
+                dueDate,
+                status,
+                createdAt: new Date().toISOString() // Keep original or update as needed
+            };
+
+            await updateDebtInFirestore(id, updatedDebt);
+            showMessage(debtMessageEl, 'Catatan utang/piutang berhasil diperbarui!', false);
+            showNotification('Catatan utang/piutang berhasil diperbarui!', 'success');
+            hideEditDebtModal();
+        }
+
+        async function deleteDebt(id) {
+            confirmAction('Apakah Anda yakin ingin menghapus catatan utang/piutang ini?', async () => {
+                await deleteDebtFromFirestore(id);
+                showNotification('Catatan utang/piutang berhasil dihapus!', 'success');
+            });
+        }
+
+
+        function renderDebtManagement() {
+            let debts = getUserDebts();
+            debtListEl.innerHTML = '';
+
+            // Apply filters
+            const filterType = filterDebtTypeSelect.value;
+            if (filterType !== 'all') {
+                debts = debts.filter(d => d.type === filterType);
+            }
+
+            const filterStatus = filterDebtStatusSelect.value;
+            if (filterStatus !== 'all') {
+                debts = debts.filter(d => d.status === filterStatus);
+            }
+
+            // Apply sort
+            const sortBy = sortDebtBySelect.value;
+            debts.sort((a, b) => {
+                if (sortBy === 'dueDateAsc') return new Date(a.dueDate) - new Date(b.dueDate);
+                if (sortBy === 'dueDateDesc') return new Date(b.dueDate) - new Date(a.dueDate);
+                if (sortBy === 'amountDesc') return b.amount - a.amount;
+                if (sortBy === 'amountAsc') return a.amount - b.amount;
+                if (sortBy === 'personAsc') return a.person.localeCompare(b.person);
+                return 0;
+            });
+
+
+            if (debts.length === 0) {
+                debtListEl.innerHTML = '<p class="text-gray-500 text-center text-base">Belum ada catatan utang atau piutang.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'responsive-table debt-table w-full text-base'; // Add debt-table class for specific mobile labels
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Tipe</th>
+                        <th>Pihak</th>
+                        <th>Jumlah</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Status</th>
+                        <th>Deskripsi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+
+            debts.forEach(d => {
+                const row = document.createElement('tr');
+                const statusClass = d.status === 'pending' ? 'text-orange-500' : 'text-green-500';
+                const typeClass = d.type === 'utang' ? 'text-red-500' : 'text-income'; // Use text-income (green) for piutang
+
+                row.innerHTML = `
+                    <td><span class="font-bold ${typeClass}">${d.type === 'utang' ? 'Utang' : 'Piutang'}</span></td>
+                    <td>${d.person}</td>
+                    <td class="font-bold ${typeClass}">${formatRupiah(d.amount)}</td>
+                    <td>${d.dueDate}</td>
+                    <td><span class="${statusClass}">${d.status === 'pending' ? 'Tertunda' : 'Lunas'}</span></td>
+                    <td>${d.description}</td>
+                    <td>
+                        <button class="btn-icon btn-edit mr-2" onclick="editDebt('${d.id}')" title="Edit Catatan"><i data-feather="edit-2" class="feather-icon !mr-0"></i></button>
+                        <button class="btn-icon btn-delete" onclick="deleteDebt('${d.id}')" title="Hapus Catatan"><i data-feather="trash-2" class="feather-icon !mr-0"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            debtListEl.appendChild(table);
+            feather.replace(); // Re-render icons
+        }
+
 
         // --- Password Change ---
 
@@ -2318,10 +2707,14 @@
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
 
+                const debtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`)); // NEW: Fetch debts
+                const debts = debtsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // NEW: Map debts
+
                 const dataToExport = {
                     transactions,
                     categories,
-                    budgets
+                    budgets,
+                    debts // NEW: Include debts in export
                 };
 
                 const dataStr = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
@@ -2392,6 +2785,28 @@
                         });
                     }
 
+                    // Delete existing debts in a batch (NEW)
+                    const existingDebtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`));
+                    existingDebtsSnapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+
+                    // Add new debts in a batch (NEW)
+                    if (importedData.debts) {
+                        for (const d of importedData.debts) {
+                            const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/debts`));
+                            batch.set(newDocRef, {
+                                type: d.type,
+                                person: d.person,
+                                description: d.description,
+                                amount: d.amount,
+                                dueDate: d.dueDate,
+                                status: d.status,
+                                createdAt: d.createdAt || new Date().toISOString() // Preserve existing or set new
+                            });
+                        }
+                    }
+
                     // Import categories
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'), {
                         list: importedData.categories || ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
@@ -2401,6 +2816,7 @@
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'), {
                         list: importedData.budgets || []
                     });
+
 
                     await batch.commit(); // Commit all batch operations
 
@@ -3403,12 +3819,22 @@
                 await deleteTransactionsBatch.commit();
                 console.log("All transactions deleted.");
 
-                // 2. Delete metadata (categories, budgets)
+                // 2. Delete all debts (NEW)
+                const debtsRef = collection(db, `artifacts/${appId}/users/${userId}/debts`);
+                const debtsSnapshot = await getDocs(debtsRef);
+                const deleteDebtsBatch = writeBatch(db);
+                debtsSnapshot.docs.forEach(doc => {
+                    deleteDebtsBatch.delete(doc.ref);
+                });
+                await deleteDebtsBatch.commit();
+                console.log("All debts deleted.");
+
+                // 3. Delete metadata (categories, budgets)
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'));
                 await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 console.log("Metadata deleted.");
 
-                // 3. Delete the Firebase Authentication user
+                // 4. Delete the Firebase Authentication user
                 await deleteFirebaseAuthUser(currentFirebaseUser);
 
                 showNotification('Akun Anda dan semua data berhasil dihapus.', 'success');
@@ -3456,6 +3882,15 @@
             editTransactionModal.classList.add('hidden');
         }
 
+        // NEW: Debt Edit Modal Functions
+        function showEditDebtModal() {
+            editDebtModal.classList.remove('hidden');
+        }
+
+        function hideEditDebtModal() {
+            editDebtModal.classList.add('hidden');
+        }
+
         function showJsonDisplayModal() {
             jsonDisplayModal.classList.remove('hidden');
             // Select the text in the textarea to make it easy to copy
@@ -3486,10 +3921,11 @@
                     "Informasi Dashboard",
                     "Manajemen Transaksi",
                     "Rencana Anggaran",
+                    "Manajemen Utang Piutang", // NEW: Chatbot option
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Verifikasi Email", // New option
+                    "Verifikasi Email",
                     "Kembali ke awal"
                 ]
             },
@@ -3567,6 +4003,28 @@
             "Bagaimana peringatan anggaran bekerja?": {
                 answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jika jumlah transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
             },
+             "Manajemen Utang Piutang": { // NEW Chatbot entry
+                answer: "Di menu 'Manajemen Utang Piutang', Anda dapat mencatat dan melacak utang (uang yang Anda berutang kepada orang lain) dan piutang (uang yang orang lain berutang kepada Anda).",
+                options: [
+                    "Bagaimana cara menambahkan catatan utang/piutang baru?",
+                    "Bagaimana cara melihat daftar utang/piutang?",
+                    "Bagaimana cara mengedit catatan utang/piutang?",
+                    "Bagaimana cara menghapus catatan utang/piutang?",
+                    "Kembali ke awal"
+                ]
+            },
+            "Bagaimana cara menambahkan catatan utang/piutang baru?": { // NEW Chatbot entry
+                answer: "Untuk menambahkan catatan baru, buka menu 'Manajemen Utang Piutang', lalu pada formulir 'Tambah Utang/Piutang Baru', isi Tipe (Utang/Piutang), Nama Pihak, Deskripsi, Jumlah, Tanggal Jatuh Tempo, dan Status. Klik tombol 'Tambah Utang/Piutang'."
+            },
+            "Bagaimana cara melihat daftar utang/piutang?": { // NEW Chatbot entry
+                answer: "Daftar semua utang dan piutang Anda ditampilkan di bagian 'Daftar Utang & Piutang'. Anda dapat memfilter berdasarkan Tipe (Utang/Piutang) dan Status (Tertunda/Lunas), serta mengurutkan berdasarkan berbagai kriteria."
+            },
+            "Bagaimana cara mengedit catatan utang/piutang?": { // NEW Chatbot entry
+                answer: "Untuk mengedit catatan, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Edit' di sampingnya. Anda dapat memperbarui detail seperti jumlah, tanggal jatuh tempo, atau mengubah status menjadi 'Lunas'."
+            },
+            "Bagaimana cara menghapus catatan utang/piutang?": { // NEW Chatbot entry
+                answer: "Untuk menghapus catatan utang/piutang, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Hapus'. Anda akan diminta konfirmasi sebelum catatan dihapus secara permanen."
+            },
             "Laporan Keuangan": {
                 answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
                 options: [
@@ -3608,7 +4066,7 @@
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
                     "Bagaimana cara menghapus akun saya?",
-                    "Mode Gelap" // New option for dark mode
+                    "Mode Gelap"
                 ]
             },
             "Bagaimana cara mengubah kata sandi?": {
@@ -3626,10 +4084,10 @@
             "Bagaimana cara menghapus akun saya?": {
                 answer: "Di menu 'Pengaturan', pada bagian 'Hapus Akun', Anda dapat menghapus akun Anda secara permanen. Tindakan ini tidak dapat dibatalkan dan akan menghapus semua data Anda."
             },
-            "Mode Gelap": { // New chatbot response for dark mode
+            "Mode Gelap": {
                 answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
             },
-            "Verifikasi Email": { // New section for chatbot
+            "Verifikasi Email": {
                 answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
                 options: [
                     "Mengapa verifikasi email diperlukan?",
@@ -3652,10 +4110,11 @@
                     "Informasi Dashboard",
                     "Manajemen Transaksi",
                     "Rencana Anggaran",
+                    "Manajemen Utang Piutang", // NEW: Chatbot option
                     "Laporan Keuangan",
                     "Analisis Keuangan",
                     "Pengaturan Akun",
-                    "Verifikasi Email", // New option
+                    "Verifikasi Email",
                     "Kembali ke awal"
                 ]
             }
@@ -3930,8 +4389,19 @@
         // Budget form submission
         budgetForm.addEventListener('submit', addBudget);
 
+        // Debt form submission (NEW)
+        debtForm.addEventListener('submit', addDebt);
+
+        // Debt filters/sort listeners (NEW)
+        filterDebtTypeSelect.addEventListener('change', renderDebtManagement);
+        filterDebtStatusSelect.addEventListener('change', renderDebtManagement);
+        sortDebtBySelect.addEventListener('change', renderDebtManagement);
+
         // Edit Transaction Form Submission
         editTransactionForm.addEventListener('submit', updateTransaction);
+
+        // Edit Debt Form Submission (NEW)
+        editDebtForm.addEventListener('submit', updateDebt);
 
         // Change Password Form Submission
         changePasswordForm.addEventListener('submit', handleChangePassword);
@@ -3992,6 +4462,7 @@
             editTransactionDateInput.value = today; // Also for edit form
             budgetStartDateInput.value = today; // Set default start date for budget
             budgetEndDateInput.value = today; // Set default end date for budget
+            debtDueDateInput.value = today; // NEW: Set default due date for debt
         });
 
         // Make functions globally accessible for onclick in HTML
@@ -4004,6 +4475,9 @@
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
         window.deleteBudget = deleteBudget; // Expose for budget deletion
         window.hideForgotPasswordModal = hideForgotPasswordModal; // Expose for modal close button
+        window.editDebt = editDebt; // NEW: Expose editDebt
+        window.deleteDebt = deleteDebt; // NEW: Expose deleteDebt
+        window.hideEditDebtModal = hideEditDebtModal; // NEW: Expose hideEditDebtModal
 
         // Prevent pinch zoom
         document.addEventListener('gesturestart', function (e) {
