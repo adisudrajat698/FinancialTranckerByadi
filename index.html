@@ -169,6 +169,37 @@
             box-shadow: 0 5px 12px rgba(107, 114, 128, 0.3);
             transform: translateY(-1px);
         }
+        /* New: Icon button specific styling */
+        .btn-icon {
+            padding: 0.6rem; /* Adjust padding for icon-only buttons */
+            border-radius: 0.75rem; /* Slightly smaller radius for icons */
+            display: inline-flex; /* Use inline-flex for proper icon alignment */
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .btn-icon.btn-edit {
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+        }
+        .btn-icon.btn-edit:hover {
+            background-color: #2563EB; /* blue-600 */
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn-icon.btn-delete {
+            background-color: #EF4444; /* red-500 */
+            color: white;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
+        }
+        .btn-icon.btn-delete:hover {
+            background-color: #DC2626; /* red-600 */
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+
         .text-income {
             color: #10B981; /* green-500 yang lebih jelas */
         }
@@ -616,6 +647,24 @@
         body.dark-mode .toggle:checked:before {
             background-color: #0F172A; /* thumb color for dark mode toggle */
         }
+        /* New: Dark mode icon buttons */
+        body.dark-mode .btn-icon.btn-edit {
+            background-color: #60A5FA;
+            box-shadow: 0 2px 6px rgba(96, 165, 250, 0.3);
+        }
+        body.dark-mode .btn-icon.btn-edit:hover {
+            background-color: #3B82F6;
+            box-shadow: 0 4px 10px rgba(96, 165, 250, 0.4);
+        }
+        body.dark-mode .btn-icon.btn-delete {
+            background-color: #F87171;
+            box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3);
+        }
+        body.dark-mode .btn-icon.btn-delete:hover {
+            background-color: #EF4444;
+            box-shadow: 0 4px 10px rgba(248, 113, 113, 0.4);
+        }
+
         /* Toggle switch styling */
         .toggle {
             position: relative;
@@ -2047,11 +2096,12 @@
                     categoryDiv.className = 'flex items-center justify-between p-3.5 rounded-lg bg-gray-50 border border-gray-200 shadow-sm';
                     categoryDiv.innerHTML = `
                         <span class="font-medium text-gray-700 text-base">${cat}</span>
-                        <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteCategory('${cat}')"><i data-feather="trash" class="feather-icon"></i> Hapus</button>
+                        <button class="btn-danger btn-icon text-xs px-3 py-1.5" onclick="deleteCategory('${cat}')"><i data-feather="trash" class="feather-icon !mr-0"></i></button>
                     `;
                     categoryListEl.appendChild(categoryDiv);
                 });
             }
+            feather.replace(); // Re-render icons
         }
 
         // --- Budgeting Functions ---
@@ -2176,7 +2226,7 @@
                 budgetDiv.innerHTML = `
                     <div class="flex justify-between items-center mb-2">
                         <h4 class="text-xl font-semibold text-gray-800">${budget.category}</h4>
-                        <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteBudget(${budget.id})"><i data-feather="trash" class="feather-icon"></i> Hapus</button>
+                        <button class="btn-danger btn-icon text-xs px-3 py-1.5" onclick="deleteBudget(${budget.id})"><i data-feather="trash" class="feather-icon !mr-0"></i></button>
                     </div>
                     <p class="text-gray-700 text-sm mb-1">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
                     <p class="text-lg font-medium text-gray-800">Anggaran: ${formatRupiah(budget.amount)}</p>
@@ -2190,6 +2240,7 @@
                 `;
                 budgetListEl.appendChild(budgetDiv);
             });
+            feather.replace(); // Re-render icons
         }
 
 
@@ -2680,13 +2731,14 @@
                         </div>
                         <div class="flex items-center gap-2 mt-2 sm:mt-0">
                             <p class="font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'} text-lg mr-2">${formatRupiah(t.amount)}</p>
-                            <button class="btn-secondary text-xs px-3 py-1.5" onclick="editTransaction('${t.id}')"><i data-feather="edit-2" class="feather-icon"></i> Edit</button>
-                            <button class="btn-danger text-xs px-3 py-1.5" onclick="deleteTransaction('${t.id}')"><i data-feather="trash-2" class="feather-icon"></i> Hapus</button>
+                            <button class="btn-icon btn-edit" onclick="editTransaction('${t.id}')" title="Edit Transaksi"><i data-feather="edit-2" class="feather-icon !mr-0"></i></button>
+                            <button class="btn-icon btn-delete" onclick="deleteTransaction('${t.id}')" title="Hapus Transaksi"><i data-feather="trash-2" class="feather-icon !mr-0"></i></button>
                         </div>
                     `;
                     allTransactionsListEl.appendChild(transactionDiv);
                 });
             }
+            feather.replace(); // Re-render icons after adding new elements
         }
 
         function updatePaginationControls() {
