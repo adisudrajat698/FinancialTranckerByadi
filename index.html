@@ -850,6 +850,36 @@
                     </div>
                 </div>
 
+
+<div class="card p-6 mt-8 mb-8">
+  <h3 class="text-2xl font-bold mb-4">Kalkulator Tabungan</h3>
+  <form id="savingsCalculatorForm" class="space-y-4">
+    <div>
+      <label for="targetAmount" class="block text-sm font-medium text-gray-700 mb-1">Target Tabungan (Rp)</label>
+      <input type="number" id="targetAmount" required placeholder="Contoh: 1000000">
+    </div>
+    <div>
+      <label for="savingAmount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Sekali Nabung (Rp)</label>
+      <input type="number" id="savingAmount" required placeholder="Contoh: 10000">
+    </div>
+    <div>
+      <label for="savingFrequency" class="block text-sm font-medium text-gray-700 mb-1">Frekuensi Menabung</label>
+      <select id="savingFrequency" required class="block">
+        <option value="daily">Harian</option>
+        <option value="monthly">Bulanan</option>
+        <option value="yearly">Tahunan</option>
+      </select>
+    </div>
+    <div class="flex gap-4">
+      <button type="submit" class="w-full btn-primary font-semibold">Hitung</button>
+      <button type="reset" class="w-full btn-secondary font-semibold">Reset</button>
+    </div>
+  </form>
+  <p id="savingsResult" class="text-center mt-4 text-lg font-semibold text-blue-600 hidden"></p>
+</div>
+
+                
+
                 <div class="card p-6 mb-8">
                     <h3 class="text-2xl font-bold mb-4">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
@@ -3702,6 +3732,54 @@
         }, false);
 
         feather.replace();
+
+
+//savingCalculator
+  const savingsCalculatorForm = document.getElementById('savingsCalculatorForm');
+  const targetAmountInput = document.getElementById('targetAmount');
+  const savingAmountInput = document.getElementById('savingAmount');
+  const savingFrequencyInput = document.getElementById('savingFrequency');
+  const savingsResult = document.getElementById('savingsResult');
+
+  savingsCalculatorForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const target = parseFloat(targetAmountInput.value);
+    const amount = parseFloat(savingAmountInput.value);
+    const frequency = savingFrequencyInput.value;
+
+    if (isNaN(target) || isNaN(amount) || amount <= 0 || target <= 0) {
+      savingsResult.textContent = "Mohon masukkan nilai yang valid.";
+      savingsResult.classList.remove("hidden");
+      savingsResult.classList.add("text-red-500");
+      return;
+    }
+
+    const periodsNeeded = Math.ceil(target / amount);
+    const today = new Date();
+    let estimatedDate = new Date(today);
+
+    if (frequency === "daily") {
+      estimatedDate.setDate(today.getDate() + periodsNeeded);
+    } else if (frequency === "monthly") {
+      estimatedDate.setMonth(today.getMonth() + periodsNeeded);
+    } else if (frequency === "yearly") {
+      estimatedDate.setFullYear(today.getFullYear() + periodsNeeded);
+    }
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = estimatedDate.toLocaleDateString('id-ID', options);
+    const freqLabel = frequency === "daily" ? "hari" : frequency === "monthly" ? "bulan" : "tahun";
+
+    savingsResult.textContent = `Dengan menabung Rp ${amount.toLocaleString('id-ID')} per ${freqLabel}, kamu bisa mencapai target Rp ${target.toLocaleString('id-ID')} dalam ${periodsNeeded} ${freqLabel}.
+Estimasi tercapai pada: ${formattedDate}.`;
+    savingsResult.classList.remove("hidden", "text-red-500");
+    savingsResult.classList.add("text-blue-600");
+
+    savingsCalculatorForm.reset(); // form direset otomatis setelah submit
+  });
+
+
     </script>
 </body>
 </html>
