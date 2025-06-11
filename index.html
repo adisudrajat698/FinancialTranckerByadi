@@ -3773,7 +3773,8 @@
 
     const message = `Dengan menabung Rp ${amount.toLocaleString('id-ID')} per ${freqLabel}, kamu bisa mencapai target Rp ${target.toLocaleString('id-ID')} dalam ${periodsNeeded} ${freqLabel}.<br>Estimasi tercapai pada: <strong>${formattedDate}</strong>.`;
 
-showNotification(message, 'info', 8000); // ini munculin notifikasi 8 detik
+showNotification(message, 'info', 0); // 0 = tampil selamanya sampai ditutup manual
+
 
 savingsCalculatorForm.reset(); // form direset otomatis setelah submit
   });
