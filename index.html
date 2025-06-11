@@ -3771,12 +3771,13 @@
     const formattedDate = estimatedDate.toLocaleDateString('id-ID', options);
     const freqLabel = frequency === "daily" ? "hari" : frequency === "monthly" ? "bulan" : "tahun";
 
-    const message = `Dengan menabung Rp ${amount.toLocaleString('id-ID')} per ${freqLabel}, kamu bisa mencapai target Rp ${target.toLocaleString('id-ID')} dalam ${periodsNeeded} ${freqLabel}.<br>Estimasi tercapai pada: <strong>${formattedDate}</strong>.`;
+   savingsResult.textContent = `Dengan menabung Rp ${amount.toLocaleString('id-ID')} per ${freqLabel}, kamu bisa mencapai target Rp ${target.toLocaleString('id-ID')} dalam ${periodsNeeded} ${freqLabel}.
+Estimasi tercapai pada: ${formattedDate}.`;
+savingsResult.classList.remove("hidden", "text-red-500");
+savingsResult.classList.add("text-blue-600");
 
-showNotification(message, 'info', 0); // 0 = tampil selamanya sampai ditutup manual
+savingsCalculatorForm.reset();
 
-
-savingsCalculatorForm.reset(); // form direset otomatis setelah submit
   });
 
 
