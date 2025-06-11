@@ -683,6 +683,23 @@
             border-color: #92400E;
             color: #FCD34D;
         }
+        .btn-google {
+            background-color: white;
+            color: #4285F4; /* Google Blue */
+            border: 1px solid #DADCE0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .btn-google:hover {
+            background-color: #F8F8F8;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+        .btn-google img {
+            width: 1.25rem; /* Ukuran ikon Google */
+            height: 1.25rem;
+            margin-right: 0.75rem;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -743,6 +760,15 @@
                         <p id="authMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
                         <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="log-in" class="feather-icon"></i> Login</button>
                     </form>
+                    <div class="relative flex py-5 items-center">
+                        <div class="flex-grow border-t border-gray-300"></div>
+                        <span class="flex-shrink mx-4 text-gray-500">ATAU</span>
+                        <div class="flex-grow border-t border-gray-300"></div>
+                    </div>
+                    <button id="googleSignInBtn" class="w-full btn-primary btn-google font-semibold text-lg py-3">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+                        Login dengan Google
+                    </button>
                     <p class="text-center text-sm mt-6 text-gray-600">
                         <a href="#" id="forgotPasswordLink" class="text-blue-600 hover:underline font-medium">Lupa Kata Sandi?</a>
                         <span class="mx-2 text-gray-400">|</span>
@@ -1229,7 +1255,9 @@
             reauthenticateWithCredential,
             EmailAuthProvider,
             sendPasswordResetEmail,
-            sendEmailVerification // Added for email verification
+            sendEmailVerification, // Added for email verification
+            GoogleAuthProvider, // Added for Google Sign-in
+            signInWithPopup // Added for Google Sign-in
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore,
@@ -1281,6 +1309,7 @@
         const authMessage = document.getElementById('authMessage');
         const toggleAuthModeBtn = document.getElementById('toggleAuthMode');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink'); // New: Forgot Password Link
+        const googleSignInBtn = document.getElementById('googleSignInBtn'); // New: Google Sign-in Button
 
         const dashboardSection = document.getElementById('dashboardSection');
         const dashboardUsernameEl = document.getElementById('dashboardUsername');
@@ -1495,24 +1524,27 @@
         // Firebase Auth State Listener
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // Check if email is verified
-                if (user.emailVerified) {
-                    isLoggedIn = true;
-                    currentFirebaseUser = user;
-                    showSection('dashboardSection');
-                    dashboardUsernameEl.textContent = user.email; // Display email as username
-                    sidebarUsername.textContent = user.email; // Display email as username
-                    setupFirestoreListeners(user.uid); // Setup listeners for regular users
-                } else {
-                    // If email is not verified, sign out and show message
-                    await signOut(auth);
-                    isLoggedIn = false;
-                    currentFirebaseUser = null;
-                    showSection('authSection');
-                    unsubscribeAllFirestoreListeners();
-                    showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
-                    showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
+                // Check if email is verified for non-Google sign-in methods, or if it's a new Google user.
+                // Google users are automatically verified.
+                if (user.providerData.some(provider => provider.providerId === 'password')) { // Check if signed in with email/password
+                    if (!user.emailVerified) {
+                        await signOut(auth); // Sign out unverified user
+                        isLoggedIn = false;
+                        currentFirebaseUser = null;
+                        showSection('authSection');
+                        unsubscribeAllFirestoreListeners();
+                        showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
+                        showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
+                        return;
+                    }
                 }
+
+                isLoggedIn = true;
+                currentFirebaseUser = user;
+                showSection('dashboardSection');
+                dashboardUsernameEl.textContent = user.displayName || user.email; // Display name for Google, email for others
+                sidebarUsername.textContent = user.displayName || user.email;
+                setupFirestoreListeners(user.uid); // Setup listeners for regular users
             } else {
                 isLoggedIn = false;
                 currentFirebaseUser = null;
@@ -1560,16 +1592,9 @@
 
                 } else { // Login mode
                     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                    // Check email verification status after successful login
-                    if (!userCredential.user.emailVerified) {
-                        await signOut(auth); // Sign out unverified user
-                        showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
-                        showNotification('Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', 'error', 5000);
-                        return; // Stop further execution
-                    }
+                    // onAuthStateChanged will handle checking verification status and showing the correct section
                     showMessage(authMessage, 'Login berhasil!', false);
                     showNotification('Login berhasil!', 'success');
-                    // onAuthStateChanged will handle showing the correct section
                 }
             } catch (error) {
                 console.error("Authentication error:", error);
@@ -1587,6 +1612,42 @@
                 showNotification(errorMessage, 'error');
             }
         }
+
+        async function handleGoogleSignIn() {
+            authMessage.classList.add('hidden');
+            const provider = new GoogleAuthProvider();
+            try {
+                const userCredential = await signInWithPopup(auth, provider);
+                const user = userCredential.user;
+
+                // Check if it's a new user and initialize Firestore data
+                if (userCredential.additionalUserInfo.isNewUser) {
+                    await setDoc(doc(db, `artifacts/${appId}/users/${user.uid}/metadata`, 'categories'), {
+                        list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
+                    });
+                    await setDoc(doc(db, `artifacts/${appId}/users/${user.uid}/metadata`, 'budgets'), {
+                        list: []
+                    });
+                    showNotification('Registrasi dengan Google berhasil! Selamat datang.', 'success');
+                } else {
+                    showNotification('Login dengan Google berhasil! Selamat datang kembali.', 'success');
+                }
+                // onAuthStateChanged will handle updating UI
+            } catch (error) {
+                console.error("Google Sign-in error:", error);
+                let errorMessage = 'Gagal login dengan Google.';
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = 'Login dibatalkan oleh pengguna.';
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    errorMessage = 'Permintaan login dibatalkan.';
+                } else if (error.code === 'auth/account-exists-with-different-credential') {
+                    errorMessage = 'Akun dengan email ini sudah ada menggunakan metode lain (misalnya, email/kata sandi). Silakan login dengan metode tersebut.';
+                }
+                showMessage(authMessage, errorMessage, true);
+                showNotification(errorMessage, 'error');
+            }
+        }
+
 
         async function handleLogout() {
             try {
@@ -2462,8 +2523,8 @@
         function renderDashboard() {
             // Display current username/email
             if (currentFirebaseUser) {
-                dashboardUsernameEl.textContent = currentFirebaseUser.email;
-                sidebarUsername.textContent = currentFirebaseUser.email;
+                dashboardUsernameEl.textContent = currentFirebaseUser.displayName || currentFirebaseUser.email;
+                sidebarUsername.textContent = currentFirebaseUser.displayName || currentFirebaseUser.email;
             } else {
                 dashboardUsernameEl.textContent = 'Tamu';
                 sidebarUsername.textContent = 'Tamu';
@@ -3408,7 +3469,9 @@
             jsonDisplayModal.classList.remove('hidden');
             // Select the text in the textarea to make it easy to copy
             jsonOutput.select();
-            jsonOutput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+            showNotification('Data JSON berhasil disalin ke clipboard!', 'success');
+            hideJsonDisplayModal();
         }
 
         function hideJsonDisplayModal() {
@@ -3789,6 +3852,9 @@
 
         // Authentication form submission
         authForm.addEventListener('submit', handleAuth);
+
+        // Google Sign-in button
+        googleSignInBtn.addEventListener('click', handleGoogleSignIn);
 
         // Toggle between login and register modes
         toggleAuthModeBtn.addEventListener('click', (event) => {
