@@ -673,6 +673,16 @@
             height: 2.5rem;
             margin-bottom: 0.5rem;
         }
+        .no-records-message {
+            background-color: #FFFBEB; /* yellow-50 */
+            border: 1px solid #FCD34D; /* yellow-300 */
+            color: #92400E; /* yellow-800 */
+        }
+        body.dark-mode .no-records-message {
+            background-color: #33230A; /* Darker yellow for dark mode */
+            border-color: #92400E;
+            color: #FCD34D;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -747,6 +757,9 @@
                 <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-2xl shadow-md border border-gray-200">
                     <img src="https://placehold.co/60x60/6366F1/ffffff?text=JP" alt="User Avatar" class="w-16 h-16 rounded-full border-2 border-blue-300 shadow-sm">
                     <p class="text-xl text-gray-700">Selamat datang, <span id="dashboardUsername" class="font-bold text-blue-700"></span>!</p>
+                </div>
+                <div id="noRecordsMessage" class="card p-4 mb-6 text-center text-gray-700 text-base hidden no-records-message">
+                    <!-- Message will be inserted here by JavaScript -->
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="card p-6 text-center flex flex-col items-center">
@@ -2463,6 +2476,59 @@
             const expenseCategories = {};
             const incomeCategories = {};
 
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth(); // 0-indexed
+
+            let hasDailyTransactions = false;
+            let hasMonthlyTransactions = false;
+
+            transactions.forEach(t => {
+                const transactionDate = new Date(t.date);
+                if (
+                    transactionDate.getDate() === today.getDate() &&
+                    transactionDate.getMonth() === currentMonth &&
+                    transactionDate.getFullYear() === currentYear
+                ) {
+                    hasDailyTransactions = true;
+                }
+                if (
+                    transactionDate.getMonth() === currentMonth &&
+                    transactionDate.getFullYear() === currentYear
+                ) {
+                    hasMonthlyTransactions = true;
+                }
+            });
+
+            const noRecordsMessageEl = document.getElementById('noRecordsMessage');
+            let message = '';
+            let showMessageDiv = false;
+
+            if (!hasDailyTransactions) {
+                message += 'Anda belum mencatat transaksi apapun hari ini. ';
+                showMessageDiv = true;
+            }
+            if (!hasMonthlyTransactions) {
+                if (showMessageDiv && message.length > 0) { // if there's already a daily message
+                    message += '<br>'; // New line if both conditions are true
+                }
+                message += 'Anda belum mencatat transaksi apapun bulan ini.';
+                showMessageDiv = true;
+            }
+
+            if (showMessageDiv) {
+                noRecordsMessageEl.innerHTML = `
+                    <i data-feather="alert-triangle" class="feather-icon text-yellow-500 w-8 h-8 mx-auto mb-2"></i>
+                    <p>${message}</p>
+                    <p class="text-sm text-gray-500 mt-2">Segera catat pemasukan atau pengeluaran Anda!</p>
+                `;
+                noRecordsMessageEl.classList.remove('hidden');
+                feather.replace(); // Re-render feather icons
+            } else {
+                noRecordsMessageEl.classList.add('hidden');
+            }
+
+
             transactions.forEach(t => {
                 if (t.type === 'income') {
                     totalIncome += t.amount;
@@ -3766,7 +3832,8 @@
                 showMessage(forgotPasswordMessageEl, 'Link reset kata sandi telah dikirim ke email Anda. Silakan cek kotak masuk Anda.', false);
                 showNotification('Link reset kata sandi telah dikirim!', 'success');
                 forgotPasswordEmailInput.value = ''; // Clear email input
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Error sending password reset email:", error);
                 let errorMessage = 'Gagal mengirim link reset kata sandi. Silakan coba lagi.';
                 if (error.code === 'auth/invalid-email') {
