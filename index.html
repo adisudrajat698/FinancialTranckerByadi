@@ -836,6 +836,19 @@
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"> <!-- Adjusted grid for new cards -->
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-down-circle" class="card-icon text-red-600 mb-3"></i>
+                        <h3 class="text-lg font-medium text-gray-600">Total Utang Tertunda</h3>
+                        <p id="totalOutstandingDebt" class="text-3xl font-bold text-red-600 mt-2">Rp 0</p>
+                    </div>
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-up-circle" class="card-icon text-green-600 mb-3"></i>
+                        <h3 class="text-lg font-medium text-gray-600">Total Piutang Tertunda</h3>
+                        <p id="totalOutstandingReceivable" class="text-3xl font-bold text-green-600 mt-2">Rp 0</p>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div class="card p-6">
                         <h3 class="text-2xl font-bold mb-5 text-gray-800">Ringkasan Pemasukan & Pengeluaran</h3>
@@ -1467,6 +1480,8 @@
         const latestTransactionsEl = document.getElementById('latestTransactions');
         const incomeExpenseChart = document.getElementById('incomeExpenseChart');
         const expenseByCategorySummary = document.getElementById('expenseByCategorySummary');
+        const totalOutstandingDebtEl = document.getElementById('totalOutstandingDebt'); // NEW: Debt on dashboard
+        const totalOutstandingReceivableEl = document.getElementById('totalOutstandingReceivable'); // NEW: Receivable on dashboard
 
         const transactionsSection = document.getElementById('transactionsSection');
         const transactionForm = document.getElementById('transactionForm');
@@ -1534,7 +1549,7 @@
 
         // Analysis Section Elements
         const analysisSidebarItem = document.getElementById('analysisSidebarItem');
-        const analysisSection = document.getElementById('analysisSection');
+        const analysisSection = document = document.getElementById('analysisSection');
         const financialTrendsChartCanvas = document.getElementById('financialTrendsChart');
         const topExpenseCategoriesChartCanvas = document.getElementById('topExpenseCategoriesChart');
         const topIncomeCategoriesChartCanvas = document.getElementById('topIncomeCategoriesChart');
@@ -1908,6 +1923,7 @@
                 console.log("Firestore Debts updated:", debts); // Log fetched debts
                 window._userDebts = debts; // Make it accessible globally
                 renderDebtManagement(); // Render debt management section when data changes
+                renderDashboard(); // Re-render dashboard to update outstanding debt/receivable
             }, (error) => {
                 console.error("Error fetching debts:", error);
                 showNotification('Gagal memuat utang/piutang. Silakan coba lagi.', 'error');
@@ -2937,11 +2953,27 @@
             }
 
             const transactions = getUserTransactions();
+            const debts = getUserDebts(); // NEW: Get debts
 
             let totalIncome = 0;
             let totalExpense = 0;
             const expenseCategories = {};
             const incomeCategories = {};
+
+            // NEW: Calculate outstanding debts and receivables
+            let totalOutstandingDebt = 0;
+            let totalOutstandingReceivable = 0;
+
+            debts.forEach(d => {
+                if (d.status === 'pending') {
+                    if (d.type === 'utang') {
+                        totalOutstandingDebt += d.amount;
+                    } else if (d.type === 'piutang') {
+                        totalOutstandingReceivable += d.amount;
+                    }
+                }
+            });
+
 
             const today = new Date();
             const currentYear = today.getFullYear();
@@ -3011,6 +3043,10 @@
             currentBalanceEl.textContent = formatRupiah(currentBalance);
             totalIncomeEl.textContent = formatRupiah(totalIncome);
             totalExpenseEl.textContent = formatRupiah(totalExpense);
+
+            // NEW: Update outstanding debt/receivable display
+            totalOutstandingDebtEl.textContent = formatRupiah(totalOutstandingDebt);
+            totalOutstandingReceivableEl.textContent = formatRupiah(totalOutstandingReceivable);
 
             // Render Income/Expense Chart
             renderIncomeExpenseChart(totalIncome, totalExpense);
