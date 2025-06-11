@@ -1222,6 +1222,26 @@
         </div>
     </div>
 
+    <!-- New Password Confirmation Modal -->
+    <div id="passwordConfirmModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="hidePasswordConfirmModal()">&times;</button>
+            <h3 class="text-2xl font-bold mb-4 text-gray-800">Konfirmasi Kata Sandi</h3>
+            <p class="text-gray-700 mb-4 text-base">Untuk keamanan, masukkan kata sandi Anda untuk melanjutkan.</p>
+            <form id="passwordConfirmForm" class="space-y-5">
+                <div>
+                    <label for="confirmPasswordInput" class="block text-sm font-medium text-gray-700 mb-2">Kata Sandi</label>
+                    <input type="password" id="confirmPasswordInput" required class="block w-full" placeholder="Masukkan kata sandi Anda">
+                </div>
+                <p id="passwordConfirmMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="passwordConfirmCancelBtn" class="btn-secondary px-5 py-2.5"><i data-feather="x" class="feather-icon"></i> Batal</button>
+                    <button type="submit" id="passwordConfirmSubmitBtn" class="btn-danger px-5 py-2.5"><i data-feather="check" class="feather-icon"></i> Konfirmasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -1426,6 +1446,13 @@
         const jsonDisplayModal = document.getElementById('jsonDisplayModal');
         const jsonOutput = document.getElementById('jsonOutput');
         const copyJsonBtn = document.getElementById('copyJsonBtn');
+
+        // New Password Confirmation Modal Elements
+        const passwordConfirmModal = document.getElementById('passwordConfirmModal');
+        const passwordConfirmInput = document.getElementById('confirmPasswordInput');
+        const passwordConfirmMessage = document.getElementById('passwordConfirmMessage');
+        const passwordConfirmForm = document.getElementById('passwordConfirmForm');
+        const passwordConfirmCancelBtn = document.getElementById('passwordConfirmCancelBtn');
 
         // New Forgot Password Modal Elements
         const forgotPasswordModal = document.getElementById('forgotPasswordModal');
@@ -3391,10 +3418,11 @@
             const userId = currentFirebaseUser.uid;
             const userEmail = currentFirebaseUser.email;
 
-            // Prompt for re-authentication
-            const passwordPrompt = prompt("Untuk keamanan, masukkan kata sandi Anda untuk mengkonfirmasi penghapusan akun:");
-            if (!passwordPrompt) {
-                showNotification('Penghapusan akun dibatalkan (kata sandi tidak dimasukkan).', 'info');
+            // Prompt for re-authentication with custom modal
+            const passwordPrompt = await showPasswordConfirmModal("Untuk keamanan, masukkan kata sandi Anda untuk mengkonfirmasi penghapusan akun:");
+
+            if (!passwordPrompt) { // User cancelled or provided empty
+                showNotification('Penghapusan akun dibatalkan.', 'info');
                 return;
             }
 
@@ -3424,7 +3452,7 @@
                 // onAuthStateChanged will handle redirecting to auth section
             } catch (error) {
                 console.error("Error deleting account:", error);
-                let errorMessage = 'Gagal menghapus akun. Silakan coba lagi.';
+                let errorMessage = 'Gagal menghapus akun.';
                 if (error.code === 'auth/requires-recent-login') {
                     errorMessage = 'Untuk keamanan, Anda harus login ulang dan coba lagi.';
                 } else if (error.code === 'auth/invalid-credential') {
@@ -3432,12 +3460,14 @@
                 } else if (error.code === 'auth/network-request-failed') {
                     errorMessage = 'Kesalahan jaringan. Periksa koneksi internet Anda.';
                 }
+                showMessage(passwordConfirmMessage, errorMessage, true); // Display error in modal
                 showNotification(errorMessage, 'error');
             }
         }
 
 
         // --- Modal Functions ---
+        let resolveConfirmationPromise;
         function showConfirmationModal(message, onConfirm, onCancel) {
             confirmationModalMessage.textContent = message;
             confirmYesBtn.onclick = () => {
@@ -3477,6 +3507,43 @@
         function hideJsonDisplayModal() {
             jsonDisplayModal.classList.add('hidden');
         }
+
+        let resolvePasswordConfirmPromise;
+        function showPasswordConfirmModal(message = "Untuk keamanan, masukkan kata sandi Anda untuk melanjutkan.") {
+            passwordConfirmMessage.classList.add('hidden'); // Clear previous messages
+            document.querySelector('#passwordConfirmModal p.text-gray-700').textContent = message; // Update message dynamically
+            passwordConfirmInput.value = ''; // Clear input
+            passwordConfirmModal.classList.remove('hidden');
+
+            return new Promise(resolve => {
+                resolvePasswordConfirmPromise = resolve;
+            });
+        }
+
+        function hidePasswordConfirmModal() {
+            passwordConfirmModal.classList.add('hidden');
+            resolvePasswordConfirmPromise = null; // Clear the resolver
+        }
+
+        // Event listener for password confirm form submission
+        passwordConfirmForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const password = passwordConfirmInput.value;
+            if (resolvePasswordConfirmPromise) {
+                resolvePasswordConfirmPromise(password);
+            }
+            // Do NOT hide modal immediately, let the deleteOwnAccount handle hiding based on success/failure
+            // hidePasswordConfirmModal(); // This will be called by deleteOwnAccount
+        });
+
+        // Event listener for password confirm cancel button
+        passwordConfirmCancelBtn.addEventListener('click', () => {
+            if (resolvePasswordConfirmPromise) {
+                resolvePasswordConfirmPromise(null); // Resolve with null to indicate cancellation
+            }
+            hidePasswordConfirmModal();
+        });
+
 
         // New: Forgot Password Modal functions
         function showForgotPasswordModal() {
