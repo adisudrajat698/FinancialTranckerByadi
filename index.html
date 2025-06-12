@@ -755,7 +755,7 @@
               <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard"><i data-feather="home" class="feather-icon"></i> Dashboard </a></li>
               <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
               <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="dollar-sign" class="feather-icon"></i> Rencana Anggaran </a></li>
-              <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Utang & Piutang </a></li>
+              <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Manajemen Utang Piutang </a></li>
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="feather-icon"></i> Laporan </a></li>
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="feather-icon"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="feather-icon"></i> Pengaturan </a></li>
@@ -833,6 +833,17 @@
                         <i data-feather="arrow-up-right" class="card-icon text-red-600 mb-3"></i>
                         <h3 class="text-lg font-medium text-gray-600">Total Pengeluaran</h3>
                         <p id="totalExpense" class="text-3xl font-bold text-expense mt-2">Rp 0</p>
+                    </div>
+                     <!-- NEW: Debt and Receivables Summary on Dashboard -->
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-up" class="card-icon text-red-600 mb-3"></i>
+                        <h3 class="text-lg font-medium text-gray-600">Utang Tertunda</h3>
+                        <p id="pendingDebt" class="text-3xl font-bold text-expense mt-2">Rp 0</p>
+                    </div>
+                    <div class="card p-6 text-center flex flex-col items-center">
+                        <i data-feather="arrow-down" class="card-icon text-green-600 mb-3"></i>
+                        <h3 class="text-lg font-medium text-gray-600">Piutang Tertunda</h3>
+                        <p id="pendingReceivable" class="text-3xl font-bold text-income mt-2">Rp 0</p>
                     </div>
                 </div>
 
@@ -1467,6 +1478,10 @@
         const latestTransactionsEl = document.getElementById('latestTransactions');
         const incomeExpenseChart = document.getElementById('incomeExpenseChart');
         const expenseByCategorySummary = document.getElementById('expenseByCategorySummary');
+        // NEW: Debt and Receivables Summary on Dashboard
+        const pendingDebtEl = document.getElementById('pendingDebt');
+        const pendingReceivableEl = document.getElementById('pendingReceivable');
+
 
         const transactionsSection = document.getElementById('transactionsSection');
         const transactionForm = document.getElementById('transactionForm');
@@ -1908,6 +1923,7 @@
                 console.log("Firestore Debts updated:", debts); // Log fetched debts
                 window._userDebts = debts; // Make it accessible globally
                 renderDebtManagement(); // Render debt management section when data changes
+                renderDashboard(); // Re-render dashboard to update debt/receivable summaries
             }, (error) => {
                 console.error("Error fetching debts:", error);
                 showNotification('Gagal memuat utang/piutang. Silakan coba lagi.', 'error');
@@ -2937,9 +2953,13 @@
             }
 
             const transactions = getUserTransactions();
+            const debts = getUserDebts(); // Get all debts
 
             let totalIncome = 0;
             let totalExpense = 0;
+            let totalPendingDebt = 0;
+            let totalPendingReceivable = 0;
+
             const expenseCategories = {};
             const incomeCategories = {};
 
@@ -3006,11 +3026,26 @@
                 }
             });
 
-            const currentBalance = totalIncome - totalExpense;
+            // Calculate pending debts and receivables
+            debts.forEach(d => {
+                if (d.status === 'pending') {
+                    if (d.type === 'utang') {
+                        totalPendingDebt += d.amount;
+                    } else if (d.type === 'piutang') {
+                        totalPendingReceivable += d.amount;
+                    }
+                }
+            });
+
+            // Calculate overall balance including pending debts/receivables
+            const currentBalance = totalIncome - totalExpense - totalPendingDebt + totalPendingReceivable;
 
             currentBalanceEl.textContent = formatRupiah(currentBalance);
             totalIncomeEl.textContent = formatRupiah(totalIncome);
             totalExpenseEl.textContent = formatRupiah(totalExpense);
+            pendingDebtEl.textContent = formatRupiah(totalPendingDebt); // Display pending debt
+            pendingReceivableEl.textContent = formatRupiah(totalPendingReceivable); // Display pending receivable
+
 
             // Render Income/Expense Chart
             renderIncomeExpenseChart(totalIncome, totalExpense);
@@ -3043,6 +3078,7 @@
                     latestTransactionsEl.appendChild(transactionDiv);
                 });
             }
+            feather.replace(); // Re-render icons on dashboard
         }
 
         function renderIncomeExpenseChart(income, expense) {
@@ -3940,7 +3976,7 @@
                 ]
             },
             "Apa itu Saldo Saat Ini?": {
-                answer: "Saldo Saat Ini adalah jumlah uang yang Anda miliki, dihitung dari Total Pemasukan dikurangi Total Pengeluaran Anda."
+                answer: "Saldo Saat Ini adalah jumlah uang yang Anda miliki, dihitung dari Total Pemasukan dikurangi Total Pengeluaran Anda, serta memperhitungkan total utang tertunda (mengurangi) dan piutang tertunda (menambah)."
             },
             "Apa itu Total Pemasukan/Pengeluaran?": {
                 answer: "Total Pemasukan adalah jumlah semua transaksi dengan tipe 'Pemasukan'. Total Pengeluaran adalah jumlah semua transaksi dengan tipe 'Pengeluaran'."
