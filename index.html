@@ -2472,7 +2472,7 @@
                     </div>
                     <p class="text-gray-700 text-sm mb-1">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
                     <p class="text-lg font-medium text-gray-800">Anggaran: ${formatRupiah(budget.amount)}</p>
-                    <p class="text-lg font-medium">Terpakai: <span class="text-expense">${formatRupiah(expensesForBudget)}</span></p>
+                    <p class="text-lg font-medium">Terpakai: <span class="text-expense">${formatRupensesForBudget)}</span></p>
                     <p class="text-lg font-medium">Sisa: <span class="${remainingAmount <= 0 ? 'text-red-500' : 'text-green-500'}">${formatRupiah(remainingAmount)}</span></p>
                     <p class="text-sm mt-2 ${statusColor}">Status: ${statusText}</p>
                     <div class="w-full bg-gray-200 rounded-full h-3 mt-3">
@@ -2721,7 +2721,7 @@
                 const categories = categoriesDoc.exists() ? categoriesDoc.data().list : [];
 
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
-                const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
+                const budgets = budgets.exists() ? budgetsDoc.data().list : [];
 
                 const debtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`)); // NEW: Fetch debts
                 const debts = debtsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // NEW: Map debts
@@ -3026,7 +3026,7 @@
                 }
             });
 
-            // Calculate pending debts and receivables
+            // Calculate pending debts and receivables for display only
             debts.forEach(d => {
                 if (d.status === 'pending') {
                     if (d.type === 'utang') {
@@ -3037,8 +3037,8 @@
                 }
             });
 
-            // Calculate overall balance including pending debts/receivables
-            const currentBalance = totalIncome - totalExpense - totalPendingDebt + totalPendingReceivable;
+            // Calculate overall balance: ONLY based on income and expense
+            const currentBalance = totalIncome - totalExpense;
 
             currentBalanceEl.textContent = formatRupiah(currentBalance);
             totalIncomeEl.textContent = formatRupiah(totalIncome);
@@ -3976,7 +3976,7 @@
                 ]
             },
             "Apa itu Saldo Saat Ini?": {
-                answer: "Saldo Saat Ini adalah jumlah uang yang Anda miliki, dihitung dari Total Pemasukan dikurangi Total Pengeluaran Anda, serta memperhitungkan total utang tertunda (mengurangi) dan piutang tertunda (menambah)."
+                answer: "Saldo Saat Ini adalah jumlah uang yang Anda miliki, dihitung dari Total Pemasukan dikurangi Total Pengeluaran Anda. Utang dan Piutang tertunda tidak mempengaruhi Saldo Saat Ini, namun ditampilkan terpisah untuk informasi Anda."
             },
             "Apa itu Total Pemasukan/Pengeluaran?": {
                 answer: "Total Pemasukan adalah jumlah semua transaksi dengan tipe 'Pemasukan'. Total Pengeluaran adalah jumlah semua transaksi dengan tipe 'Pengeluaran'."
