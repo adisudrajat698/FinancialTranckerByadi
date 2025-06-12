@@ -1748,7 +1748,7 @@
 
                     // Initialize user data in Firestore
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'categories'), {
-                        list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
+                        list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain', 'Pembayaran Utang', 'Penerimaan Piutang'] // Added new categories
                     });
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'budgets'), {
                         list: []
@@ -1877,7 +1877,7 @@
             // Categories listener
             const categoriesDocRef = doc(db, `artifacts/${appId}/users/${uid}/metadata`, 'categories');
             unsubscribeCategories = onSnapshot(categoriesDocRef, (docSnap) => {
-                const categories = docSnap.exists() ? docSnap.data().list : ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain'];
+                const categories = docSnap.exists() ? docSnap.data().list : ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain', 'Pembayaran Utang', 'Penerimaan Piutang'];
                 console.log("Firestore Categories updated:", categories); // Log fetched categories
                 window._userCategories = categories;
                 renderCategoryOptions(transactionCategoryInput);
@@ -2047,8 +2047,41 @@
                 return;
             }
             try {
+                // Fetch the old debt record to check its status
+                const oldDebtDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/debts`, id));
+                let oldDebt = null;
+                if (oldDebtDoc.exists()) {
+                    oldDebt = oldDebtDoc.data();
+                }
+
                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/debts`, id), updatedDebt);
                 console.log("Debt updated in Firestore:", id, updatedDebt);
+
+                // Check if the status changed from 'pending' to 'paid'
+                if (oldDebt && oldDebt.status === 'pending' && updatedDebt.status === 'paid') {
+                    const transactionType = updatedDebt.type === 'utang' ? 'expense' : 'income'; // If it was debt, it's now an expense. If it was receivable, it's now income.
+                    const transactionDescription = `Pelunasan ${updatedDebt.type === 'utang' ? 'Utang' : 'Piutang'} dari ${updatedDebt.person} - ${updatedDebt.description}`;
+                    const transactionCategory = updatedDebt.type === 'utang' ? 'Pembayaran Utang' : 'Penerimaan Piutang'; // New categories if they don't exist
+
+                    // Ensure these categories exist or add them
+                    let categories = getUserCategories();
+                    let categoryAdded = false;
+                    if (!categories.includes(transactionCategory)) {
+                        categories.push(transactionCategory);
+                        await saveUserCategoriesToFirestore(categories);
+                        categoryAdded = true;
+                    }
+
+                    const newTransaction = {
+                        date: new Date().toISOString().split('T')[0], // Current date for transaction
+                        description: transactionDescription,
+                        amount: updatedDebt.amount,
+                        type: transactionType,
+                        category: transactionCategory
+                    };
+                    await addTransactionToFirestore(newTransaction);
+                    showNotification(`Saldo Anda telah diperbarui karena pelunasan ${updatedDebt.type}.`, 'success');
+                }
             } catch (error) {
                 console.error("Error updating debt:", error);
                 showNotification('Gagal memperbarui utang/piutang. Silakan coba lagi.', 'error');
@@ -2809,7 +2842,7 @@
 
                     // Import categories
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'), {
-                        list: importedData.categories || ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain']
+                        list: importedData.categories || ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain', 'Pembayaran Utang', 'Penerimaan Piutang']
                     });
 
                     // Import budgets
