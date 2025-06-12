@@ -2540,6 +2540,30 @@
             };
 
             await addDebtToFirestore(newDebt);
+
+            // Logika baru: Jika tipe adalah 'piutang', buat transaksi pengeluaran (saldo berkurang)
+            if (type === 'piutang') {
+                const transactionDescription = `Meminjamkan uang kepada ${person} - ${description}`;
+                const transactionCategory = 'Piutang'; // Gunakan kategori 'Piutang'
+                // Pastikan kategori 'Piutang' ada di daftar kategori pengguna
+                let categories = getUserCategories();
+                if (!categories.includes(transactionCategory)) {
+                    categories.push(transactionCategory);
+                    await saveUserCategoriesToFirestore(categories);
+                }
+
+                const newTransaction = {
+                    date: new Date().toISOString().split('T')[0], // Tanggal transaksi saat ini
+                    description: transactionDescription,
+                    amount: amount,
+                    type: 'expense', // Ini adalah pengeluaran dari saldo Anda
+                    category: transactionCategory
+                };
+                await addTransactionToFirestore(newTransaction);
+                showNotification(`Saldo Anda telah berkurang sebesar ${formatRupiah(amount)} karena meminjamkan uang.`, 'info');
+            }
+
+
             showMessage(debtMessageEl, 'Catatan utang/piutang berhasil ditambahkan!', false);
             showNotification('Catatan utang/piutang berhasil ditambahkan!', 'success');
             debtForm.reset();
@@ -2589,15 +2613,31 @@
                 createdAt: new Date().toISOString() // Keep original or update as needed
             };
 
-            await updateDebtInFirestore(id, updatedDebt);
+            // Fetch the old debt record to check its status for transaction adjustments
+            const oldDebtDoc = await getDoc(doc(db, `artifacts/${appId}/users/${getCurrentUserId()}/debts`, id));
+            let oldDebt = null;
+            if (oldDebtDoc.exists()) {
+                oldDebt = oldDebtDoc.data();
+            }
+
+            await updateDebtInFirestore(id, updatedDebt); // Panggil fungsi updateDebtInFirestore yang sudah dimodifikasi
+
             showMessage(debtMessageEl, 'Catatan utang/piutang berhasil diperbarui!', false);
             showNotification('Catatan utang/piutang berhasil diperbarui!', 'success');
             hideEditDebtModal();
         }
 
         async function deleteDebt(id) {
-            confirmAction('Apakah Anda yakin ingin menghapus catatan utang/piutang ini?', async () => {
+            confirmAction('Apakah Anda yakin ingin menghapus catatan utang/piutang ini? Jika ini adalah piutang yang mengurangi saldo Anda, saldo tidak akan dikembalikan secara otomatis.', async () => {
+                const debts = getUserDebts();
+                const debtToDelete = debts.find(d => d.id === id);
+
                 await deleteDebtFromFirestore(id);
+
+                // Logika: Jika piutang yang dihapus masih pending, tidak ada perubahan saldo.
+                // Jika piutang yang dihapus sudah lunas, transaksi penerimaan piutang mungkin sudah masuk.
+                // Untuk kesederhanaan, hanya penambahan piutang yang mengurangi saldo, dan pelunasan piutang yang menambah saldo.
+                // Penghapusan tidak akan mengembalikan transaksi secara otomatis untuk menghindari kompleksitas.
                 showNotification('Catatan utang/piutang berhasil dihapus!', 'success');
             });
         }
@@ -4048,7 +4088,7 @@
                 answer: "Ketika Anda menambahkan transaksi pengeluaran, sistem akan memeriksa apakah transaksi tersebut termasuk dalam kategori yang memiliki anggaran aktif. Jika jumlah transaksi baru akan menyebabkan total pengeluaran untuk kategori tersebut melebihi anggaran yang tersisa, sebuah peringatan akan muncul. Anda tetap bisa melanjutkan transaksi jika mau."
             },
              "Manajemen Utang Piutang": { // NEW Chatbot entry
-                answer: "Di menu 'Manajemen Utang Piutang', Anda dapat mencatat dan melacak utang (uang yang Anda berutang kepada orang lain) dan piutang (uang yang orang lain berutang kepada Anda).",
+                answer: "Di menu 'Manajemen Utang Piutang', Anda dapat mencatat dan melacak utang (uang yang Anda berutang kepada orang lain) dan piutang (uang yang orang lain berutang kepada Anda). Ketika Anda menambahkan piutang, saldo Anda akan langsung berkurang. Ketika piutang dibayar, saldo Anda akan bertambah.",
                 options: [
                     "Bagaimana cara menambahkan catatan utang/piutang baru?",
                     "Bagaimana cara melihat daftar utang/piutang?",
@@ -4058,16 +4098,16 @@
                 ]
             },
             "Bagaimana cara menambahkan catatan utang/piutang baru?": { // NEW Chatbot entry
-                answer: "Untuk menambahkan catatan baru, buka menu 'Manajemen Utang Piutang', lalu pada formulir 'Tambah Utang/Piutang Baru', isi Tipe (Utang/Piutang), Nama Pihak, Deskripsi, Jumlah, Tanggal Jatuh Tempo, dan Status. Klik tombol 'Tambah Utang/Piutang'."
+                answer: "Untuk menambahkan catatan baru, buka menu 'Manajemen Utang Piutang', lalu pada formulir 'Tambah Utang/Piutang Baru', isi Tipe (Utang/Piutang), Nama Pihak, Deskripsi, Jumlah, Tanggal Jatuh Tempo, dan Status. Jika Anda memilih 'Piutang', saldo Anda akan langsung berkurang. Klik tombol 'Tambah Utang/Piutang'."
             },
             "Bagaimana cara melihat daftar utang/piutang?": { // NEW Chatbot entry
                 answer: "Daftar semua utang dan piutang Anda ditampilkan di bagian 'Daftar Utang & Piutang'. Anda dapat memfilter berdasarkan Tipe (Utang/Piutang) dan Status (Tertunda/Lunas), serta mengurutkan berdasarkan berbagai kriteria."
             },
             "Bagaimana cara mengedit catatan utang/piutang?": { // NEW Chatbot entry
-                answer: "Untuk mengedit catatan, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Edit' di sampingnya. Anda dapat memperbarui detail seperti jumlah, tanggal jatuh tempo, atau mengubah status menjadi 'Lunas'."
+                answer: "Untuk mengedit catatan, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Edit' di sampingnya. Anda dapat memperbarui detail seperti jumlah, tanggal jatuh tempo, atau mengubah status menjadi 'Lunas'. Jika Anda mengubah status piutang menjadi 'Lunas', saldo Anda akan bertambah."
             },
             "Bagaimana cara menghapus catatan utang/piutang?": { // NEW Chatbot entry
-                answer: "Untuk menghapus catatan utang/piutang, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Hapus'. Anda akan diminta konfirmasi sebelum catatan dihapus secara permanen."
+                answer: "Untuk menghapus catatan utang/piutang, temukan catatan di 'Daftar Utang & Piutang', lalu klik tombol 'Hapus'. Anda akan diminta konfirmasi sebelum catatan dihapus secara permanen. Perlu diingat, penghapusan catatan tidak secara otomatis mengembalikan perubahan saldo yang terkait."
             },
             "Laporan Keuangan": {
                 answer: "Menu 'Laporan' menyediakan ringkasan keuangan yang lebih mendalam, termasuk total pemasukan/pengeluaran, saldo bersih, serta grafik bulanan dan per kategori.",
