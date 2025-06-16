@@ -18,6 +18,19 @@
             background-color: #F8FAFC; /* Warna latar belakang umum yang lebih cerah dan soft */
             color: #1F2937; /* Warna teks umum lebih gelap */
             transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
         .sidebar {
             background: linear-gradient(150deg, #1A73E8, #0C5CC6); /* Gradien biru yang lebih cerah dan dinamis */
@@ -80,6 +93,8 @@
         .main-content {
             background-color: #F8FAFC; /* Warna latar belakang konten utama */
             transition: background-color 0.3s ease;
+            flex-grow: 1; /* Allow content to grow */
+            padding-bottom: 70px; /* Space for bottom nav */
         }
         .card {
             background-color: #ffffff;
@@ -374,14 +389,21 @@
 
         /* Responsiveness */
         @media (min-width: 768px) {
+            body {
+                flex-direction: row; /* Sidebar and content side-by-side on desktop */
+            }
             .sidebar {
                 transform: translateX(0); /* Sidebar always visible on desktop */
             }
             .content-wrapper {
                 margin-left: 280px; /* Make space for sidebar */
+                padding-bottom: 0; /* Remove bottom padding on desktop */
             }
             .menu-button {
                 display: none; /* Hide menu button on desktop */
+            }
+            .bottom-nav {
+                display: none; /* Hide bottom nav on desktop */
             }
         }
 
@@ -739,9 +761,113 @@
             border-color: #92400E;
             color: #FCD34D;
         }
+
+        /* Bottom Navigation Bar Styles */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.08);
+            z-index: 30;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            border-top-left-radius: 1.5rem;
+            border-top-right-radius: 1.5rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.dark-mode .bottom-nav {
+            background-color: #1F2937;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            padding: 0.4rem 0.2rem;
+            color: #6B7280; /* Gray-500 */
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500;
+            transition: color 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            margin: 0 0.2rem;
+            min-width: 60px; /* Ensure sufficient touch target */
+            text-decoration: none; /* Remove underline from anchor tags */
+        }
+
+        .bottom-nav-item .feather-icon {
+            width: 1.5rem; /* Larger icon for better touch */
+            height: 1.5rem;
+            margin-right: 0; /* No margin right for icons in bottom nav */
+            margin-bottom: 0.2rem;
+            transition: color 0.2s ease;
+        }
+
+        .bottom-nav-item.active {
+            color: #1A73E8; /* Blue for active */
+            transform: translateY(-3px); /* Subtle lift effect */
+        }
+
+        .bottom-nav-item.active .feather-icon {
+            color: #1A73E8;
+        }
+
+        body.dark-mode .bottom-nav-item {
+            color: #94A3B8; /* Lighter gray for dark mode */
+        }
+
+        body.dark-mode .bottom-nav-item.active {
+            color: #60A5FA; /* Lighter blue for active in dark mode */
+        }
+        body.dark-mode .bottom-nav-item.active .feather-icon {
+            color: #60A5FA;
+        }
+
+        /* Floating Action Button (FAB) */
+        .fab-button {
+            position: fixed;
+            bottom: 6.5rem; /* Adjust based on bottom nav height */
+            right: 1.5rem;
+            background: linear-gradient(135deg, #10B981, #059669); /* Green gradient */
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            cursor: pointer;
+            z-index: 40;
+            transition: all 0.3s ease;
+        }
+        .fab-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+        .fab-button .feather-icon {
+            width: 2rem;
+            height: 2rem;
+            margin-right: 0;
+        }
+
+        @media (min-width: 768px) {
+            .fab-button {
+                display: none; /* Hide FAB on desktop */
+            }
+        }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body>
     <!-- Sidebar / Navigation -->
     <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full p-6 flex flex-col md:relative md:flex-shrink-0">
        <div class="mb-8 text-center">
@@ -753,7 +879,7 @@
         <nav class="flex-grow">
             <ul class="space-y-2">
               <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard"><i data-feather="home" class="feather-icon"></i> Dashboard </a></li>
-              <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
+              <li id="transactionsSidebarItem" class="md:hidden"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
               <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="dollar-sign" class="feather-icon"></i> Rencana Anggaran </a></li>
               <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Utang Piutang </a></li>
               <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="feather-icon"></i> Laporan </a></li>
@@ -1265,10 +1391,34 @@
             </main>
 
         <!-- Footer -->
-        <footer class="bg-gray-900 text-white text-center p-5 text-sm mt-auto shadow-inner-up">
+        <footer class="bg-gray-900 text-white text-center p-5 text-sm mt-auto shadow-inner-up md:hidden">
             &copy; 2025 by Adi Sudrajat. All rights reserved.
         </footer>
     </div>
+
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav id="bottomNav" class="bottom-nav md:hidden">
+        <a href="#" class="bottom-nav-item active" data-section="dashboard">
+            <i data-feather="home" class="feather-icon"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-section="transactions">
+            <i data-feather="file-text" class="feather-icon"></i>
+            <span>Transaksi</span>
+        </a>
+        <button id="addTransactionFab" class="fab-button">
+            <i data-feather="plus" class="feather-icon"></i>
+        </button>
+        <a href="#" class="bottom-nav-item" data-section="budgeting">
+            <i data-feather="dollar-sign" class="feather-icon"></i>
+            <span>Anggaran</span>
+        </a>
+        <a href="#" class="bottom-nav-item" data-section="reports">
+            <i data-feather="bar-chart-2" class="feather-icon"></i>
+            <span>Laporan</span>
+        </a>
+    </nav>
+
 
     <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal-overlay hidden">
@@ -1566,7 +1716,7 @@
         const transactionsSidebarItem = document.getElementById('transactionsSidebarItem');
         const reportsSidebarItem = document.getElementById('reportsSidebarItem');
         const settingsSidebarItem = document.getElementById('settingsSidebarItem');
-        const helpSidebarItem = document.getElementById('helpSidebarItem'); // New help sidebar item
+        const helpSidebarItem = document.getElementById('helpSidebarItem');
 
         const sidebarItems = document.querySelectorAll('.sidebar-item');
 
@@ -1621,6 +1771,11 @@
         const chatDisplay = document.getElementById('chatDisplay');
         const chatOptions = document.getElementById('chatOptions');
 
+        // New: Bottom Navigation and FAB
+        const bottomNav = document.getElementById('bottomNav');
+        const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+        const addTransactionFab = document.getElementById('addTransactionFab');
+
         // State Variables
         let isLoggedIn = false;
         let currentFirebaseUser = null; // Stores the Firebase User object (auth.currentUser)
@@ -1635,7 +1790,7 @@
         let unsubscribeTransactions = null;
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
-        let unsubscribeDebts = null; // NEW: Listener for debts
+        let unsubscribeDebts = null; // Listener for debts
 
         // --- Utility Functions ---
 
@@ -1816,14 +1971,24 @@
                 // Ensure sidebar is open on desktop, hidden on mobile initially
                 if (window.innerWidth < 768) {
                     sidebar.classList.remove('open');
+                    bottomNav.classList.remove('hidden'); // Show bottom nav on mobile
+                    addTransactionFab.classList.remove('hidden'); // Show FAB on mobile
                 } else {
                     sidebar.classList.add('open');
+                    bottomNav.classList.add('hidden'); // Hide bottom nav on desktop
+                    addTransactionFab.classList.add('hidden'); // Hide FAB on desktop
                 }
 
                 dashboardSidebarItem.classList.remove('hidden');
-                transactionsSidebarItem.classList.remove('hidden');
+                // transactionsSidebarItem is hidden on mobile sidebar, shown on desktop sidebar
+                if (window.innerWidth >= 768) {
+                    transactionsSidebarItem.classList.remove('hidden');
+                } else {
+                    transactionsSidebarItem.classList.add('hidden');
+                }
+
                 budgetingSidebarItem.classList.remove('hidden');
-                debtManagementSidebarItem.classList.remove('hidden'); // NEW: Show debt management sidebar item
+                debtManagementSidebarItem.classList.remove('hidden'); // Show debt management sidebar item
                 reportsSidebarItem.classList.remove('hidden');
                 analysisSidebarItem.classList.remove('hidden');
                 settingsSidebarItem.classList.remove('hidden');
@@ -1832,11 +1997,14 @@
                 authSection.classList.remove('hidden');
                 sidebar.classList.add('hidden');
                 logoutBtn.classList.add('hidden');
+                bottomNav.classList.add('hidden'); // Hide bottom nav on logout
+                addTransactionFab.classList.add('hidden'); // Hide FAB on logout
+
                 // Hide all sidebar items on logout
                 dashboardSidebarItem.classList.add('hidden');
                 transactionsSidebarItem.classList.add('hidden');
                 budgetingSidebarItem.classList.add('hidden');
-                debtManagementSidebarItem.classList.add('hidden'); // NEW: Hide debt management sidebar item
+                debtManagementSidebarItem.classList.add('hidden'); // Hide debt management sidebar item
                 reportsSidebarItem.classList.add('hidden');
                 analysisSidebarItem.classList.add('hidden');
                 settingsSidebarItem.classList.add('hidden');
@@ -1919,11 +2087,11 @@
             if (unsubscribeTransactions) unsubscribeTransactions();
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
-            if (unsubscribeDebts) unsubscribeDebts(); // NEW: Unsubscribe debts
+            if (unsubscribeDebts) unsubscribeDebts(); // Unsubscribe debts
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
-            window._userDebts = []; // NEW: Clear debts
+            window._userDebts = []; // Clear debts
             console.log("All Firestore listeners unsubscribed.");
         }
 
@@ -2131,6 +2299,18 @@
                 }
             });
 
+            // Update active bottom nav item
+            bottomNavItems.forEach(item => {
+                item.classList.remove('active');
+                // Special handling for "transactions" as it's directly accessible
+                // from FAB and can be chosen from sidebar.
+                // It's also part of the bottom nav.
+                const dataSection = item.dataset.section;
+                if (dataSection + 'Section' === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+
             // Close sidebar on mobile after navigating
             if (window.innerWidth < 768) {
                 sidebar.classList.remove('open');
@@ -2146,7 +2326,7 @@
             } else if (sectionId === 'budgetingSection') {
                 renderCategoryOptions(budgetItemCategorySelect);
                 renderBudgets();
-            } else if (sectionId === 'debtManagementSection') { // NEW: Render debt management
+            } else if (sectionId === 'debtManagementSection') { // Render debt management
                 renderDebtManagement();
             }
             else if (sectionId === 'reportsSection') {
@@ -2791,14 +2971,14 @@
                 const budgetsDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'budgets'));
                 const budgets = budgetsDoc.exists() ? budgetsDoc.data().list : [];
 
-                const debtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`)); // NEW: Fetch debts
-                const debts = debtsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // NEW: Map debts
+                const debtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`)); // Fetch debts
+                const debts = debtsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Map debts
 
                 const dataToExport = {
                     transactions,
                     categories,
                     budgets,
-                    debts // NEW: Include debts in export
+                    debts // Include debts in export
                 };
 
                 const dataStr = JSON.stringify(dataToExport, null, 2); // Pretty print JSON
@@ -4448,7 +4628,7 @@
         sidebarItems.forEach(item => {
             item.addEventListener('click', (event) => {
                 event.preventDefault();
-                const sectionId = event.target.dataset.section + 'Section';
+                const sectionId = event.currentTarget.dataset.section + 'Section'; // Use currentTarget
                 if (isLoggedIn) {
                     showSection(sectionId);
                 } else {
@@ -4457,6 +4637,34 @@
                 }
             });
         });
+
+        // Bottom navigation
+        bottomNavItems.forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const sectionId = event.currentTarget.dataset.section + 'Section'; // Use currentTarget
+                if (isLoggedIn) {
+                    showSection(sectionId);
+                } else {
+                    showMessage(authMessage, 'Anda harus login terlebih dahulu.', true);
+                    showNotification('Anda harus login terlebih dahulu.', 'error');
+                }
+            });
+        });
+
+        // FAB to add transaction
+        addTransactionFab.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (isLoggedIn) {
+                showSection('transactionsSection');
+                // Optionally scroll to add transaction form or highlight it
+                transactionForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                showMessage(authMessage, 'Anda harus login terlebih dahulu untuk menambah transaksi.', true);
+                showNotification('Anda harus login terlebih dahulu untuk menambah transaksi.', 'error');
+            }
+        });
+
 
         // Transaction form submission
         transactionForm.addEventListener('submit', addTransaction);
@@ -4559,9 +4767,9 @@
         window.hideJsonDisplayModal = hideJsonDisplayModal; // Expose for modal close button
         window.deleteBudget = deleteBudget; // Expose for budget deletion
         window.hideForgotPasswordModal = hideForgotPasswordModal; // Expose for modal close button
-        window.editDebt = editDebt; // NEW: Expose editDebt
-        window.deleteDebt = deleteDebt; // NEW: Expose deleteDebt
-        window.hideEditDebtModal = hideEditDebtModal; // NEW: Expose hideEditDebtModal
+        window.editDebt = editDebt; // Expose editDebt
+        window.deleteDebt = deleteDebt; // Expose deleteDebt
+        window.hideEditDebtModal = hideEditDebtModal; // Expose hideEditDebtModal
 
         // Prevent pinch zoom
         document.addEventListener('gesturestart', function (e) {
