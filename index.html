@@ -126,7 +126,7 @@
         input[type="number"],
         input[type="date"],
         select {
-            border-color: #D1D8DF;
+            border-color: #A0AEC0; /* Warna border yang lebih terlihat */
             border-width: 1px;
             border-radius: 0.75rem; /* rounded-xl */
             padding: 0.85rem 1.15rem;
@@ -134,6 +134,8 @@
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s ease, color 0.3s ease;
             font-size: 0.95rem;
+            background-color: #FDFEFE; /* Pastikan ada latar belakang */
+            color: #1F2937; /* Pastikan teks terlihat */
         }
         input[type="text"]:focus,
         input[type="password"]:focus,
@@ -592,6 +594,10 @@
             background-color: #6366F1; /* indigo-500 */
             color: white;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+            /* Add this line for the icon color when active in dark mode */
+        }
+        body.dark-mode .sidebar-item.active .feather-icon {
+            color: white; /* Ikon putih saat aktif di dark mode */
         }
         body.dark-mode .top-bar {
             background-color: #6366F1; /* indigo-500 */
@@ -612,7 +618,7 @@
         body.dark-mode input[type="date"],
         body.dark-mode select {
             background-color: #4A5568;
-            border-color: #4A5568;
+            border-color: #6B7280; /* Border yang lebih terlihat di dark mode */
             color: #E2E8F0;
         }
         body.dark-mode input::placeholder {
@@ -811,6 +817,11 @@
             color: #92400E; /* yellow-800 */
             padding: 1rem;
             border-radius: 0.75rem;
+            display: flex; /* Menggunakan flexbox */
+            flex-direction: column; /* Menyusun item secara vertikal */
+            align-items: center; /* Memusatkan item secara horizontal */
+            justify-content: center; /* Memusatkan item secara vertikal */
+            text-align: center; /* Memusatkan teks */
         }
         body.dark-mode .no-records-message {
             background-color: #33230A;
@@ -890,9 +901,7 @@
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="feather-icon"></i> Bantuan </a></li>
             </ul>
         </nav>
-        <div class="mt-auto pt-6">
-            <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg"><i data-feather="log-out" class="feather-icon"></i> Logout</button>
-        </div>
+        <!-- Logout button is removed from here -->
     </aside>
 
     <!-- Main Content Area -->
@@ -1369,6 +1378,11 @@
                     <button id="exportDataBtn" class="btn-primary font-semibold py-3"><i data-feather="file-text" class="feather-icon"></i> Ekspor Transaksi ke CSV</button>
                 </div>
 
+                <div class="card p-5 mt-8 mb-8">
+                    <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Sesi Aplikasi</h3>
+                    <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg"><i data-feather="log-out" class="feather-icon"></i> Logout</button>
+                </div>
+
                 <div class="card p-5 mt-8">
                     <h3 class="text-xl font-bold mb-5 text-red-600 dark:text-red-400">Hapus Akun</h3>
                     <p class="text-gray-700 dark:text-gray-200 mb-4 text-base">Menghapus akun Anda akan menghapus semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
@@ -1598,7 +1612,7 @@
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
         const menuBtn = document.getElementById('menuBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutBtn = document.getElementById('logoutBtn'); // Now in settings
         const authSection = document.getElementById('authSection');
         const authTitle = document.getElementById('authTitle');
         const authForm = document.getElementById('authForm');
@@ -4310,7 +4324,8 @@
                     "Bagaimana cara mengirim ringkasan transaksi ke WhatsApp?",
                     "Bagaimana cara mengekspor transaksi ke CSV?",
                     "Bagaimana cara menghapus akun saya?",
-                    "Mode Gelap"
+                    "Mode Gelap",
+                    "Logout"
                 ]
             },
             "Bagaimana cara mengubah kata sandi?": {
@@ -4330,6 +4345,9 @@
             },
             "Mode Gelap": {
                 answer: "Mode gelap memungkinkan Anda mengubah tampilan aplikasi menjadi skema warna yang lebih gelap, yang dapat mengurangi ketegangan mata, terutama di lingkungan dengan cahaya rendah. Anda bisa mengaktifkan atau menonaktifkannya dari menu 'Pengaturan' di bagian 'Mode Tampilan'."
+            },
+            "Logout": {
+                answer: "Untuk keluar dari aplikasi, Anda bisa menemukan tombol 'Logout' di bagian 'Sesi Aplikasi' pada halaman 'Pengaturan'."
             },
             "Verifikasi Email": {
                 answer: "Untuk memastikan keamanan akun Anda, kami memerlukan verifikasi email. Setelah mendaftar, tautan verifikasi akan dikirim ke email Anda. Anda harus mengklik tautan tersebut sebelum dapat masuk. Jika Anda tidak menerima email, silakan cek folder spam atau coba masuk lagi untuk memicu pengiriman ulang.",
