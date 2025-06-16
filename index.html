@@ -15,7 +15,7 @@
         /* Custom CSS untuk font dan warna */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #E8EBF0; /* Warna latar belakang umum yang sedikit lebih gelap untuk kontras */
+            background-color: #F3F4F6; /* Warna latar belakang umum yang sedikit lebih gelap untuk kontras */
             color: #1F2937; /* Warna teks umum lebih gelap */
             transition: background-color 0.3s ease, color 0.3s ease;
             -webkit-font-smoothing: antialiased;
@@ -101,22 +101,22 @@
         .main-content-area {
             flex-grow: 1;
             padding: 1rem;
-            background-color: #F0F2F5; /* Match body background */
+            background-color: #F3F4F6; /* Sesuaikan dengan background body */
         }
 
         /* Cards and forms */
         .card {
             background-color: #ffffff;
             border-radius: 1.25rem; /* rounded-2xl */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Shadow yang lebih terlihat */
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12); /* Shadow yang lebih terlihat */
             transition: all 0.3s ease;
-            border: 1px solid #D1D8DF; /* Border yang sedikit lebih gelap */
+            border: 1px solid #A0AEC0; /* Border yang lebih gelap (gray-400) */
             position: relative;
             overflow: hidden;
             padding: 1.5rem; /* Default padding for cards */
         }
         .card:hover {
-            box-shadow: 0 8px 18px rgba(0,0,0,0.15); /* Shadow yang lebih dalam saat hover */
+            box-shadow: 0 10px 22px rgba(0,0,0,0.18); /* Shadow yang lebih dalam saat hover */
             transform: translateY(-2px);
         }
 
@@ -126,7 +126,7 @@
         input[type="number"],
         input[type="date"],
         select {
-            border-color: #9CA3AF; /* Warna border yang lebih terlihat (gray-400) */
+            border-color: #6B7280; /* Warna border yang sangat terlihat (gray-500) */
             border-width: 1px;
             border-radius: 0.75rem; /* rounded-xl */
             padding: 0.85rem 1.15rem;
@@ -136,6 +136,7 @@
             font-size: 0.95rem;
             background-color: #FFFFFF; /* Pastikan ada latar belakang putih */
             color: #1F2937; /* Pastikan teks terlihat gelap */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Subtle shadow for depth */
         }
         input[type="text"]:focus,
         input[type="password"]:focus,
@@ -883,17 +884,22 @@
         #latestTransactions > div,
         #allTransactionsList > div,
         #categoryList > div,
-        #budgetList > div {
+        #budgetList > div,
+        #expenseByCategorySummary > div,
+        #incomeByCategorySummary > div { /* Added these for more general application */
+            background-color: #FFFFFF; /* Ensures pure white background for these items in light mode */
             border: 1px solid #D1D8DF; /* Adds a visible border in light mode */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Adds a very subtle shadow */
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08); /* Slightly stronger shadow */
             transition: all 0.2s ease;
         }
         #latestTransactions > div:hover,
         #allTransactionsList > div:hover,
         #categoryList > div:hover,
-        #budgetList > div:hover {
+        #budgetList > div:hover,
+        #expenseByCategorySummary > div:hover,
+        #incomeByCategorySummary > div:hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
 
 
@@ -1766,7 +1772,7 @@
         const editTransactionForm = document.getElementById('editTransactionForm');
         const editTransactionIdInput = document.getElementById('editTransactionId');
         const editTransactionDateInput = document.getElementById('editTransactionDate');
-        const editTransactionDescriptionInput = document.getElementById('editTransactionDescription');
+        const editTransactionDescriptionInput = document = document.getElementById('editTransactionDescription');
         const editTransactionAmountInput = document.getElementById('editTransactionAmount');
         const editTransactionTypeInput = document.getElementById('editTransactionType');
         const editTransactionCategoryInput = document.getElementById('editTransactionCategory');
