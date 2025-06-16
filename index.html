@@ -582,10 +582,10 @@
             box-shadow: 6px 0 15px rgba(0,0,0,0.3);
         }
         body.dark-mode .sidebar-item {
-            color: #EDF2F7;
+            color: #EDF2F7; /* Default sidebar item text in dark mode */
         }
         body.dark-mode .sidebar-item:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* darker hover */
+            background-color: rgba(255, 255, 255, 0.15); /* Slightly more visible hover in dark mode */
             color: #90CDF4;
         }
         body.dark-mode .sidebar-item.active {
@@ -619,20 +619,23 @@
             color: #A0AEC0;
         }
         body.dark-mode .btn-secondary {
-            background-color: #718096;
-            color: #E2E8F0;
+            background-color: #94A3B8; /* Lighter gray for better visibility in dark mode */
+            color: #1A202C; /* Darker text for contrast on lighter background */
         }
         body.dark-mode .btn-secondary:hover {
-            background-color: #A0AEC0;
+            background-color: #A0AEC0; /* Slightly darker on hover */
         }
-        body.dark-mode .text-gray-700, body.dark-mode .text-gray-800 {
-            color: #CBD5E0;
+        body.dark-mode .text-gray-700 {
+            color: #CBD5E0; /* Lighter text for good contrast */
+        }
+        body.dark-mode .text-gray-800 {
+            color: #E2E8F0; /* Lighter text for good contrast */
         }
         body.dark-mode .text-gray-600 {
-            color: #A0AEC0;
+            color: #A0AEC0; /* Adjusted for contrast */
         }
         body.dark-mode .text-gray-500 {
-            color: #718096;
+            color: #CBD5E0; /* Adjusted for better visibility on dark backgrounds */
         }
         body.dark-mode .text-blue-600 {
             color: #90CDF4; /* Lighter blue for contrast */
@@ -914,19 +917,19 @@
                     </div>
                     <form id="authForm" class="space-y-6">
                         <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Email</label>
                             <input type="email" id="username" name="username" required class="block w-full" placeholder="Masukkan email Anda">
                         </div>
                         <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kata Sandi</label>
+                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kata Sandi</label>
                             <input type="password" id="password" name="password" required class="block w-full" placeholder="Masukkan kata sandi Anda">
                         </div>
                         <p id="authMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
                         <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="log-in" class="feather-icon"></i> Login</button>
                     </form>
-                    <p class="text-center text-sm mt-6 text-gray-600 dark:text-gray-400">
+                    <p class="text-center text-sm mt-6 text-gray-600 dark:text-gray-300">
                         <a href="#" id="forgotPasswordLink" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">Lupa Kata Sandi?</a>
-                        <span class="mx-2 text-gray-400">|</span>
+                        <span class="mx-2 text-gray-400 dark:text-gray-500">|</span>
                         Belum punya akun? <a href="#" id="toggleAuthMode" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">Daftar di sini</a>
                     </p>
                 </div>
@@ -969,7 +972,7 @@
                     <div class="card p-5">
                         <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Pengeluaran Berdasarkan Kategori</h3>
                         <div id="expenseByCategorySummary" class="space-y-3">
-                            <p class="text-gray-500 text-center text-sm">Belum ada pengeluaran berdasarkan kategori.</p>
+                            <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada pengeluaran berdasarkan kategori.</p>
                         </div>
                     </div>
                 </div>
@@ -977,7 +980,7 @@
                 <div class="card p-5">
                     <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Transaksi Terbaru</h3>
                     <div id="latestTransactions" class="space-y-3">
-                        <p class="text-gray-500 text-center text-sm">Belum ada transaksi.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi.</p>
                     </div>
                 </div>
             </section>
@@ -989,26 +992,26 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Tambah Transaksi Baru</h3>
                     <form id="transactionForm" class="space-y-4">
                         <div>
-                            <label for="transactionDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal</label>
+                            <label for="transactionDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal</label>
                             <input type="date" id="transactionDate" required class="block">
                         </div>
                         <div>
-                            <label for="transactionDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Deskripsi</label>
+                            <label for="transactionDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Deskripsi</label>
                             <input type="text" id="transactionDescription" placeholder="Contoh: Beli Kopi" required class="block">
                         </div>
                         <div>
-                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah (Rp)</label>
+                            <label for="transactionAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah (Rp)</label>
                             <input type="number" id="transactionAmount" placeholder="Contoh: 25000" required min="1" class="block">
                         </div>
                         <div>
-                            <label for="transactionType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipe</label>
+                            <label for="transactionType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tipe</label>
                             <select id="transactionType" required class="block">
                                 <option value="income">Pemasukan</option>
                                 <option value="expense">Pengeluaran</option>
                             </select>
                         </div>
                         <div>
-                            <label for="transactionCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategori</label>
+                            <label for="transactionCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kategori</label>
                             <select id="transactionCategory" required class="block">
                                 </select>
                         </div>
@@ -1020,11 +1023,11 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Daftar Semua Transaksi</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                         <div class="col-span-full lg:col-span-1">
-                            <label for="transactionSearchInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cari Deskripsi</label>
+                            <label for="transactionSearchInput" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Cari Deskripsi</label>
                             <input type="text" id="transactionSearchInput" placeholder="Cari transaksi..." class="block">
                         </div>
                         <div>
-                            <label for="filterType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter Tipe</label>
+                            <label for="filterType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Filter Tipe</label>
                             <select id="filterType" class="block">
                                 <option value="all">Semua</option>
                                 <option value="income">Pemasukan</option>
@@ -1032,15 +1035,15 @@
                             </select>
                         </div>
                         <div>
-                            <label for="filterStartDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Mulai</label>
+                            <label for="filterStartDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Mulai</label>
                             <input type="date" id="filterStartDate" class="block">
                         </div>
                         <div>
-                            <label for="filterEndDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Akhir</label>
+                            <label for="filterEndDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Akhir</label>
                             <input type="date" id="filterEndDate" class="block">
                         </div>
                         <div class="col-span-full sm:col-span-2 lg:col-span-1">
-                            <label for="sortBy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Urutkan Berdasarkan</label>
+                            <label for="sortBy" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Urutkan Berdasarkan</label>
                             <select id="sortBy" class="block">
                                 <option value="dateDesc">Tanggal (Terbaru)</option>
                                 <option value="dateAsc">Tanggal (Terlama)</option>
@@ -1050,11 +1053,11 @@
                         </div>
                     </div>
                     <div id="allTransactionsList" class="space-y-3">
-                        <p class="text-gray-500 text-center text-sm">Belum ada transaksi.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi.</p>
                     </div>
                     <div id="paginationControls" class="flex justify-center items-center gap-4 mt-5">
                         <button id="prevPageBtn" class="btn-secondary px-4 py-2 rounded-lg"><i data-feather="arrow-left" class="feather-icon"></i> Sebelumnya</button>
-                        <span id="pageInfo" class="text-gray-700 dark:text-gray-300 font-medium text-sm">Halaman 1 dari 1</span>
+                        <span id="pageInfo" class="text-gray-700 dark:text-gray-200 font-medium text-sm">Halaman 1 dari 1</span>
                         <button id="nextPageBtn" class="btn-secondary px-4 py-2 rounded-lg">Berikutnya <i data-feather="arrow-right" class="feather-icon"></i></button>
                     </div>
                 </div>
@@ -1067,21 +1070,21 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Tetapkan Anggaran Baru</h3>
                     <form id="budgetForm" class="space-y-4">
                         <div>
-                            <label for="budgetItemCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategori</label>
+                            <label for="budgetItemCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kategori</label>
                             <select id="budgetItemCategory" required class="block">
                                 <!-- Categories will be loaded here -->
                             </select>
                         </div>
                         <div>
-                            <label for="budgetAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah Anggaran (Rp)</label>
+                            <label for="budgetAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah Anggaran (Rp)</label>
                             <input type="number" id="budgetAmount" placeholder="Contoh: 500000" required min="1" class="block">
                         </div>
                         <div>
-                            <label for="budgetStartDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Mulai</label>
+                            <label for="budgetStartDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Mulai</label>
                             <input type="date" id="budgetStartDate" required class="block">
                         </div>
                         <div>
-                            <label for="budgetEndDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Akhir</label>
+                            <label for="budgetEndDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Akhir</label>
                             <input type="date" id="budgetEndDate" required class="block">
                         </div>
                         <button type="submit" class="w-full btn-primary font-semibold py-3"><i data-feather="save" class="feather-icon"></i> Simpan Anggaran</button>
@@ -1092,7 +1095,7 @@
                 <div class="card p-5">
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Daftar Anggaran Anda</h3>
                     <div id="budgetList" class="space-y-4">
-                        <p class="text-gray-500 text-center text-sm">Belum ada anggaran yang ditetapkan.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-base">Belum ada anggaran yang ditetapkan.</p>
                     </div>
                 </div>
             </section>
@@ -1104,30 +1107,30 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Tambah Utang/Piutang Baru</h3>
                     <form id="debtForm" class="space-y-4">
                         <div>
-                            <label for="debtType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipe</label>
+                            <label for="debtType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tipe</label>
                             <select id="debtType" required class="block">
                                 <option value="utang">Utang (Saya berutang)</option>
                                 <option value="piutang">Piutang (Orang berutang kepada saya)</option>
                             </select>
                         </div>
                         <div>
-                            <label for="debtPerson" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Pihak (Orang/Perusahaan)</label>
+                            <label for="debtPerson" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Nama Pihak (Orang/Perusahaan)</label>
                             <input type="text" id="debtPerson" placeholder="Contoh: Budi, Bank ABC" required class="block">
                         </div>
                         <div>
-                            <label for="debtDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Deskripsi</label>
+                            <label for="debtDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Deskripsi</label>
                             <input type="text" id="debtDescription" placeholder="Contoh: Pinjam uang makan siang" required class="block">
                         </div>
                         <div>
-                            <label for="debtAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah (Rp)</label>
+                            <label for="debtAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah (Rp)</label>
                             <input type="number" id="debtAmount" placeholder="Contoh: 50000" required min="1" class="block">
                         </div>
                         <div>
-                            <label for="debtDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Jatuh Tempo</label>
+                            <label for="debtDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Jatuh Tempo</label>
                             <input type="date" id="debtDueDate" required class="block">
                         </div>
                         <div>
-                            <label for="debtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                            <label for="debtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Status</label>
                             <select id="debtStatus" required class="block">
                                 <option value="pending">Tertunda</option>
                                 <option value="paid">Lunas</option>
@@ -1142,7 +1145,7 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Daftar Utang & Piutang</h3>
                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                         <div>
-                            <label for="filterDebtType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter Tipe</label>
+                            <label for="filterDebtType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Filter Tipe</label>
                             <select id="filterDebtType" class="block">
                                 <option value="all">Semua</option>
                                 <option value="utang">Utang</option>
@@ -1150,7 +1153,7 @@
                             </select>
                         </div>
                         <div>
-                            <label for="filterDebtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Filter Status</label>
+                            <label for="filterDebtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Filter Status</label>
                             <select id="filterDebtStatus" class="block">
                                 <option value="all">Semua</option>
                                 <option value="pending">Tertunda</option>
@@ -1158,7 +1161,7 @@
                             </select>
                         </div>
                         <div>
-                            <label for="sortDebtBy" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Urutkan Berdasarkan</label>
+                            <label for="sortDebtBy" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Urutkan Berdasarkan</label>
                             <select id="sortDebtBy" class="block">
                                 <option value="dueDateAsc">Jatuh Tempo (Terdekat)</option>
                                 <option value="dueDateDesc">Jatuh Tempo (Terjauh)</option>
@@ -1169,7 +1172,7 @@
                         </div>
                     </div>
                     <div id="debtList" class="overflow-x-auto">
-                        <p class="text-gray-500 text-center text-sm">Belum ada catatan utang atau piutang.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada catatan utang atau piutang.</p>
                     </div>
                 </div>
             </section>
@@ -1181,7 +1184,7 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Ringkasan Laporan</h3>
                     <div class="flex flex-col sm:flex-row gap-4 mb-5">
                         <div class="flex-1">
-                            <label for="reportMonthSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bulan</label>
+                            <label for="reportMonthSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Bulan</label>
                             <select id="reportMonthSelect" class="block">
                                 <option value="all">Semua Bulan</option>
                                 <option value="01">Januari</option>
@@ -1199,7 +1202,7 @@
                             </select>
                         </div>
                         <div class="flex-1">
-                            <label for="reportYearSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tahun</label>
+                            <label for="reportYearSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tahun</label>
                             <select id="reportYearSelect" class="block">
                                 </select>
                         </div>
@@ -1227,15 +1230,15 @@
 
                     <h4 class="text-lg font-bold mt-6 mb-3 text-gray-800 dark:text-white">Pengeluaran per Kategori</h4>
                     <div id="reportExpenseByCategory" class="space-y-3">
-                        <p class="text-gray-500 text-center text-sm">Belum ada data pengeluaran per kategori.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pengeluaran per kategori.</p>
                     </div>
                     <h4 class="text-lg font-bold mt-6 mb-3 text-gray-800 dark:text-white">Pemasukan per Kategori</h4>
                     <div id="reportIncomeByCategory" class="space-y-3">
-                        <p class="text-gray-500 text-center text-sm">Belum ada data pemasukan per kategori.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pemasukan per kategori.</p>
                     </div>
                     <h4 class="text-lg font-bold mt-6 mb-3 text-gray-800 dark:text-white">Detail Transaksi</h4>
                     <div id="reportTransactionsList" class="overflow-x-auto">
-                        <p class="text-gray-500 text-center text-sm">Belum ada transaksi untuk laporan.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi untuk laporan.</p>
                     </div>
                     <button id="generatePdfReportBtn" class="w-full btn-primary font-semibold mt-6 py-3"><i data-feather="download" class="feather-icon"></i> Generate Laporan PDF</button>
                 </div>
@@ -1259,7 +1262,7 @@
                             <canvas id="topExpenseCategoriesChart"></canvas>
                         </div>
                         <div id="topExpenseCategoriesSummary" class="space-y-3 mt-4">
-                            <p class="text-gray-500 text-center text-sm">Belum ada data pengeluaran.</p>
+                            <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pengeluaran.</p>
                         </div>
                     </div>
                     <div class="card p-5">
@@ -1268,7 +1271,7 @@
                             <canvas id="topIncomeCategoriesChart"></canvas>
                         </div>
                         <div id="topIncomeCategoriesSummary" class="space-y-3 mt-4">
-                            <p class="text-gray-500 text-center text-sm">Belum ada data pemasukan.</p>
+                            <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pemasukan.</p>
                         </div>
                     </div>
                 </div>
@@ -1281,7 +1284,7 @@
                 <div class="card p-5 mb-8">
                     <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Mode Tampilan</h3>
                     <div class="flex items-center justify-between">
-                        <label for="darkModeToggle" class="block text-base font-medium text-gray-700 dark:text-gray-300">Mode Gelap</label>
+                        <label for="darkModeToggle" class="block text-base font-medium text-gray-700 dark:text-gray-200">Mode Gelap</label>
                         <input type="checkbox" id="darkModeToggle" class="toggle">
                     </div>
                 </div>
@@ -1290,15 +1293,15 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Kalkulator Tabungan</h3>
                     <form id="savingsCalculatorForm" class="space-y-4">
                         <div>
-                            <label for="targetAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Target Tabungan (Rp)</label>
+                            <label for="targetAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Target Tabungan (Rp)</label>
                             <input type="number" id="targetAmount" required placeholder="Contoh: 1000000">
                         </div>
                         <div>
-                            <label for="savingAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah Sekali Nabung (Rp)</label>
+                            <label for="savingAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah Sekali Nabung (Rp)</label>
                             <input type="number" id="savingAmount" required placeholder="Contoh: 10000">
                         </div>
                         <div>
-                            <label for="savingFrequency" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Frekuensi Menabung</label>
+                            <label for="savingFrequency" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Frekuensi Menabung</label>
                             <select id="savingFrequency" required class="block">
                                 <option value="daily">Harian</option>
                                 <option value="monthly">Bulanan</option>
@@ -1317,15 +1320,15 @@
                     <h3 class="text-xl font-bold mb-5 text-gray-800 dark:text-white">Ubah Kata Sandi</h3>
                     <form id="changePasswordForm" class="space-y-4">
                         <div>
-                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kata Sandi Saat Ini</label>
+                            <label for="currentPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kata Sandi Saat Ini</label>
                             <input type="password" id="currentPassword" required class="block">
                         </div>
                         <div>
-                            <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kata Sandi Baru</label>
+                            <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kata Sandi Baru</label>
                             <input type="password" id="newPassword" required class="block">
                         </div>
                         <div>
-                            <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Konfirmasi Kata Sandi Baru</label>
+                            <label for="confirmNewPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Konfirmasi Kata Sandi Baru</label>
                             <input type="password" id="confirmNewPassword" required class="block">
                         </div>
                         <p id="passwordMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
@@ -1340,7 +1343,7 @@
                         <button type="submit" class="btn-primary font-semibold px-4 py-2.5"><i data-feather="tag" class="feather-icon"></i> Tambah Kategori</button>
                     </form>
                     <div id="categoryList" class="space-y-3">
-                        <p class="text-gray-500 text-center text-sm">Belum ada kategori.</p>
+                        <p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada kategori.</p>
                     </div>
                 </div>
 
@@ -1439,26 +1442,26 @@
             <form id="editTransactionForm" class="space-y-4">
                 <input type="hidden" id="editTransactionId">
                 <div>
-                    <label for="editTransactionDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal</label>
+                    <label for="editTransactionDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal</label>
                     <input type="date" id="editTransactionDate" required class="block">
                 </div>
                 <div>
-                    <label for="editTransactionDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Deskripsi</label>
+                    <label for="editTransactionDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Deskripsi</label>
                     <input type="text" id="editTransactionDescription" required class="block">
                 </div>
                 <div>
-                    <label for="editTransactionAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah (Rp)</label>
+                    <label for="editTransactionAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah (Rp)</label>
                     <input type="number" id="editTransactionAmount" required min="1" class="block">
                 </div>
                 <div>
-                    <label for="editTransactionType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipe</label>
+                    <label for="editTransactionType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tipe</label>
                     <select id="editTransactionType" required class="block">
                         <option value="income">Pemasukan</option>
                         <option value="expense">Pengeluaran</option>
                     </select>
                 </div>
                 <div>
-                    <label for="editTransactionCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategori</label>
+                    <label for="editTransactionCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Kategori</label>
                     <select id="editTransactionCategory" required class="block">
                         </select>
                 </div>
@@ -1475,30 +1478,30 @@
             <form id="editDebtForm" class="space-y-4">
                 <input type="hidden" id="editDebtId">
                 <div>
-                    <label for="editDebtType" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipe</label>
+                    <label for="editDebtType" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tipe</label>
                     <select id="editDebtType" required class="block">
                         <option value="utang">Utang (Saya berutang)</option>
                         <option value="piutang">Piutang (Orang berutang kepada saya)</option>
                     </select>
                 </div>
                 <div>
-                    <label for="editDebtPerson" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Pihak</label>
+                    <label for="editDebtPerson" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Nama Pihak</label>
                     <input type="text" id="editDebtPerson" required class="block">
                 </div>
                 <div>
-                    <label for="editDebtDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Deskripsi</label>
+                    <label for="editDebtDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Deskripsi</label>
                     <input type="text" id="editDebtDescription" required class="block">
                 </div>
                 <div>
-                    <label for="editDebtAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jumlah (Rp)</label>
+                    <label for="editDebtAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Jumlah (Rp)</label>
                     <input type="number" id="editDebtAmount" required min="1" class="block">
                 </div>
                 <div>
-                    <label for="editDebtDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tanggal Jatuh Tempo</label>
+                    <label for="editDebtDueDate" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Tanggal Jatuh Tempo</label>
                     <input type="date" id="editDebtDueDate" required class="block">
                 </div>
                 <div>
-                    <label for="editDebtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                    <label for="editDebtStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Status</label>
                     <select id="editDebtStatus" required class="block">
                         <option value="pending">Tertunda</option>
                         <option value="paid">Lunas</option>
@@ -1527,7 +1530,7 @@
             <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Lupa Kata Sandi</h3>
             <form id="forgotPasswordForm" class="space-y-4">
                 <div>
-                    <label for="forgotPasswordEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <label for="forgotPasswordEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Email</label>
                     <input type="email" id="forgotPasswordEmail" placeholder="Masukkan email Anda" required class="block">
                 </div>
                 <p id="forgotPasswordMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
@@ -2534,7 +2537,7 @@
             const categories = getUserCategories();
             categoryListEl.innerHTML = '';
             if (categories.length === 0) {
-                categoryListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-base">Belum ada kategori.</p>';
+                categoryListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-base">Belum ada kategori.</p>';
             } else {
                 categories.forEach(cat => {
                     const categoryDiv = document.createElement('div');
@@ -2616,7 +2619,7 @@
             budgetListEl.innerHTML = '';
 
             if (budgets.length === 0) {
-                budgetListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-base">Belum ada anggaran yang ditetapkan.</p>';
+                budgetListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-base">Belum ada anggaran yang ditetapkan.</p>';
                 return;
             }
 
@@ -2676,12 +2679,12 @@
                     <p class="text-gray-700 dark:text-gray-200 text-sm mb-1">Periode: ${budget.startDate} s/d ${budget.endDate}</p>
                     <p class="text-base font-medium text-gray-800 dark:text-white">Anggaran: ${formatRupiah(budget.amount)}</p>
                     <p class="text-base font-medium">Terpakai: <span class="text-expense">${formatRupiah(expensesForBudget)}</span></p>
-                    <p class="text-base font-medium">Sisa: <span class="${remainingAmount <= 0 ? 'text-red-500' : 'text-green-500'}">${formatRupiah(remainingAmount)}</span></p>
+                    <p class="text-base font-medium">Sisa: <span class="${remainingAmount <= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'}">${formatRupiah(remainingAmount)}</span></p>
                     <p class="text-sm mt-2 ${statusColor}">Status: ${statusText}</p>
                     <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mt-3">
                         <div class="${progressBarColor} h-2.5 rounded-full" style="width: ${Math.min(100, percentageUsed)}%;"></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 text-right mt-1">${percentageUsed.toFixed(2)}% Terpakai</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-300 text-right mt-1">${percentageUsed.toFixed(2)}% Terpakai</p>
                 `;
                 budgetListEl.appendChild(budgetDiv);
             });
@@ -2846,7 +2849,7 @@
 
 
             if (debts.length === 0) {
-                debtListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada catatan utang atau piutang.</p>';
+                debtListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada catatan utang atau piutang.</p>';
                 return;
             }
 
@@ -2909,12 +2912,6 @@
             if (!currentPass || !newPass || !confirmNewPass) {
                 showMessage(passwordMessageEl, 'Semua field harus diisi.', true);
                 showNotification('Semua field harus diisi.', 'error');
-                return;
-            }
-
-            if (newPass !== confirmNewPass) {
-                showMessage(passwordMessageEl, 'Kata sandi baru tidak cocok dengan konfirmasi.', true);
-                showNotification('Kata sandi baru tidak cocok dengan konfirmasi.', 'error');
                 return;
             }
 
@@ -3045,26 +3042,14 @@
                     }
 
                     // Delete existing debts in a batch (NEW)
-                    const existingDebtsSnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/debts`));
-                    existingDebtsSnapshot.docs.forEach(doc => {
-                        batch.delete(doc.ref);
+                    const debtsRef = collection(db, `artifacts/${appId}/users/${userId}/debts`);
+                    const debtsSnapshot = await getDocs(debtsRef);
+                    const deleteDebtsBatch = writeBatch(db);
+                    debtsSnapshot.docs.forEach(doc => {
+                        deleteDebtsBatch.delete(doc.ref);
                     });
-
-                    // Add new debts in a batch (NEW)
-                    if (importedData.debts) {
-                        for (const d of importedData.debts) {
-                            const newDocRef = doc(collection(db, `artifacts/${appId}/users/${userId}/debts`));
-                            batch.set(newDocRef, {
-                                type: d.type,
-                                person: d.person,
-                                description: d.description,
-                                amount: d.amount,
-                                dueDate: d.dueDate,
-                                status: d.status,
-                                createdAt: d.createdAt || new Date().toISOString() // Preserve existing or set new
-                            });
-                        }
-                    }
+                    await deleteDebtsBatch.commit();
+                    console.log("All debts deleted.");
 
                     // Import categories
                     batch.set(doc(db, `artifacts/${appId}/users/${userId}/metadata`, 'categories'), {
@@ -3246,7 +3231,7 @@
                 noRecordsMessageEl.innerHTML = `
                     <i data-feather="alert-triangle" class="feather-icon text-yellow-500 w-8 h-8 mx-auto mb-2"></i>
                     <p>${message}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Segera catat pemasukan atau pengeluaran Anda!</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-300 mt-2">Segera catat pemasukan atau pengeluaran Anda!</p>
                 `;
                 noRecordsMessageEl.classList.remove('hidden');
                 feather.replace(); // Re-render feather icons
@@ -3287,7 +3272,7 @@
 
             latestTransactionsEl.innerHTML = '';
             if (latest.length === 0) {
-                latestTransactionsEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada transaksi.</p>';
+                latestTransactionsEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi.</p>';
             } else {
                 latest.forEach(t => {
                     const transactionDiv = document.createElement('div');
@@ -3295,7 +3280,7 @@
                     transactionDiv.innerHTML = `
                         <div>
                             <p class="font-medium text-gray-800 dark:text-white text-base">${t.description}</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">${t.date} - ${t.category}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-300">${t.date} - ${t.category}</p>
                         </div>
                         <p class="font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'} text-lg">${formatRupiah(t.amount)}</p>
                     `;
@@ -3334,7 +3319,7 @@
             const sortedCategories = Object.entries(categoryData).sort(([, a], [, b]) => b - a);
 
             if (sortedCategories.length === 0) {
-                element.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
+                element.innerHTML = `<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
                 return;
             }
 
@@ -3394,7 +3379,7 @@
             allTransactionsListEl.innerHTML = '';
 
             if (transactionsToDisplay.length === 0) {
-                allTransactionsListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada transaksi.</p>';
+                allTransactionsListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi.</p>';
             } else {
                 transactionsToDisplay.forEach(t => {
                     const transactionDiv = document.createElement('div');
@@ -3402,7 +3387,7 @@
                     transactionDiv.innerHTML = `
                         <div class="flex-grow mb-2 sm:mb-0">
                             <p class="font-medium text-gray-800 dark:text-white text-base">${t.description}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">${t.date} - ${t.category}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-300">${t.date} - ${t.category}</p>
                         </div>
                         <div class="flex items-center gap-2 mt-2 sm:mt-0">
                             <p class="font-bold ${t.type === 'income' ? 'text-income' : 'text-expense'} text-lg mr-2">${formatRupiah(t.amount)}</p>
@@ -3529,7 +3514,7 @@
 
             reportTransactionsListEl.innerHTML = '';
             if (transactions.length === 0) {
-                reportTransactionsListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada transaksi untuk laporan.</p>';
+                reportTransactionsListEl.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada transaksi untuk laporan.</p>';
             } else {
                 const table = document.createElement('table');
                 table.className = 'responsive-table w-full text-sm';
@@ -3750,8 +3735,8 @@
                 const incomeCtx = topIncomeCategoriesChartCanvas.getContext('2d');
                 incomeCtx.clearRect(0, 0, topIncomeCategoriesChartCanvas.width, topIncomeCategoriesChartCanvas.height);
 
-                topExpenseCategoriesSummary.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada data pengeluaran untuk analisis.</p>';
-                topIncomeCategoriesSummary.innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada data pemasukan untuk analisis.</p>';
+                topExpenseCategoriesSummary.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pengeluaran untuk analisis.</p>';
+                topIncomeCategoriesSummary.innerHTML = '<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada data pemasukan untuk analisis.</p>';
                 return;
             }
 
@@ -4023,7 +4008,7 @@
                 .slice(0, 5); // Get top 5
 
             if (sortedCategories.length === 0) {
-                element.innerHTML = `<p class="text-gray-500 dark:text-gray-400 text-center text-sm">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
+                element.innerHTML = `<p class="text-gray-500 dark:text-gray-300 text-center text-sm">Belum ada ${type === 'expense' ? 'pengeluaran' : 'pemasukan'} berdasarkan kategori.</p>`;
                 return;
             }
 
@@ -4721,7 +4706,8 @@
                 try {
                     await auth.signInWithCustomToken(initialAuthToken);
                     showNotification('Login otomatis berhasil!', 'success');
-                } catch (error) {
+                }
+                catch (error) {
                     console.error("Custom token sign-in error:", error);
                     showNotification('Gagal login otomatis. Silakan login manual.', 'error');
                 }
