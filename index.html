@@ -15,7 +15,7 @@
         /* Custom CSS untuk font dan warna */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8FAFC; /* Warna latar belakang umum yang lebih cerah dan soft */
+            background-color: #F8FAFA; /* Warna latar belakang umum yang lebih cerah dan soft */
             color: #1F2937; /* Warna teks umum lebih gelap */
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -78,7 +78,7 @@
             padding: 1.25rem 1.5rem; /* Padding lebih besar */
         }
         .main-content {
-            background-color: #F8FAFC; /* Warna latar belakang konten utama */
+            background-color: #F8FAFA; /* Warna latar belakang konten utama */
             transition: background-color 0.3s ease;
         }
         .card {
@@ -252,7 +252,7 @@
             display: flex;
             align-items: flex-end;
             height: 160px; /* Fixed height for the chart area */
-            background-color: #F8FAFC;
+            background-color: #F8FAFA;
             border-radius: 1rem;
             overflow: hidden;
             position: relative;
@@ -435,7 +435,7 @@
         #jsonOutput {
             width: 100%;
             height: 300px;
-            background-color: #F8FAFC;
+            background-color: #F8FAFA;
             border: 1px solid #E2E8F0;
             padding: 1.25rem;
             font-family: monospace;
@@ -739,6 +739,60 @@
             border-color: #92400E;
             color: #FCD34D;
         }
+
+        /* Tour Modal Specific Styles */
+        .tour-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 60; /* Higher than other modals */
+        }
+
+        .tour-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .tour-modal-content h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1F2937;
+        }
+
+        .tour-modal-content p {
+            font-size: 1.1rem;
+            color: #4B5563;
+            margin-bottom: 1.5rem;
+        }
+
+        .tour-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        body.dark-mode .tour-modal-content {
+            background-color: #1F2937;
+            color: #E2E8F0;
+        }
+        body.dark-mode .tour-modal-content h3 {
+            color: #E2E8F0;
+        }
+        body.dark-mode .tour-modal-content p {
+            color: #94A3B8;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -752,14 +806,14 @@
 
         <nav class="flex-grow">
             <ul class="space-y-2">
-              <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard"><i data-feather="home" class="feather-icon"></i> Dashboard </a></li>
-              <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
-              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting"><i data-feather="dollar-sign" class="feather-icon"></i> Rencana Anggaran </a></li>
-              <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Utang Piutang </a></li>
-              <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports"><i data-feather="bar-chart-2" class="feather-icon"></i> Laporan </a></li>
-              <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="feather-icon"></i> Analisis Keuangan </a></li>
-              <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="feather-icon"></i> Pengaturan </a></li>
-              <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="feather-icon"></i> Bantuan </a></li>
+              <li id="dashboardSidebarItem"><a href="#" class="sidebar-item active" data-section="dashboard" data-tour="dashboard"><i data-feather="home" class="feather-icon"></i> Dashboard </a></li>
+              <li id="transactionsSidebarItem"><a href="#" class="sidebar-item" data-section="transactions" data-tour="transactions"><i data-feather="file-text" class="feather-icon"></i> Transaksi </a></li>
+              <li id="budgetingSidebarItem"><a href="#" class="sidebar-item" data-section="budgeting" data-tour="budgeting"><i data-feather="dollar-sign" class="feather-icon"></i> Rencana Anggaran </a></li>
+              <li id="debtManagementSidebarItem"><a href="#" class="sidebar-item" data-section="debtManagement" data-tour="debtManagement"><i data-feather="repeat" class="feather-icon"></i> Utang Piutang </a></li>
+              <li id="reportsSidebarItem"><a href="#" class="sidebar-item" data-section="reports" data-tour="reports"><i data-feather="bar-chart-2" class="feather-icon"></i> Laporan </a></li>
+              <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis" data-tour="analysis"><i data-feather="pie-chart" class="feather-icon"></i> Analisis Keuangan </a></li>
+              <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings" data-tour="settings"><i data-feather="settings" class="feather-icon"></i> Pengaturan </a></li>
+              <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help" data-tour="help"><i data-feather="help-circle" class="feather-icon"></i> Bantuan </a></li>
             </ul>
         </nav>
         <div class="mt-auto pt-6">
@@ -1392,6 +1446,19 @@
     <!-- Notification Container -->
     <div id="notificationContainer"></div>
 
+    <!-- Tour Modal -->
+    <div id="tourModal" class="tour-modal-overlay hidden">
+        <div class="tour-modal-content">
+            <h3 id="tourTitle"></h3>
+            <p id="tourDescription"></p>
+            <div class="tour-modal-buttons">
+                <button id="tourPrevBtn" class="btn-secondary px-5 py-2.5 hidden">Sebelumnya</button>
+                <button id="tourNextBtn" class="btn-primary px-5 py-2.5">Selanjutnya</button>
+                <button id="tourSkipBtn" class="btn-secondary px-5 py-2.5">Lewati Tur</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1621,6 +1688,14 @@
         const chatDisplay = document.getElementById('chatDisplay');
         const chatOptions = document.getElementById('chatOptions');
 
+        // Tour Modal Elements
+        const tourModal = document.getElementById('tourModal');
+        const tourTitle = document.getElementById('tourTitle');
+        const tourDescription = document.getElementById('tourDescription');
+        const tourPrevBtn = document.getElementById('tourPrevBtn');
+        const tourNextBtn = document.getElementById('tourNextBtn');
+        const tourSkipBtn = document.getElementById('tourSkipBtn');
+
         // State Variables
         let isLoggedIn = false;
         let currentFirebaseUser = null; // Stores the Firebase User object (auth.currentUser)
@@ -1636,6 +1711,59 @@
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
         let unsubscribeDebts = null; // NEW: Listener for debts
+
+        // Tour state
+        let currentTourStep = 0;
+        const tourSteps = [
+            {
+                title: "Selamat Datang di AdiWallet!",
+                description: "Aplikasi ini membantu Anda mengelola keuangan pribadi dengan mudah. Mari kita lihat fitur-fitur utamanya."
+            },
+            {
+                elementId: "dashboardSidebarItem",
+                title: "Dashboard",
+                description: "Lihat ringkasan keuangan Anda: saldo, total pemasukan, total pengeluaran, dan transaksi terbaru."
+            },
+            {
+                elementId: "transactionsSidebarItem",
+                title: "Transaksi",
+                description: "Catat semua pemasukan dan pengeluaran Anda di sini. Anda juga bisa melihat riwayat, mengedit, dan menghapus transaksi."
+            },
+            {
+                elementId: "budgetingSidebarItem",
+                title: "Rencana Anggaran",
+                description: "Tetapkan batas pengeluaran untuk kategori tertentu dan lacak penggunaan anggaran Anda."
+            },
+            {
+                elementId: "debtManagementSidebarItem",
+                title: "Utang Piutang",
+                description: "Kelola utang dan piutang Anda dengan mudah, termasuk tanggal jatuh tempo dan status pembayaran."
+            },
+            {
+                elementId: "reportsSidebarItem",
+                title: "Laporan",
+                description: "Hasilkan laporan keuangan bulanan atau tahunan dengan grafik dan rincian kategori."
+            },
+            {
+                elementId: "analysisSidebarItem",
+                title: "Analisis Keuangan",
+                description: "Dapatkan wawasan mendalam tentang tren keuangan dan kategori pengeluaran/pemasukan teratas Anda."
+            },
+            {
+                elementId: "settingsSidebarItem",
+                title: "Pengaturan",
+                description: "Ubah kata sandi, kelola kategori, atur mode gelap, dan ekspor/impor data Anda."
+            },
+            {
+                elementId: "helpSidebarItem",
+                title: "Bantuan",
+                description: "Butuh bantuan? Gunakan asisten chatbot kami untuk mendapatkan jawaban cepat tentang fitur aplikasi."
+            },
+            {
+                title: "Siap Memulai?",
+                description: "Itu dia tur singkatnya! Sekarang Anda siap untuk mengelola keuangan Anda. Selamat menggunakan AdiWallet!"
+            }
+        ];
 
         // --- Utility Functions ---
 
@@ -1709,6 +1837,10 @@
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
                     setupFirestoreListeners(user.uid); // Setup listeners for regular users
+                    // Show tour if user hasn't seen it before
+                    if (!localStorage.getItem('adiWalletTourCompleted')) {
+                        startTour();
+                    }
                 } else {
                     // If email is not verified, sign out and show message
                     await signOut(auth);
@@ -4368,6 +4500,75 @@
         }
 
 
+        // --- Tour Functionality ---
+
+        function startTour() {
+            currentTourStep = 0;
+            showTourStep(currentTourStep);
+            tourModal.classList.remove('hidden');
+        }
+
+        function showTourStep(stepIndex) {
+            const step = tourSteps[stepIndex];
+            tourTitle.textContent = step.title;
+            tourDescription.textContent = step.description;
+
+            // Hide all highlights
+            document.querySelectorAll('[data-tour-highlight]').forEach(el => {
+                el.removeAttribute('data-tour-highlight');
+                el.style.zIndex = '';
+                el.style.position = '';
+            });
+
+            // If a specific element is associated with the step, highlight it
+            if (step.elementId) {
+                const element = document.getElementById(step.elementId);
+                if (element) {
+                    element.setAttribute('data-tour-highlight', 'true');
+                    // Bring to front (adjust z-index and position if necessary for visibility over overlay)
+                    element.style.position = 'relative'; // Ensure z-index works
+                    element.style.zIndex = '61'; // Higher than modal overlay
+                    // Scroll to element if it's not in view
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // Update button visibility
+            tourPrevBtn.classList.toggle('hidden', stepIndex === 0);
+            tourNextBtn.textContent = stepIndex === tourSteps.length - 1 ? 'Selesai' : 'Selanjutnya';
+        }
+
+        function nextTourStep() {
+            currentTourStep++;
+            if (currentTourStep < tourSteps.length) {
+                showTourStep(currentTourStep);
+            } else {
+                endTour();
+            }
+        }
+
+        function prevTourStep() {
+            currentTourStep--;
+            if (currentTourStep >= 0) {
+                showTourStep(currentTourStep);
+            } else {
+                currentTourStep = 0; // Stay at first step if trying to go before it
+                showTourStep(currentTourStep);
+            }
+        }
+
+        function endTour() {
+            tourModal.classList.add('hidden');
+            localStorage.setItem('adiWalletTourCompleted', 'true'); // Mark tour as completed
+            // Remove all highlights
+            document.querySelectorAll('[data-tour-highlight]').forEach(el => {
+                el.removeAttribute('data-tour-highlight');
+                el.style.zIndex = '';
+                el.style.position = '';
+            });
+        }
+
+
         // --- Event Listeners ---
 
         // Toggle sidebar on mobile
@@ -4523,6 +4724,11 @@
 
         // Dark Mode Toggle Listener
         darkModeToggle.addEventListener('change', toggleDarkMode);
+
+        // Tour Modal Buttons
+        tourNextBtn.addEventListener('click', nextTourStep);
+        tourPrevBtn.addEventListener('click', prevTourStep);
+        tourSkipBtn.addEventListener('click', endTour);
 
 
         // --- Initial Load ---
