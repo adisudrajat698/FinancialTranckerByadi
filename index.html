@@ -888,9 +888,7 @@
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="feather-icon"></i> Bantuan </a></li>
             </ul>
         </nav>
-        <div class="mt-auto pt-6">
-            <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg"><i data-feather="log-out" class="feather-icon"></i> Logout</button>
-        </div>
+        <!-- Logout button removed from here -->
     </aside>
 
     <!-- Main Content Area -->
@@ -1373,6 +1371,13 @@
                     <p class="text-gray-700 mb-4 text-base">Menghapus akun Anda akan menghapus semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
                     <button id="deleteAccountBtn" class="w-full btn-danger font-semibold text-lg py-3"><i data-feather="trash-2" class="feather-icon"></i> Hapus Akun Saya</button>
                 </div>
+
+                <!-- Logout button moved here from sidebar -->
+                <div class="card p-6 mt-8">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800">Sesi Akun</h3>
+                    <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg"><i data-feather="log-out" class="feather-icon"></i> Logout</button>
+                </div>
+                <!-- End of moved logout button -->
             </section>
 
             <!-- Help Section (Chatbot) -->
@@ -1967,7 +1972,7 @@
             if (isLoggedIn) {
                 authSection.classList.add('hidden');
                 sidebar.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
+                // logoutBtn.classList.remove('hidden'); // Removed: Logout button is always in settings
                 // Ensure sidebar is open on desktop, hidden on mobile initially
                 if (window.innerWidth < 768) {
                     sidebar.classList.remove('open');
@@ -1996,7 +2001,7 @@
             } else {
                 authSection.classList.remove('hidden');
                 sidebar.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
+                // logoutBtn.classList.add('hidden'); // Removed: Logout button is always in settings
                 bottomNav.classList.add('hidden'); // Hide bottom nav on logout
                 addTransactionFab.classList.add('hidden'); // Hide FAB on logout
 
