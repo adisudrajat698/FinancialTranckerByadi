@@ -4885,12 +4885,55 @@ function base64ToBuffer(base64) {
     return bytes.buffer;
 }
 
+
 async function registerBiometric() {
     const email = document.getElementById('username').value.trim();
-    if (!email) {
-        showMessage(document.getElementById('authMessage'), 'Masukkan email terlebih dahulu untuk mendaftar biometrik.', true);
+    const password = document.getElementById('password').value;
+    if (!email || !password) {
+        showMessage(document.getElementById('authMessage'), 'Masukkan email dan password untuk mendaftar biometrik.', true);
         return;
     }
+
+    if (!window.PublicKeyCredential) {
+        showNotification('Perangkat Anda tidak mendukung WebAuthn (biometrik).', 'error');
+        return;
+    }
+
+    try {
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const publicKey = {
+            challenge: challenge,
+            rp: { name: "AdiWallet Demo" },
+            user: {
+                id: new TextEncoder().encode(email),
+                name: email,
+                displayName: email
+            },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+            timeout: 60000,
+            attestation: "none"
+        };
+
+        const credential = await navigator.credentials.create({ publicKey });
+        if (!credential) throw new Error("Credential creation returned null.");
+
+        const rawId = credential.rawId;
+        const idBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(rawId)));
+
+        const db = JSON.parse(localStorage.getItem('aw_biometric_db') || '{}');
+        db[email] = { id: idBase64, created: Date.now(), password: password };
+        localStorage.setItem('aw_biometric_db', JSON.stringify(db));
+
+        showMessage(document.getElementById('authMessage'), 'Registrasi biometrik berhasil untuk ' + email + '.', false);
+        showNotification('Registrasi biometrik berhasil!', 'success');
+    } catch (err) {
+        console.error("registerBiometric error:", err);
+        showMessage(document.getElementById('authMessage'), 'Gagal mendaftar biometrik: ' + (err.message || err), true);
+        showNotification('Gagal mendaftar biometrik.', 'error');
+    }
+}
+
 
     if (!window.PublicKeyCredential) {
         showNotification('Perangkat Anda tidak mendukung WebAuthn (biometrik).', 'error');
