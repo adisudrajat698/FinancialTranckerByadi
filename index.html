@@ -923,12 +923,18 @@
                         </div>
                         <p id="authMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
                         <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="log-in" class="feather-icon"></i> Login</button>
-                        <button type="button" id="biometricLoginBtn" 
-    class="w-full btn-secondary font-semibold text-lg py-3 mt-3">
-    <i data-feather="fingerprint" class="feather-icon"></i> Login dengan Biometrik
-</button>
-
                     </form>
+                        </form>
+
+                    <div class="mt-4 flex gap-3">
+                        <button id="registerBiometricBtn" class="btn-secondary btn-icon" title="Daftar Biometrik">
+                            <i data-feather="user-plus" class="feather-icon"></i> Daftar Biometrik
+                        </button>
+                        <button id="loginBiometricBtn" class="btn-primary btn-icon" title="Login dengan Biometrik">
+                            <i data-feather="fingerprint" class="feather-icon"></i> Login Biometrik
+                        </button>
+                    </div>
+
                     <p class="text-center text-sm mt-6 text-gray-600">
                         <a href="#" id="forgotPasswordLink" class="text-blue-600 hover:underline font-medium">Lupa Kata Sandi?</a>
                         <span class="mx-2 text-gray-400">|</span>
@@ -4853,78 +4859,173 @@ savingsCalculatorForm.reset();
 
   });
 
-  // Registrasi credential biometrik setelah login sukses
-  async function registerBiometricCredential(userId) {
-    if (!window.PublicKeyCredential) {
-      console.log("Browser tidak support WebAuthn");
-      return;
-    }
 
-    try {
-      const publicKey = {
-        challenge: new Uint8Array(32), // idealnya dari server
-        rp: { name: "AdiWallet" },
-        user: {
-          id: new TextEncoder().encode(userId),
-          name: userId,
-          displayName: userId
-        },
-        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-        authenticatorSelection: { userVerification: "required" },
-        timeout: 60000,
-        attestation: "direct"
-      };
-
-      const credential = await navigator.credentials.create({ publicKey });
-      localStorage.setItem("biometricCredential", JSON.stringify(credential));
-      showNotification("Biometrik berhasil didaftarkan!", "success");
-    } catch (err) {
-      console.error("Registrasi biometrik gagal:", err);
-      showNotification("Registrasi biometrik gagal!", "error");
-    }
-  }
-
-  // Login pakai biometrik
-  async function loginWithBiometric() {
-    if (!window.PublicKeyCredential) {
-      showNotification("Device tidak support biometrik.", "error");
-      return;
-    }
-
-    try {
-      const credentialId = JSON.parse(localStorage.getItem("biometricCredential"));
-      if (!credentialId) {
-        showNotification("Belum ada biometrik terdaftar. Login dulu pakai email & password!", "info");
-        return;
-      }
-
-      const publicKey = {
-        challenge: new Uint8Array(32),
-        allowCredentials: [{
-          id: new Uint8Array(credentialId.rawId),
-          type: "public-key"
-        }],
-        userVerification: "required",
-        timeout: 60000
-      };
-
-      const assertion = await navigator.credentials.get({ publicKey });
-      console.log("Login biometrik berhasil:", assertion);
-
-      // TODO: verifikasi assertion ke server/Firebase
-      document.getElementById("authSection").classList.add("hidden");
-      document.getElementById("dashboardSection").classList.remove("hidden");
-      showNotification("Login berhasil dengan biometrik!", "success");
-
-    } catch (err) {
-      console.error("Login biometrik gagal:", err);
-      showNotification("Login biometrik gagal!", "error");
-    }
-  }
-
-  // Event listener tombol biometrik
-  document.getElementById("biometricLoginBtn")
-    .addEventListener("click", loginWithBiometric);
     </script>
+
+<script>
+/*
+  Simple client-side WebAuthn demo for "Daftar Biometrik" and "Login Biometrik".
+  IMPORTANT:
+  - This is a client-only demo for local use. Real-world, secure WebAuthn requires server-side challenge generation,
+    credential storage, and proper assertion verification.
+  - This demo stores credentialId (base64) mapped to the user's email in localStorage for convenience.
+  - It does NOT replace real Firebase authentication on the backend. After biometric success we call the existing
+    handleBiometricLocalLogin() to update UI locally. If you want to integrate with Firebase you need a server
+    endpoint to issue challenges and to verify assertions, then mint a Firebase Custom Token.
+*/
+
+function bufferToBase64(buf) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+}
+function base64ToBuffer(base64) {
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i);
+    return bytes.buffer;
+}
+
+async function registerBiometric() {
+    const email = document.getElementById('username').value.trim();
+    if (!email) {
+        showMessage(document.getElementById('authMessage'), 'Masukkan email terlebih dahulu untuk mendaftar biometrik.', true);
+        return;
+    }
+
+    if (!window.PublicKeyCredential) {
+        showNotification('Perangkat Anda tidak mendukung WebAuthn (biometrik).', 'error');
+        return;
+    }
+
+    try {
+        // Create a random challenge (in real apps this must come from server)
+        const challenge = crypto.getRandomValues(new Uint8Array(32));
+        const publicKey = {
+            challenge: challenge,
+            rp: { name: "AdiWallet Demo" },
+            user: {
+                id: new TextEncoder().encode(email),
+                name: email,
+                displayName: email
+            },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }], // ES256
+            authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "preferred" },
+            timeout: 60000,
+            attestation: "none"
+        };
+
+        const credential = await navigator.credentials.create({ publicKey });
+        if (!credential) throw new Error("Credential creation returned null.");
+
+        const rawId = credential.rawId;
+        const idBase64 = bufferToBase64(rawId);
+
+        // Save credential metadata to localStorage (demo only)
+        const db = JSON.parse(localStorage.getItem('aw_biometric_db') || '{}');
+        db[email] = { id: idBase64, created: Date.now() };
+        // Optionally store password for Firebase auto-login (demo only; insecure!)
+        const pwd = document.getElementById('password').value;
+        if (pwd) db[email].password = pwd;
+
+        localStorage.setItem('aw_biometric_db', JSON.stringify(db));
+
+        showMessage(document.getElementById('authMessage'), 'Registrasi biometrik berhasil untuk ' + email + '. Anda kini dapat login dengan biometrik pada perangkat ini.', false);
+        showNotification('Registrasi biometrik berhasil!', 'success');
+    } catch (err) {
+        console.error("registerBiometric error:", err);
+        showMessage(document.getElementById('authMessage'), 'Gagal mendaftar biometrik: ' + (err.message || err), true);
+        showNotification('Gagal mendaftar biometrik.', 'error');
+    }
+}
+
+async function loginBiometric() {
+    const email = document.getElementById('username').value.trim();
+    if (!email) {
+        showMessage(document.getElementById('authMessage'), 'Masukkan email yang terdaftar untuk login biometrik.', true);
+        return;
+    }
+    if (!window.PublicKeyCredential) {
+        showNotification('Perangkat Anda tidak mendukung WebAuthn (biometrik).', 'error');
+        return;
+    }
+
+    try {
+        const db = JSON.parse(localStorage.getItem('aw_biometric_db') || '{}');
+        const rec = db[email];
+        if (!rec || !rec.id) {
+            showMessage(document.getElementById('authMessage'), 'Tidak ada credential biometrik untuk email ini pada perangkat ini. Silakan daftar terlebih dahulu.', true);
+            showNotification('Credential biometrik tidak ditemukan.', 'error');
+            return;
+        }
+
+        const allowCredentials = [{
+            id: base64ToBuffer(rec.id),
+            type: "public-key",
+            transports: ["internal"]
+        }];
+
+        const assertion = await navigator.credentials.get({
+            publicKey: {
+                challenge: crypto.getRandomValues(new Uint8Array(32)), // In real apps, challenge must come from server
+                timeout: 60000,
+                allowCredentials: allowCredentials,
+                userVerification: "preferred"
+            }
+        });
+
+        if (!assertion) throw new Error("Assertion returned null.");
+
+        // Demo: We consider biometric successful. In production, verify assertion with server.
+        showMessage(document.getElementById('authMessage'), 'Autentikasi biometrik berhasil. Anda sudah login (demo).', false);
+        showNotification('Login biometrik berhasil (demo).', 'success');
+
+        // Update UI locally (note: does NOT authenticate with Firebase)
+        handleBiometricLocalLogin(email);
+    } catch (err) {
+        console.error("loginBiometric error:", err);
+        showMessage(document.getElementById('authMessage'), 'Gagal autentikasi biometrik: ' + (err.message || err), true);
+        showNotification('Gagal autentikasi biometrik.', 'error');
+    }
+}
+
+// Local UI update after biometric "success" (demo only)
+
+// Local UI update after biometric "success" (Option A: also try Firebase login automatically)
+function handleBiometricLocalLogin(email) {
+    // Caution: This demo stores password locally, which is insecure. Do not use in production.
+    const db = JSON.parse(localStorage.getItem('aw_biometric_db') || '{}');
+    const rec = db[email];
+    if (rec && rec.password) {
+        // Try Firebase login with saved password
+        auth.signInWithEmailAndPassword(email, rec.password)
+            .then((userCredential) => {
+                showMessage(document.getElementById('authMessage'), 'Login Firebase berhasil dengan biometrik.', false);
+                showNotification('Login Firebase berhasil!', 'success');
+            })
+            .catch((err) => {
+                console.error("Firebase login error:", err);
+                showMessage(document.getElementById('authMessage'), 'Biometrik berhasil, tapi gagal login Firebase: ' + (err.message||err), true);
+            });
+    } else {
+        // Fallback: just show UI change like before
+        document.getElementById('dashboardUsername').textContent = email;
+        document.getElementById('sidebarUsername').textContent = email;
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('sidebar').classList.remove('hidden');
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        localStorage.setItem('aw_demo_logged_in', email);
+    }
+}
+
+
+// Attach event listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    const regBtn = document.getElementById('registerBiometricBtn');
+    const loginBtn = document.getElementById('loginBiometricBtn');
+    if (regBtn) regBtn.addEventListener('click', (e) => { e.preventDefault(); registerBiometric(); });
+    if (loginBtn) loginBtn.addEventListener('click', (e) => { e.preventDefault(); loginBiometric(); });
+});
+</script>
+
 </body>
 </html>
