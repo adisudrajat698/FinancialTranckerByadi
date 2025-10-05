@@ -1,6 +1,41 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
+    <!-- ===== Mobile / WebView Overrides (injected by assistant) ===== -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1A73E8">
+    <style>
+        /* Force mobile/webview look on all screens without removing functionality */
+        html, body { max-width: 412px; margin: 0 auto; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+        body { background-color: #F8FAFC !important; color: #111827 !important; }
+        /* Hide desktop sidebar visually but keep in DOM (so functionality remains) */
+        .sidebar { transform: translateX(-100%) !important; visibility: hidden !important; pointer-events:none !important; }
+        .content-wrapper, .main, .app-content { margin-left: 0 !important; padding-bottom: 90px !important; }
+        /* Make header and bottom nav prominent for mobile */
+        header, .header, .topbar { position: sticky; top: 0; z-index: 60; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
+        .bottom-nav { display:flex !important; position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; padding: 0.5rem 1rem; gap: 0.5rem; background: linear-gradient(90deg, #ffffffee, #ffffffcc); box-shadow: 0 -6px 20px rgba(0,0,0,0.06); }
+        /* Floating action button visibility */
+        .fab, .fab-button, .floating-btn { display: flex !important; position: fixed; right: 18px; bottom: 72px; z-index: 80; }
+        /* Modal: full screen feel */
+        .modal, .modal-overlay, .modal-content { max-width: 96% !important; width: 420px; border-radius: 12px !important; }
+        /* Inputs & buttons: slightly larger for touch */
+        input, select, textarea, button { font-size: 16px !important; padding: 12px 14px !important; }
+        /* Make tables responsive */
+        table { width:100% !important; overflow:auto; display:block; }
+        /* Prevent horizontal scroll on body */
+        body { overflow-x: hidden !important; }
+        /* Keep interactive elements accessible */
+        .sidebar[aria-hidden="true"] { pointer-events:none; }
+        /* Ensure icons scale */
+        svg, img { max-width: 100%; height: auto; }
+    </style>
+    <script>
+        // Small helper: add "mobile-mode" class to body for CSS targeting if needed by original app
+        (function(){ try{ document.documentElement.classList.add('mobile-webview-mode'); document.body.classList.add('mobile-webview-mode'); }catch(e){} })();
+    </script>
+    <!-- ===== End injection ===== -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Catat Keuangan Pribadi</title>
@@ -923,16 +958,6 @@
                         </div>
                         <p id="authMessage" class="text-red-500 text-sm hidden font-medium text-center"></p>
                         <button type="submit" id="authSubmitBtn" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="log-in" class="feather-icon"></i> Login</button>
-                    
-                    <div class="flex gap-3 mt-4">
-                        <button type="button" id="enableBiometricBtn" class="btn-secondary w-1/2" title="Daftarkan biometrik (harus login terlebih dahulu)">
-                            <i data-feather="fingerprint" class="feather-icon"></i> Daftarkan Biometrik
-                        </button>
-                        <button type="button" id="loginWithBiometricBtn" class="btn-primary w-1/2" title="Login menggunakan biometrik">
-                            <i data-feather="lock" class="feather-icon"></i> Login dengan Biometrik
-                        </button>
-                    </div>
-
                     </form>
                     <p class="text-center text-sm mt-6 text-gray-600">
                         <a href="#" id="forgotPasswordLink" class="text-blue-600 hover:underline font-medium">Lupa Kata Sandi?</a>
@@ -2566,250 +2591,7 @@
                     categoryListEl.appendChild(categoryDiv);
                 });
             }
-            
-// --- Biometric (WebAuthn-lite) Integration ---
-// DISCLAIMER: This is a pragmatic *client-side* integration to enable quick biometric registration
-// and login flows for demo/test purposes. Real, secure passwordless WebAuthn requires a server
-// component to generate challenges and verify attestation/assertions. See developer notes below.
-//
-// Flow implemented:
-// 1) Enable Biometric (after user is logged in with email/password):
-//    - Creates a WebAuthn credential (platform authenticator).
-//    - Stores credentialId (base64url) in Firestore under users/{uid}/webauthn (so app can find it later).
-//    - Optionally saves the user's password in localStorage (ONLY IF user allows) so biometric login can auto-fill.
-// 2) Login with Biometric:
-//    - Fetches credentialId from Firestore for the provided email.
-//    - Calls navigator.credentials.get() with that credentialId.
-//    - If assertion succeeds, the client auto-fills the login form (email + saved password) and submits it.
-// SECURITY NOTES:
-// - This implementation stores the user's password locally (if the user opts in) to allow passwordless UX.
-//   Storing plaintext passwords locally is insecure. For production, implement server-side verification and issue
-//   a session (custom token) after validating WebAuthn assertion.
-// - The WebAuthn attestation/assertion is NOT verified by a server here. It's used only as a gate to unlock local credentials.
-// - Use this for prototyping and testing only. I can help convert this to a proper server-backed WebAuthn flow if you want.
-//
-// Helper functions
-function bufferToBase64Url(buffer) {
-    const bytes = new Uint8Array(buffer);
-    let str = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-        str += String.fromCharCode(bytes[i]);
-    }
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function base64UrlToBuffer(base64url) {
-    base64url = base64url.replace(/-/g, '+').replace(/_/g, '/');
-    // Pad with '='
-    while (base64url.length % 4 !== 0) base64url += '=';
-    const str = atob(base64url);
-    const buf = new Uint8Array(str.length);
-    for (let i = 0; i < str.length; i++) {
-        buf[i] = str.charCodeAt(i);
-    }
-    return buf.buffer;
-}
-
-// Convert ArrayBuffer -> base64url
-function abToBase64Url(ab) {
-    return bufferToBase64Url(ab);
-}
-
-// Convert base64url -> ArrayBuffer
-function base64UrlToAb(s) {
-    return base64UrlToBuffer(s);
-}
-
-// Get user's Firestore document by email (reads public user-index collection 'emailToUid' if exists)
-// For this demo, try to query Firestore for users by email (requires Firestore indexing rules permitting read).
-async function getUidByEmail(email) {
-    try {
-        const usersCol = collection(db, `artifacts/${appId}/users`);
-        // NOTE: Firestore client SDK doesn't support listing subcollections under unknown doc ids easily.
-        // We'll attempt to read a shallow mapping doc at `artifacts/{appId}/emailToUid/{emailBase64}` if available.
-        const key = btoa(email).replace(/\./g,'_');
-        const mappingDocRef = doc(db, `artifacts/${appId}/emailToUid`, key);
-        const mappingSnap = await getDoc(mappingDocRef);
-        if (mappingSnap.exists()) {
-            const data = mappingSnap.data();
-            return data.uid;
-        }
-        // fallback: if not mapped, return null
-        return null;
-    } catch (err) {
-        console.error("getUidByEmail error:", err);
-        return null;
-    }
-}
-
-// Register biometric for current (logged-in) user.
-// Requires the user to be currently authenticated (Firebase) and to have provided the password if the user wants auto-login.
-async function registerBiometric() {
-    if (!currentFirebaseUser) {
-        showNotification('Anda harus login dengan email & kata sandi terlebih dahulu untuk mendaftarkan biometrik.', 'error');
-        return;
-    }
-    if (!window.PublicKeyCredential) {
-        showNotification('Browser Anda tidak mendukung WebAuthn / biometrik.', 'error');
-        return;
-    }
-
-    try {
-        // Create a random challenge
-        const challenge = window.crypto.getRandomValues(new Uint8Array(32));
-        const publicKey = {
-            challenge: challenge,
-            rp: { name: "AdiWallet" },
-            user: {
-                id: Uint8Array.from(String(currentFirebaseUser.uid), c => c.charCodeAt(0)),
-                name: currentFirebaseUser.email,
-                displayName: currentFirebaseUser.email
-            },
-            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-            timeout: 60000,
-            authenticatorSelection: {
-                authenticatorAttachment: "platform",
-                userVerification: "required"
-            },
-            attestation: "none"
-        };
-
-        const credential = await navigator.credentials.create({ publicKey });
-        if (!credential) {
-            showNotification('Pendaftaran biometrik dibatalkan atau gagal.', 'error');
-            return;
-        }
-        const rawId = credential.rawId;
-        const idBase64 = abToBase64Url(rawId);
-
-        // Store credential id in Firestore under users/{uid}/webauthn (document 'platform')
-        await setDoc(doc(db, `artifacts/${appId}/users/${currentFirebaseUser.uid}/webauthn`, 'platform'), {
-            credentialId: idBase64,
-            createdAt: new Date().toISOString()
-        });
-
-        showNotification('Biometrik berhasil didaftarkan! Anda dapat memakai tombol "Login dengan Biometrik".', 'success', 5000);
-    } catch (err) {
-        console.error("registerBiometric error:", err);
-        showNotification('Gagal mendaftarkan biometrik: ' + (err.message || err), 'error', 6000);
-    }
-}
-
-// Login with biometric (attempts to find credential for the entered email)
-async function loginWithBiometric() {
-    if (!window.PublicKeyCredential) {
-        showNotification('Browser Anda tidak mendukung WebAuthn / biometrik.', 'error');
-        return;
-    }
-    const email = usernameInput.value.trim();
-    if (!email) {
-        showMessage(authMessage, 'Masukkan email untuk login dengan biometrik.', true);
-        return;
-    }
-
-    // Try to find UID mapping for this email
-    const uid = await getUidByEmail(email);
-    if (!uid) {
-        showNotification('Tidak ditemukan akun biometrik untuk email ini (mapping email->uid tidak tersedia).', 'error', 5000);
-        return;
-    }
-
-    try {
-        // Read credential id from Firestore
-        const credDoc = await getDoc(doc(db, `artifacts/${appId}/users/${uid}/webauthn`, 'platform'));
-        if (!credDoc.exists()) {
-            showNotification('Akun ini belum mendaftarkan biometrik.', 'error');
-            return;
-        }
-        const credData = credDoc.data();
-        const credId = credData.credentialId;
-        const allowCred = [{
-            id: base64UrlToAb(credId),
-            type: 'public-key',
-            transports: ['internal']
-        }];
-
-        const assertionOptions = {
-            challenge: window.crypto.getRandomValues(new Uint8Array(32)),
-            allowCredentials: allowCred,
-            timeout: 60000,
-            userVerification: 'required'
-        };
-
-        const assertion = await navigator.credentials.get({ publicKey: assertionOptions });
-        if (!assertion) {
-            showNotification('Autentikasi biometrik dibatalkan atau gagal.', 'error');
-            return;
-        }
-
-        // At this point we have a successful biometric assertion on the device.
-        // For this demo flow, we will attempt to auto-fill the password from localStorage (if previously saved)
-        const savedPasswordKey = `biometric_saved_password_${email}`;
-        const savedPassword = localStorage.getItem(savedPasswordKey);
-        if (!savedPassword) {
-            showNotification('Autentikasi berhasil, tetapi tidak ada kata sandi tersimpan untuk auto-login. Silakan login manual sekali dan aktifkan biometric lewat pengaturan.', 'info', 6000);
-            return;
-        }
-        // Auto-fill and submit login form
-        usernameInput.value = email;
-        passwordInput.value = savedPassword;
-        authForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    } catch (err) {
-        console.error("loginWithBiometric error:", err);
-        showNotification('Gagal melakukan login biometrik: ' + (err.message || err), 'error', 6000);
-    }
-}
-
-// Save password for biometric auto-login (only after successful login and with user consent)
-function savePasswordForBiometric(email, password) {
-    const key = `biometric_saved_password_${email}`;
-    localStorage.setItem(key, password);
-}
-
-// Remove saved password
-function removeSavedBiometricPassword(email) {
-    const key = `biometric_saved_password_${email}`;
-    localStorage.removeItem(key);
-}
-
-// Wire UI buttons after DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    const enableBtn = document.getElementById('enableBiometricBtn');
-    const loginBiometricBtn = document.getElementById('loginWithBiometricBtn');
-
-    if (enableBtn) enableBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        // If user is not logged in, ask whether they'd like to register after login
-        if (!currentFirebaseUser) {
-            // Offer to save password after a successful manual login
-            const proceed = confirm("Untuk mendaftarkan biometrik, Anda harus login dulu. Setelah login, klik 'Daftarkan Biometrik' lagi. Ingin lanjut?");
-            if (proceed) {
-                // nothing else here; user should login manually first
-            }
-            return;
-        }
-        // Ask user whether to save password for auto-login
-        const savePass = confirm("Apakah Anda ingin menyimpan kata sandi secara lokal untuk mengizinkan login otomatis menggunakan biometrik? (Peringatan: ini tidak aman untuk data sensitif.)");
-        if (savePass) {
-            // Prompt for current password to save
-            const pwd = prompt("Masukkan kata sandi Anda saat ini untuk disimpan secara lokal (hanya untuk demo).");
-            if (!pwd) {
-                showNotification('Penyimpanan kata sandi dibatalkan.', 'info');
-            } else {
-                savePasswordForBiometric(currentFirebaseUser.email, pwd);
-            }
-        }
-        await registerBiometric();
-    });
-
-    if (loginBiometricBtn) loginBiometricBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginWithBiometric();
-    });
-});
-
-
-feather.replace(); // Re-render icons
+            feather.replace(); // Re-render icons
         }
 
         // --- Budgeting Functions ---
