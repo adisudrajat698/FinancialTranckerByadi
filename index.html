@@ -935,11 +935,15 @@
             <!-- Dashboard Section -->
             <section id="dashboardSection" class="hidden">
                 <h2 class="text-3xl font-bold mb-8 text-gray-800">Dashboard</h2>
-                <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-2xl shadow-md border border-gray-200">
-                    <img src="profile.png" alt="User Avatar" class="w-16 h-16 rounded-full border-2 border-blue-300 shadow-sm">
-                    <p class="text text-gray-500">Selamat datang, <span id="dashboardUsername" class="font-bold text-blue-500"></span>!</p>
-                </div>
-                <div id="noRecordsMessage" class="card p-4 mb-6 text-center text-gray-700 text-base hidden no-records-message">
+              <div class="flex items-center gap-4 mb-6 p-5 bg-white rounded-2xl shadow-md border border-gray-200">
+    <img src="profile.png" alt="User Avatar" class="w-16 h-16 rounded-full border-2 border-blue-300 shadow-sm">
+    <p class="text text-gray-500">Selamat datang, <span id="dashboardUsername" class="font-bold text-blue-500"></span>!</p>
+</div>
+
+<div id="announcementDisplay" class="card p-4 mb-6 text-center text-gray-700 text-base hidden bg-blue-50 border border-blue-300 border-l-4">
+    </div>
+<div id="noRecordsMessage" class="card p-4 mb-6 text-center text-gray-700 text-base hidden no-records-message">
+                    
                     <!-- Message will be inserted here by JavaScript -->
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1366,6 +1370,37 @@
                     <button id="exportDataBtn" class="btn-primary font-semibold text-lg py-3"><i data-feather="file-text" class="feather-icon"></i> Ekspor Transaksi ke CSV</button>
                 </div>
 
+<div id="adminSection" class="hidden">
+    <h2 class="text-3xl font-bold mb-8 text-red-600">Admin Panel</h2>
+
+    <div class="card p-6 mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengguna</h3>
+        <p class="text-red-500 mb-4 text-base font-semibold">Fitur ini membutuhkan Firebase Cloud Functions untuk keamanan. Di sini hanya berupa placeholder.</p>
+        <div id="userList" class="space-y-4">
+            <p class="text-gray-500 text-center text-base">Kelola Pengguna tidak berfungsi dari klien tanpa server backend.</p>
+        </div>
+    </div>
+
+    <div class="card p-6 mb-8">
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengumuman</h3>
+        <form id="announcementForm" class="space-y-6">
+            <div>
+                <label for="announcementTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Pengumuman</label>
+                <input type="text" id="announcementTitle" placeholder="Judul Pengumuman" required class="block">
+            </div>
+            <div>
+                <label for="announcementContent" class="block text-sm font-medium text-gray-700 mb-2">Isi Pengumuman</label>
+                <textarea id="announcementContent" rows="4" placeholder="Isi pengumuman..." required class="block w-full"></textarea>
+            </div>
+            <button type="submit" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="send" class="feather-icon"></i> Kirim Pengumuman</button>
+        </form>
+        <div id="activeAnnouncements" class="mt-6 space-y-4">
+            <p class="text-gray-500 text-center text-base">Tidak ada pengumuman aktif.</p>
+        </div>
+    </div>
+</div>
+<div class="card p-6 mt-8">
+                
                 <div class="card p-6 mt-8">
                     <h3 class="text-2xl font-bold mb-6 text-red-600">Hapus Akun</h3>
                     <p class="text-gray-700 mb-4 text-base">Menghapus akun Anda akan menghapus semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
@@ -1764,6 +1799,15 @@
         const forgotPasswordMessageEl = document.getElementById('forgotPasswordMessage');
         const forgotPasswordForm = document.getElementById('forgotPasswordForm');
 
+        // New: Admin & Announcement Elements (NEW) <-- TAMBAHKAN DARI SINI
+const announcementDisplayEl = document.getElementById('announcementDisplay');
+const adminSection = document.getElementById('adminSection');
+const announcementForm = document.getElementById('announcementForm');
+const announcementTitleInput = document.getElementById('announcementTitle');
+const announcementContentInput = document.getElementById('announcementContent');
+const activeAnnouncementsEl = document.getElementById('activeAnnouncements');
+// End of New: Admin & Announcement Elements
+        
         // Notification Container
         const notificationContainer = document.getElementById('notificationContainer');
 
@@ -1796,6 +1840,11 @@
         let unsubscribeCategories = null;
         let unsubscribeBudgets = null;
         let unsubscribeDebts = null; // Listener for debts
+        let unsubscribeAnnouncements = null; // <-- (NEW) Listener for global announcements
+
+// State Variables for Admin/Role/Announcements
+window._currentUserRole = 'guest'; // <-- (NEW) Store user's role (admin/user/guest)
+window._activeAnnouncements = []; // <-- (NEW) Store active announcements
 
         // --- Utility Functions ---
 
@@ -1859,12 +1908,18 @@
         // --- Authentication Functions ---
 
         // Firebase Auth State Listener
+       // Firebase Auth State Listener
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 // Check if email is verified
                 if (user.emailVerified) {
                     isLoggedIn = true;
                     currentFirebaseUser = user;
+
+                    // Fetch User Role (NEW) <-- TAMBAHKAN INI
+                    const roleDoc = await getDoc(doc(db, `artifacts/${appId}/users/${user.uid}/metadata`, 'role'));
+                    window._currentUserRole = roleDoc.exists() ? roleDoc.data().role : 'user';
+
                     showSection('dashboardSection');
                     dashboardUsernameEl.textContent = user.email; // Display email as username
                     sidebarUsername.textContent = user.email; // Display email as username
@@ -1874,6 +1929,7 @@
                     await signOut(auth);
                     isLoggedIn = false;
                     currentFirebaseUser = null;
+                    window._currentUserRole = 'guest'; // Reset role (NEW)
                     showSection('authSection');
                     unsubscribeAllFirestoreListeners();
                     showMessage(authMessage, 'Email Anda belum diverifikasi. Silakan cek kotak masuk Anda untuk tautan verifikasi.', true);
@@ -1882,11 +1938,17 @@
             } else {
                 isLoggedIn = false;
                 currentFirebaseUser = null;
+                window._currentUserRole = 'guest'; // Reset role (NEW)
                 showSection('authSection');
                 unsubscribeAllFirestoreListeners(); // Unsubscribe on logout
             }
             updateUIBasedOnAuth();
         });
+
+        // Helper to get current user's Role
+        function getCurrentUserRole() { // <-- TAMBAHKAN INI
+            return window._currentUserRole;
+        }
 
         async function handleAuth(event) {
             event.preventDefault();
@@ -1906,13 +1968,18 @@
                     // Send email verification
                     await sendEmailVerification(userCredential.user);
 
-                    // Initialize user data in Firestore
+                 // Initialize user data in Firestore
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'categories'), {
                         list: ['Makanan', 'Transportasi', 'Gaji', 'Hiburan', 'Tagihan', 'Lain-lain', 'Pembayaran Utang', 'Penerimaan Piutang'] // Added new categories
                     });
                     await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'budgets'), {
                         list: []
                     });
+                    // Set default role to 'user' (NEW) <-- TAMBAHKAN INI
+                    await setDoc(doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/metadata`, 'role'), {
+                        role: 'user'
+                    });
+// ...
 
                     showMessage(authMessage, 'Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan cek kotak masuk Anda untuk tautan verifikasi.', false);
                     showNotification('Registrasi berhasil! Link verifikasi telah dikirim ke email Anda. Silakan verifikasi email Anda sebelum login.', 'success', 5000);
@@ -2021,6 +2088,17 @@
                 });
                 sidebarUsername.textContent = ''; // Clear username in sidebar
             }
+                    // NEW: Toggle Admin Section Visibility <-- TAMBAHKAN DARI SINI
+        const adminSection = document.getElementById('adminSection');
+        if (adminSection) {
+            if (getCurrentUserRole() === 'admin') {
+                adminSection.classList.remove('hidden');
+            } else {
+                adminSection.classList.add('hidden');
+            }
+        }
+        // End NEW: Toggle Admin Section Visibility
+    }
         }
 
         // --- Firestore Data Management ---
@@ -2074,6 +2152,19 @@
                 showNotification('Gagal memuat anggaran. Silakan coba lagi.', 'error');
             });
 
+     // Announcements listener (GLOBAL - NEW) <-- TAMBAHKAN DARI SINI
+            const announcementsRef = collection(db, `artifacts/${appId}/announcements`);
+            unsubscribeAnnouncements = onSnapshot(announcementsRef, (snapshot) => {
+                const announcements = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Firestore Announcements updated:", announcements);
+                window._activeAnnouncements = announcements;
+                renderAnnouncements(); // Re-render announcements on update
+            }, (error) => {
+                console.error("Error fetching announcements:", error);
+                showNotification('Gagal memuat pengumuman.', 'error');
+            });
+            // End of Announcements listener
+            
             // Debts listener (NEW)
             const debtsRef = collection(db, `artifacts/${appId}/users/${uid}/debts`);
             unsubscribeDebts = onSnapshot(debtsRef, (snapshot) => {
@@ -2093,6 +2184,8 @@
             if (unsubscribeCategories) unsubscribeCategories();
             if (unsubscribeBudgets) unsubscribeBudgets();
             if (unsubscribeDebts) unsubscribeDebts(); // Unsubscribe debts
+             if (unsubscribeAnnouncements) unsubscribeAnnouncements(); // (NEW) Unsubscribe announcements <-- TAMBAHKAN INI
+            
             window._userTransactions = [];
             window._userCategories = [];
             window._userBudgets = [];
@@ -3922,6 +4015,79 @@
             return categoryTotals;
         }
 
+
+// --- Announcement Functions (NEW) ---
+
+        function renderAnnouncements() {
+            const announcements = window._activeAnnouncements || [];
+            // Filter hanya pengumuman yang aktif
+            const active = announcements.filter(a => a.isActive);
+            const userRole = window._currentUserRole;
+
+            // 1. Render Dashboard Display (untuk semua user)
+            announcementDisplayEl.innerHTML = '';
+            if (active.length > 0) {
+                // Tampilkan pengumuman terbaru (sort by creation date)
+                const latest = active.sort((a, b) => {
+                    const dateA = a.createdAt.toDate();
+                    const dateB = b.createdAt.toDate();
+                    return dateB - dateA;
+                })[0];
+                announcementDisplayEl.innerHTML = `
+                    <p class="font-bold text-lg text-blue-800">PENGUMUMAN: ${latest.title}</p>
+                    <p class="text-base text-gray-700 mt-1">${latest.content}</p>
+                    <p class="text-xs text-gray-500 mt-2">Dibuat: ${latest.createdAt.toDate().toLocaleDateString('id-ID')}</p>
+                `;
+                announcementDisplayEl.classList.remove('hidden');
+            } else {
+                announcementDisplayEl.classList.add('hidden');
+            }
+
+            // 2. Render Admin List (Hanya jika Admin)
+            if (userRole === 'admin' && activeAnnouncementsEl) {
+                activeAnnouncementsEl.innerHTML = '';
+                if (active.length === 0) {
+                    activeAnnouncementsEl.innerHTML = '<p class="text-gray-500 text-center text-base">Tidak ada pengumuman aktif.</p>';
+                } else {
+                    active.forEach(ann => {
+                        const annDiv = document.createElement('div');
+                        annDiv.className = 'p-4 rounded-xl border border-gray-300 bg-white shadow-sm flex justify-between items-start';
+                        annDiv.innerHTML = `
+                            <div>
+                                <p class="font-semibold text-gray-800">${ann.title}</p>
+                                <p class="text-sm text-gray-600 mt-1">${ann.content}</p>
+                                <p class="text-xs text-gray-500 mt-1">Dibuat: ${ann.createdAt.toDate().toLocaleDateString('id-ID')}</p>
+                            </div>
+                            <button class="btn-danger btn-icon text-xs px-3 py-1.5 ml-4" onclick="deleteAnnouncement('${ann.id}')" title="Hapus Pengumuman"><i data-feather="trash" class="feather-icon !mr-0"></i></button>
+                        `;
+                        activeAnnouncementsEl.appendChild(annDiv);
+                    });
+                    feather.replace();
+                }
+            }
+        }
+        window.renderAnnouncements = renderAnnouncements; // Expose globally
+
+        async function deleteAnnouncement(id) {
+            if (window._currentUserRole !== 'admin') {
+                showNotification('Akses ditolak. Hanya Admin yang dapat menghapus pengumuman.', 'error');
+                return;
+            }
+            confirmAction('Apakah Anda yakin ingin menghapus pengumuman ini?', async () => {
+                try {
+                    // Koleksi pengumuman global: artifacts/{appId}/announcements
+                    await deleteDoc(doc(db, `artifacts/${appId}/announcements`, id));
+                    showNotification('Pengumuman berhasil dihapus!', 'success');
+                } catch (error) {
+                    console.error("Error deleting announcement:", error);
+                    showNotification('Gagal menghapus pengumuman. Silakan coba lagi.', 'error');
+                }
+            });
+        }
+        window.deleteAnnouncement = deleteAnnouncement; // Expose globally
+
+        // --- End Announcement Functions ---
+    
         function renderTopCategoriesChart(canvasElement, categoryData, titlePrefix, type) {
             let chartInstance;
             if (canvasElement === topExpenseCategoriesChartCanvas) {
@@ -4705,6 +4871,41 @@
 
         // Add Category Form Submission
         addCategoryForm.addEventListener('submit', addCategory);
+
+        // NEW: Announcement Form Submission (Admin) <-- TAMBAHKAN DARI SINI
+        if (announcementForm) {
+            announcementForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                if (window._currentUserRole !== 'admin') {
+                    showNotification('Akses ditolak. Hanya Admin yang dapat mengirim pengumuman.', 'error');
+                    return;
+                }
+
+                const title = announcementTitleInput.value.trim();
+                const content = announcementContentInput.value.trim();
+
+                if (!title || !content) {
+                    showNotification('Judul dan isi pengumuman tidak boleh kosong.', 'error');
+                    return;
+                }
+
+                try {
+                    // Simpan pengumuman ke koleksi global
+                    await addDoc(collection(db, `artifacts/${appId}/announcements`), {
+                        title: title,
+                        content: content,
+                        createdAt: new Date(),
+                        isActive: true
+                    });
+                    showNotification('Pengumuman berhasil dikirim!', 'success');
+                    announcementForm.reset();
+                } catch (error) {
+                    console.error("Error adding announcement:", error);
+                    showNotification('Gagal mengirim pengumuman. Silakan coba lagi.', 'error');
+                }
+            });
+        }
+        // End NEW: Announcement Form Submission
 
         // Local Data Import/Export
         exportAllDataBtn.addEventListener('click', exportAllData);
