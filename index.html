@@ -1364,42 +1364,53 @@
                     <button id="sendWhatsappSummaryBtn" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="send" class="feather-icon"></i> Kirim Semua Transaksi ke WhatsApp</button>
                 </div>
 
-                <div class="card p-6">
+             <div class="card p-6">
                     <h3 class="text-2xl font-bold mb-6 text-gray-800">Ekspor Data Transaksi (CSV)</h3>
                     <p class="text-gray-700 mb-4 text-base">Unduh semua transaksi Anda dalam format CSV.</p>
                     <button id="exportDataBtn" class="btn-primary font-semibold text-lg py-3"><i data-feather="file-text" class="feather-icon"></i> Ekspor Transaksi ke CSV</button>
                 </div>
 
-<div id="adminSection" class="hidden">
-    <h2 class="text-3xl font-bold mb-8 text-red-600">Admin Panel</h2>
+                <div id="adminSection" class="hidden">
+                    <h2 class="text-3xl font-bold mb-8 text-red-600">Admin Panel</h2>
 
-    <div class="card p-6 mb-8">
-        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengguna</h3>
-        <p class="text-red-500 mb-4 text-base font-semibold">Fitur ini membutuhkan Firebase Cloud Functions untuk keamanan. Di sini hanya berupa placeholder.</p>
-        <div id="userList" class="space-y-4">
-            <p class="text-gray-500 text-center text-base">Kelola Pengguna tidak berfungsi dari klien tanpa server backend.</p>
-        </div>
-    </div>
+                    <div class="card p-6 mb-8">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengguna</h3>
+                        <p class="text-red-500 mb-4 text-base font-semibold">Fitur ini membutuhkan Firebase Cloud Functions untuk keamanan. Di sini hanya berupa placeholder.</p>
+                        <div id="userList" class="space-y-4">
+                            <p class="text-gray-500 text-center text-base">Kelola Pengguna tidak berfungsi dari klien tanpa server backend.</p>
+                        </div>
+                    </div>
 
-    <div class="card p-6 mb-8">
-        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengumuman</h3>
-        <form id="announcementForm" class="space-y-6">
-            <div>
-                <label for="announcementTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Pengumuman</label>
-                <input type="text" id="announcementTitle" placeholder="Judul Pengumuman" required class="block">
-            </div>
-            <div>
-                <label for="announcementContent" class="block text-sm font-medium text-gray-700 mb-2">Isi Pengumuman</label>
-                <textarea id="announcementContent" rows="4" placeholder="Isi pengumuman..." required class="block w-full"></textarea>
-            </div>
-            <button type="submit" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="send" class="feather-icon"></i> Kirim Pengumuman</button>
-        </form>
-        <div id="activeAnnouncements" class="mt-6 space-y-4">
-            <p class="text-gray-500 text-center text-base">Tidak ada pengumuman aktif.</p>
-        </div>
-    </div>
-</div>
-<div class="card p-6 mt-8">
+                    <div class="card p-6 mb-8">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800">Kelola Pengumuman</h3>
+                        <form id="announcementForm" class="space-y-6">
+                            <div>
+                                <label for="announcementTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul Pengumuman</label>
+                                <input type="text" id="announcementTitle" placeholder="Judul Pengumuman" required class="block">
+                            </div>
+                            <div>
+                                <label for="announcementContent" class="block text-sm font-medium text-gray-700 mb-2">Isi Pengumuman</label>
+                                <textarea id="announcementContent" rows="4" placeholder="Isi pengumuman..." required class="block w-full"></textarea>
+                            </div>
+                            <button type="submit" class="w-full btn-primary font-semibold text-lg py-3"><i data-feather="send" class="feather-icon"></i> Kirim Pengumuman</button>
+                        </form>
+                        <div id="activeAnnouncements" class="mt-6 space-y-4">
+                            <p class="text-gray-500 text-center text-base">Tidak ada pengumuman aktif.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6 mt-8">
+                    <h3 class="text-2xl font-bold mb-6 text-red-600">Hapus Akun</h3>
+                    <p class="text-gray-700 mb-4 text-base">Menghapus akun Anda akan menghapus semua data Anda secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
+                    <button id="deleteAccountBtn" class="w-full btn-danger font-semibold text-lg py-3"><i data-feather="trash-2" class="feather-icon"></i> Hapus Akun Saya</button>
+                </div>
+                <div class="card p-6 mt-8">
+                    <h3 class="text-2xl font-bold mb-6 text-gray-800">Sesi Akun</h3>
+                    <button id="logoutBtn" class="w-full btn-primary text-base font-semibold py-3 px-4 rounded-xl shadow-lg"><i data-feather="log-out" class="feather-icon"></i> Logout</button>
+                </div>
+                </section>
+
+
                 
                 <div class="card p-6 mt-8">
                     <h3 class="text-2xl font-bold mb-6 text-red-600">Hapus Akun</h3>
