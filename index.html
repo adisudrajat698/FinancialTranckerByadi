@@ -4848,7 +4848,128 @@ savingsCalculatorForm.reset();
 
   });
 
+<!-- ==== ADMIN MANAGEMENT SECTION ==== -->
+<section id="adminUserSection" class="hidden">
+  <h2 class="text-3xl font-bold mb-8 text-gray-800">Kelola User</h2>
+  <div class="card p-6">
+    <h3 class="text-2xl font-bold mb-4 text-gray-800">Daftar User</h3>
+    <table id="userTable" class="responsive-table w-full">
+      <thead>
+        <tr><th>Email</th><th>Role</th><th>Aksi</th></tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+    <button id="addUserBtn" class="mt-5 btn-primary"><i data-feather="user-plus" class="feather-icon"></i> Tambah User</button>
+  </div>
+</section>
 
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } 
+  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, query } 
+  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDvf_Rg89uX9ODamiUjTCZ-ZTIYA2C7a7w",
+  authDomain: "keuanganadi.firebaseapp.com",
+  projectId: "keuanganadi",
+  storageBucket: "keuanganadi.firebasestorage.app",
+  messagingSenderId: "829317955644",
+  appId: "1:829317955644:web:ecd350db338c02ab0fc339",
+  measurementId: "G-WDNBRP6DB5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ✅ Buat admin default kalau belum ada
+(async () => {
+  const adminRef = doc(db, "users", "admin@adiwallet.com");
+  const snap = await getDoc(adminRef);
+  if (!snap.exists()) {
+    await setDoc(adminRef, { email: "admin@adiwallet.com", role: "admin" });
+  }
+})();
+
+// 🔐 Cek login dan role
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const userDoc = await getDoc(doc(db, "users", user.email));
+    const role = userDoc.exists() ? userDoc.data().role : "user";
+
+    if (role === "admin") {
+      document.querySelector("#adminUserSection").classList.remove("hidden");
+      // tambahin menu di sidebar
+      const ul = document.querySelector(".sidebar ul");
+      if (!document.querySelector("#adminMenuItem")) {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#" class="sidebar-item" id="adminMenuItem" data-section="adminUser">
+          <i data-feather="users" class="feather-icon"></i> Kelola User</a>`;
+        ul.appendChild(li);
+        feather.replace();
+      }
+      loadUsers();
+    }
+  }
+});
+
+// 🧩 Fungsi load user
+async function loadUsers() {
+  const q = query(collection(db, "users"));
+  const snap = await getDocs(q);
+  const tbody = document.querySelector("#userTableBody");
+  tbody.innerHTML = "";
+  snap.forEach((docu) => {
+    const data = docu.data();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${data.email}</td>
+      <td>
+        <select class="roleSelect border rounded px-2 py-1" data-email="${data.email}">
+          <option value="user" ${data.role === "user" ? "selected" : ""}>User</option>
+          <option value="admin" ${data.role === "admin" ? "selected" : ""}>Admin</option>
+        </select>
+      </td>
+      <td><button class="btn-danger deleteUserBtn" data-email="${data.email}"><i data-feather="trash-2" class="feather-icon"></i></button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  feather.replace();
+  attachUserEvents();
+}
+
+// 🧩 Ganti role atau hapus
+function attachUserEvents() {
+  document.querySelectorAll(".roleSelect").forEach(sel => {
+    sel.addEventListener("change", async (e) => {
+      const email = e.target.dataset.email;
+      const newRole = e.target.value;
+      await updateDoc(doc(db, "users", email), { role: newRole });
+      alert(Role ${email} diubah jadi ${newRole});
+    });
+  });
+
+  document.querySelectorAll(".deleteUserBtn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const email = btn.dataset.email;
+      if (confirm(Yakin hapus ${email}?)) {
+        await deleteDoc(doc(db, "users", email));
+        loadUsers();
+      }
+    });
+  });
+}
+
+// ➕ Tambah user baru manual
+document.getElementById("addUserBtn").addEventListener("click", async () => {
+  const email = prompt("Masukkan email user baru:");
+  const role = prompt("Masukkan role (admin/user):", "user");
+  if (email) {
+    await setDoc(doc(db, "users", email), { email, role });
+    loadUsers();
+  }
+});
     </script>
 </body>
 </html>
