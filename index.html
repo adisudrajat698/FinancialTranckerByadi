@@ -4848,6 +4848,389 @@ savingsCalculatorForm.reset();
 
   });
 
+        <script type="module">
+/*
+  ADMIN ROLE + PENGUMUMAN (untuk satu-file SPA)
+  - Paste this block at the end of your index.html, before </body>.
+  - This script expects firebaseConfig to be defined somewhere in your HTML (global var).
+  - It does NOT include credentials. If you already have firebase initialization,
+    this code will reuse that config.
+*/
+
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc,
+  updateDoc, onSnapshot, query, orderBy, serverTimestamp, where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+(async function initAdminEnhancements(){
+  // --- 0. Ensure firebaseConfig exists ---
+  if (typeof window.firebaseConfig === 'undefined') {
+    console.error('firebaseConfig not found. Make sure your index.html defines firebaseConfig globally before this script.');
+    // Stop further init to avoid errors.
+    return;
+  }
+
+  // --- 1. Initialize app (only once) ---
+  let app;
+  if (!getApps().length) {
+    app = initializeApp(window.firebaseConfig);
+  } else {
+    // reuse existing app
+    app = getApps()[0];
+  }
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // --- 2. Utility: showSection (your app uses similar; this ensures compatibility) ---
+  function showSection(sectionId) {
+    document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+    const sec = document.getElementById(sectionId);
+    if (sec) sec.classList.remove('hidden');
+    // update active sidebar item
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    const sidebarItem = document.querySelector(`.sidebar-item[data-section="${sectionId}"]`);
+    if (sidebarItem) sidebarItem.classList.add('active');
+  }
+
+  // --- 3. Create admin section HTML (append to main) if not exists ---
+  function ensureAdminSectionExists() {
+    if (document.getElementById('adminSection')) return;
+
+    const adminHtml = `
+      <section id="adminSection" class="hidden">
+        <h2 class="text-3xl font-bold mb-8 text-gray-800">Panel Admin</h2>
+
+        <div class="card p-6 mb-8">
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">Buat Pengumuman</h3>
+          <form id="announcementForm" class="space-y-4">
+            <input type="text" id="announcementTitle" placeholder="Judul Pengumuman" required class="block w-full">
+            <textarea id="announcementMessage" placeholder="Isi Pengumuman" required class="block w-full rounded-xl p-4 border"></textarea>
+            <div class="flex gap-3">
+              <button type="submit" class="btn-primary w-full py-3">Kirim Pengumuman</button>
+              <button type="button" id="clearAnnouncementsBtn" class="btn-secondary w-1/3 py-3">Clear (dev)</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card p-6">
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">Daftar Pengguna</h3>
+          <div id="userList" class="space-y-3">
+            <p class="text-gray-500 text-center">Memuat pengguna...</p>
+          </div>
+        </div>
+      </section>
+    `;
+    const main = document.querySelector('main');
+    main.insertAdjacentHTML('beforeend', adminHtml);
+  }
+
+  // --- 4. Add announcement area to dashboard if not exists ---
+  function ensureAnnouncementAreaOnDashboard() {
+    const dash = document.getElementById('dashboardSection');
+    if (!dash) return;
+    if (!document.getElementById('announcementArea')) {
+      const el = document.createElement('div');
+      el.id = 'announcementArea';
+      el.className = 'mb-6';
+      dash.prepend(el);
+    }
+  }
+
+  ensureAdminSectionExists();
+  ensureAnnouncementAreaOnDashboard();
+
+  // --- 5. Sidebar admin menu ---
+  function tambahMenuAdmin() {
+    if (document.getElementById('adminSidebarItem')) return;
+    const sidebar = document.querySelector('nav ul');
+    if (!sidebar) return;
+    const li = document.createElement('li');
+    li.id = 'adminSidebarItem';
+    li.innerHTML = `
+      <a href="#" class="sidebar-item" data-section="admin">
+        <i data-feather="shield" class="feather-icon"></i> Admin Panel
+      </a>`;
+    sidebar.appendChild(li);
+    if (typeof feather !== 'undefined') feather.replace();
+    // attach click handler (delegation is fine in your app; but ensure it shows section)
+    li.querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+      showSection('admin');
+      window.scrollTo(0,0);
+    });
+  }
+
+  // --- 6. Auth form interception: adapt to your existing auth form ---
+  const authForm = document.getElementById('authForm');
+  const authTitleEl = document.getElementById('authTitle');
+  const authMessage = document.getElementById('authMessage');
+
+  // Helper to display messages
+  function showAuthError(msg) {
+    if (!authMessage) return;
+    authMessage.textContent = msg;
+    authMessage.classList.remove('hidden');
+    setTimeout(()=> authMessage.classList.add('hidden'), 5000);
+  }
+
+  if (authForm) {
+    authForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = (document.getElementById('username') || {}).value;
+      const password = (document.getElementById('password') || {}).value;
+
+      if (!email || !password) {
+        showAuthError('Email dan password wajib diisi.');
+        return;
+      }
+
+      try {
+        let userCredential;
+        if (authTitleEl && authTitleEl.textContent.trim().toLowerCase().includes('login')) {
+          // LOGIN
+          userCredential = await signInWithEmailAndPassword(auth, email, password);
+        } else {
+          // REGISTER
+          userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          // create user doc in firestore with default role user
+          await setDoc(doc(db, 'users', userCredential.user.uid), {
+            email: userCredential.user.email,
+            role: 'user',
+            createdAt: serverTimestamp()
+          });
+        }
+
+        // after login, the onAuthStateChanged below will handle UI changes and loading role
+      } catch (err) {
+        console.error(err);
+        showAuthError(err.message || 'Auth error');
+      }
+    });
+  }
+
+  // --- 7. signout button (if exists in your app) ---
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      // optionally clear UI and go to auth
+      showSection('auth');
+      sessionStorage.removeItem('currentRole');
+      sessionStorage.removeItem('currentEmail');
+    });
+  }
+
+  // --- 8. Real-time announcement loading (and dashboard display) ---
+  const announcementsCol = collection(db, 'announcements');
+  const announcementsQuery = query(announcementsCol, orderBy('date', 'desc'));
+
+  function renderAnnouncementsList(snapshot) {
+    const container = document.getElementById('announcementArea');
+    if (!container) return;
+    if (snapshot.empty) {
+      container.innerHTML = '';
+      return;
+    }
+    // build html
+    let html = '';
+    snapshot.forEach(docSnap => {
+      const a = docSnap.data();
+      const title = a.title || '';
+      const message = a.message || '';
+      let ts = '';
+      if (a.date && a.date.toDate) {
+        ts = a.date.toDate().toLocaleString();
+      } else if (a.date && a.date.seconds) {
+        ts = new Date(a.date.seconds * 1000).toLocaleString();
+      }
+      html += `
+        <div class="card p-4 mb-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="font-bold text-blue-600">${escapeHtml(title)}</h3>
+              <p class="text-gray-600 mt-1">${escapeHtml(message)}</p>
+              <p class="text-sm text-gray-400 mt-2">${escapeHtml(ts)}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  // helper escape to prevent XSS via announcement content
+  function escapeHtml(str='') {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // subscribe to announcements updates
+  onSnapshot(announcementsQuery, (snap) => {
+    renderAnnouncementsList(snap);
+  });
+
+  // --- 9. Announcement form handler (admin only) ---
+  async function handleAnnouncementSubmit(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const titleEl = document.getElementById('announcementTitle');
+    const messageEl = document.getElementById('announcementMessage');
+    if (!titleEl || !messageEl) return;
+    const title = titleEl.value.trim();
+    const message = messageEl.value.trim();
+    if (!title || !message) {
+      alert('Judul dan isi pengumuman harus diisi.');
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'announcements'), {
+        title,
+        message,
+        author: auth.currentUser ? auth.currentUser.email : 'unknown',
+        date: serverTimestamp()
+      });
+      titleEl.value = '';
+      messageEl.value = '';
+      alert('Pengumuman terkirim.');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal kirim pengumuman: ' + (err.message || err));
+    }
+  }
+
+  // "clear announcements" dev helper (optional) - it's destructive; keep for dev
+  async function clearAnnouncements() {
+    // WARNING: This will not delete documents via batched deletes here because deleting many docs
+    // is more involved. We'll keep this button as a placeholder for devs.
+    alert('Clear announcements button is a placeholder. Implement server-side or admin console deletion if needed.');
+  }
+
+  // attach handlers if admin form exists
+  function attachAdminFormHandlers() {
+    const aForm = document.getElementById('announcementForm');
+    if (aForm) {
+      aForm.addEventListener('submit', handleAnnouncementSubmit);
+    }
+    const clearBtn = document.getElementById('clearAnnouncementsBtn');
+    if (clearBtn) clearBtn.addEventListener('click', clearAnnouncements);
+  }
+
+  // --- 10. Users listing for admin (realtime) ---
+  const usersCol = collection(db, 'users');
+  function renderUsers(snapshot) {
+    const container = document.getElementById('userList');
+    if (!container) return;
+    if (snapshot.empty) {
+      container.innerHTML = `<p class="text-gray-500 text-center">Belum ada pengguna.</p>`;
+      return;
+    }
+    let html = '';
+    snapshot.forEach(docSnap => {
+      const u = docSnap.data();
+      const uid = docSnap.id;
+      const email = u.email || '(no email)';
+      const role = u.role || 'user';
+      html += `
+        <div class="p-3 border rounded-xl flex justify-between items-center">
+          <div>
+            <p class="font-semibold">${escapeHtml(email)}</p>
+            <p class="text-sm text-gray-500">Role: <span id="role-${uid}">${escapeHtml(role)}</span></p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn-secondary px-3 py-1 rounded-lg" data-uid="${uid}" data-action="promote">Jadikan Admin</button>
+            <button class="btn-secondary px-3 py-1 rounded-lg" data-uid="${uid}" data-action="demote">Jadikan User</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    // attach click events for promote/demote
+    container.querySelectorAll('button[data-action]').forEach(btn => {
+      btn.addEventListener('click', async (ev) => {
+        const uid = btn.getAttribute('data-uid');
+        const action = btn.getAttribute('data-action');
+        if (!uid) return;
+        try {
+          if (action === 'promote') {
+            await updateDoc(doc(db, 'users', uid), { role: 'admin' });
+            alert('User dipromote menjadi admin.');
+          } else {
+            await updateDoc(doc(db, 'users', uid), { role: 'user' });
+            alert('User di-set menjadi user biasa.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Gagal update role: ' + (err.message || err));
+        }
+      });
+    });
+  }
+
+  // subscribe to users changes (real-time). This will list every doc in collection 'users'.
+  onSnapshot(usersCol, (snap) => {
+    renderUsers(snap);
+  });
+
+  // --- 11. When auth state changes: load role, show admin UI if needed ---
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // not logged in
+      sessionStorage.removeItem('currentRole');
+      sessionStorage.removeItem('currentEmail');
+      // show auth page
+      showSection('auth');
+      return;
+    }
+    // logged in
+    const uid = user.uid;
+    const email = user.email || '';
+    sessionStorage.setItem('currentEmail', email);
+
+    // load user doc (if not exist, create with default role "user", except for admin email)
+    const userDocRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userDocRef);
+    if (!userSnap.exists()) {
+      // if this email is admin@adiwallet.com -> set role admin
+      const initialRole = (String(email).toLowerCase() === 'admin@adiwallet.com') ? 'admin' : 'user';
+      await setDoc(userDocRef, { email, role: initialRole, createdAt: serverTimestamp() }, { merge: true });
+      sessionStorage.setItem('currentRole', initialRole);
+    } else {
+      const r = (userSnap.data() && userSnap.data().role) ? userSnap.data().role : 'user';
+      sessionStorage.setItem('currentRole', r);
+    }
+
+    // show dashboard
+    const role = sessionStorage.getItem('currentRole');
+    if (role === 'admin') {
+      tambahMenuAdmin();
+      // ensure admin section handlers attached
+      attachAdminFormHandlers();
+      // allow showing admin section if user clicks it
+    }
+
+    // display username on sidebar and dashboard
+    const displayNameEl = document.getElementById('sidebarUsername');
+    if (displayNameEl) displayNameEl.textContent = email;
+
+    const dashboardUsernameEl = document.getElementById('dashboardUsername');
+    if (dashboardUsernameEl) dashboardUsernameEl.textContent = email;
+
+    // call loadAnnouncement (real-time set up already)
+    showSection('dashboard');
+  });
+
+
+  // --- 12. Safety: instruct the user about Firestore rules (console hint) ---
+  console.log('Admin enhancements loaded. If you want to restrict admin-only writes, configure Firestore security rules appropriately.');
+
+})(); // end init
+
 
     </script>
 </body>
