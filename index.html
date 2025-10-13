@@ -940,6 +940,11 @@
                     <img src="profile.png" alt="User Avatar" class="w-16 h-16 rounded-full border-2 border-blue-300 shadow-sm">
                     <p class="text text-gray-500">Selamat datang, <span id="dashboardUsername" class="font-bold text-blue-500"></span>!</p>
                 </div>
+                <div id="announcementBox" class="card p-6 mb-6 hidden">
+  <h3 id="announcementTitle" class="text-2xl font-bold text-blue-600 mb-2"></h3>
+  <p id="announcementMessage" class="text-gray-700"></p>
+</div>
+
                 <div id="noRecordsMessage" class="card p-4 mb-6 text-center text-gray-700 text-base hidden no-records-message">
                     <!-- Message will be inserted here by JavaScript -->
                 </div>
@@ -4848,7 +4853,31 @@ savingsResult.classList.add("text-blue-600");
 savingsCalculatorForm.reset();
 
   });
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
+  const firebaseConfig = {
+    apiKey: "AIzaSyDvf_Rg89uX9ODamiUjTCZ-ZTIYA2C7a7w",
+    authDomain: "keuanganadi.firebaseapp.com",
+    projectId: "keuanganadi",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadAnnouncement() {
+    const q = query(collection(db, "announcements"), orderBy("date", "desc"), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      document.getElementById("announcementTitle").textContent = data.title;
+      document.getElementById("announcementMessage").textContent = data.message;
+      document.getElementById("announcementBox").classList.remove("hidden");
+    });
+  }
+
+  loadAnnouncement();
 
     </script>
 </body>
