@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -886,8 +887,6 @@
               <li id="analysisSidebarItem"><a href="#" class="sidebar-item" data-section="analysis"><i data-feather="pie-chart" class="feather-icon"></i> Analisis Keuangan </a></li>
               <li id="settingsSidebarItem"><a href="#" class="sidebar-item" data-section="settings"><i data-feather="settings" class="feather-icon"></i> Pengaturan </a></li>
               <li id="helpSidebarItem"><a href="#" class="sidebar-item" data-section="help"><i data-feather="help-circle" class="feather-icon"></i> Bantuan </a></li>
-              <!-- NEW: Admin Sidebar Item -->
-              <li id="adminSidebarItem" class="hidden"><a href="#" class="sidebar-item" data-section="admin"><i data-feather="shield" class="feather-icon"></i> Admin Panel </a></li>
             </ul>
         </nav>
         <!-- Logout button removed from here -->
@@ -1395,41 +1394,7 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- NEW: Admin Section -->
-            <section id="adminSection" class="hidden">
-                <h2 class="text-3xl font-bold mb-8 text-gray-800">Admin Panel</h2>
-                <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Kelola Pengguna</h3>
-                    <div id="adminUsersList" class="space-y-3">
-                        <p class="text-gray-500 text-center text-base">Memuat daftar pengguna...</p>
-                    </div>
-                </div>
-                <div class="card p-6 mb-8">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Buat Pengumuman Aplikasi</h3>
-                    <form id="announcementForm" class="space-y-4">
-                        <div>
-                            <label for="announcementTitle" class="block text-sm font-medium text-gray-700 mb-2">Judul</label>
-                            <input type="text" id="announcementTitle" required class="block w-full" placeholder="Judul pengumuman">
-                        </div>
-                        <div>
-                            <label for="announcementBody" class="block text-sm font-medium text-gray-700 mb-2">Isi Pengumuman</label>
-                            <textarea id="announcementBody" rows="4" required class="block w-full" placeholder="Tulis pengumuman di sini..."></textarea>
-                        </div>
-                        <div class="flex gap-3">
-                            <button type="submit" class="btn-primary px-5 py-2.5">Publikasikan</button>
-                            <button type="button" id="clearAnnouncementBtn" class="btn-secondary px-5 py-2.5">Bersihkan</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-800">Riwayat Pengumuman</h3>
-                    <div id="announcementHistory" class="space-y-3">
-                        <p class="text-gray-500 text-center text-base">Belum ada pengumuman.</p>
-                    </div>
-                </div>
-            </section>
-        </main>
+            </main>
 
         <!-- Footer -->
         <footer class="bg-gray-900 text-white text-center p-5 text-sm mt-auto shadow-inner-up md:hidden">
@@ -4884,7 +4849,7 @@ savingsCalculatorForm.reset();
 
   });
 
-const appId = "c_13e87c7f0022a3a2_adiwallet-app-332";
+
     </script>
 </body>
 </html>
